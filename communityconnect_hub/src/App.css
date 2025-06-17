@@ -55,50 +55,100 @@ body {
   color: var(--text-color);
 }
 
-.hub-navbar {
-  background: var(--panel-bg);
-  padding: 18px 0;
-  border-bottom: 1.5px solid var(--primary);
-  position: fixed;
+/* ------------------- LAYOUT: HEADER BAR AND NAVBAR ------------------- */
+/* Header bar at top with large white website name */
+.hub-headerbar {
   width: 100%;
-  top: 0;
-  z-index: 120;
-  transition: background 0.18s, border 0.16s;
-}
-.hub-logo {
-  font-weight: 700;
-  font-size: 1.27rem;
-  color: var(--primary);
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 2px #c8000032, 0 1px 4px #0004;
+  background: var(--dark-bg);
+  text-align: center;
+  padding: 38px 0 0 0;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 200;
+  min-height: 68px;
 }
 
-/* Centered Nav Title - prominent white title for navbar */
 .hub-navbar-title {
   font-family: inherit;
-  font-size: 2.1rem;
+  font-size: 2.7rem;
   font-weight: 800;
   color: #fff !important;
   letter-spacing: 0.015em;
   text-shadow:
-    0 2px 12px #000a,
-    0 0 5px #c8000020;
+    0 3px 16px #000c,
+    0 1px 7px #c8000035;
   text-align: center;
-  line-height: 1.02;
-  margin: 0 auto;
-  padding-block: 0;
+  line-height: 1.06;
+  margin: 0 auto 2px auto;
+  padding: 0 0 2px 0;
   background: transparent;
   pointer-events: auto;
   user-select: text;
 }
-
 @media (max-width: 700px) {
+  .hub-headerbar {
+    padding-top: 25px;
+    min-height: 44px;
+  }
   .hub-navbar-title {
-    font-size: 1.27rem;
-    white-space: pre-line;
+    font-size: 1.35rem;
     padding-inline: 4px;
   }
 }
+
+/* Navigation bar below header */
+.hub-navbar {
+  width: 100%;
+  background: var(--panel-bg);
+  border-bottom: 2px solid var(--primary);
+  box-sizing: border-box;
+  z-index: 180;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  transition: background 0.14s, border 0.14s;
+  position: relative;
+}
+.container.navbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 50px;
+  width: 100%;
+  padding: 0 26px;
+  box-sizing: border-box;
+  gap: 0;
+}
+.hub-navbar-links {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+.hub-navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 700px) {
+  .container.navbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0 4px;
+    min-height: 40px;
+    gap: 0;
+  }
+  .hub-navbar-links, .hub-navbar-auth {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Remove/fix legacy navbar and logo rules from old design */
+.hub-logo { display: none; }
 
 /* Enhanced Navigation Links */
 .hub-nav-link {

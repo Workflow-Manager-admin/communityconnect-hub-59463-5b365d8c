@@ -32,109 +32,64 @@ function ColorDot({ color, animated = false }) {
 
 /**
  * PUBLIC_INTERFACE
- * Navbar: updated for centered large website name and new navigation links.
+ * Navbar (navigation links) - sits below main header bar
  */
 function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
-  // Show active tab highlight, keyboard nav & focus, skip to content link for accessibility
   const location = useLocation();
   return (
     <>
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <nav className="navbar hub-navbar" aria-label="Main navigation">
-        <div className="container" style={{ position: "relative", paddingInline: 0 }}>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 58,
-              position: "relative"
-            }}
-          >
-            {/* Nav links */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                minWidth: 0,
-                flex: 1,
-                justifyContent: "flex-start",
-                zIndex: 2
-              }}
-            >
-              <NavLinks active={location.pathname} />
-            </div>
-
-            {/* Centered name */}
-            <div
-              className="hub-navbar-title"
-              aria-label="CommunityConnect Hub home"
-              tabIndex={0}
-              style={{
-                color: "#fff",
-                fontWeight: 800,
-                fontSize: "2rem",
-                lineHeight: 1,
-                letterSpacing: ".013em",
-                textAlign: "center",
-                position: "absolute",
-                left: 0,
-                right: 0,
-                margin: "auto",
-                zIndex: 3,
-                pointerEvents: "auto",
-                userSelect: "text",
-                textShadow: "0 2px 12px #000a, 0 0 5px #c8000022"
-              }}
-            >
-              CommunityConnect Hub
-            </div>
-
-            {/* Auth/User Section (right side) */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-                gap: 15,
-                flex: 1,
-                zIndex: 2
-              }}
-            >
-              {user ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ color: "#fff" }}>Hi, {user.username}</span>
-                  <RippleButton
-                    className="btn btn-accent"
-                    ariaLabel="Log out"
-                    onClick={onLogout}
-                  >
-                    Logout
-                  </RippleButton>
-                </div>
-              ) : (
-                // Login/Register Button Group
-                <div style={{ display: "flex", gap: 7 }}>
-                  <RippleButton
-                    className="btn btn-accent"
-                    style={{ fontSize: "1rem" }}
-                    onClick={onShowLogin}
-                  >Login</RippleButton>
-                  <RippleButton
-                    className="btn"
-                    style={{ fontSize: "1rem" }}
-                    onClick={onShowRegister}
-                  >Register</RippleButton>
-                </div>
-              )}
-            </div>
+      <nav className="hub-navbar" aria-label="Main navigation">
+        <div className="container navbar-row">
+          <div className="hub-navbar-links">
+            <NavLinks active={location.pathname} />
+          </div>
+          <div className="hub-navbar-auth">
+            {user ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ color: "#fff" }}>Hi, {user.username}</span>
+                <RippleButton
+                  className="btn btn-accent"
+                  ariaLabel="Log out"
+                  onClick={onLogout}
+                >
+                  Logout
+                </RippleButton>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 7 }}>
+                <RippleButton
+                  className="btn btn-accent"
+                  style={{ fontSize: "1rem" }}
+                  onClick={onShowLogin}
+                >Login</RippleButton>
+                <RippleButton
+                  className="btn"
+                  style={{ fontSize: "1rem" }}
+                  onClick={onShowRegister}
+                >Register</RippleButton>
+              </div>
+            )}
           </div>
         </div>
       </nav>
     </>
+  );
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * HeaderBar: Large centered website name at very top
+ */
+function HeaderBar() {
+  return (
+    <header className="hub-headerbar" role="banner">
+      <div className="hub-navbar-title" tabIndex={0} aria-label="CommunityConnect Hub home">
+        CommunityConnect Hub
+      </div>
+    </header>
   );
 }
 
@@ -165,7 +120,10 @@ function RippleButton({ className, style, children, onClick, ariaLabel, ...props
   );
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * NavLinks: Top navigation menu links (add "Auth" as last link)
+ */
 function NavLinks({ active }) {
   // Enhanced accessibility & navigation highlight
   const sections = [
@@ -174,6 +132,7 @@ function NavLinks({ active }) {
     { to: "/weather", label: "Weather" },
     { to: "/events", label: "Events" },
     { to: "/emergency-contacts", label: "Emergency Contacts" },
+    { to: "#auth", label: "Auth" }, // Auth as a placeholder (triggers auth modal)
   ];
   function handleNavRipple(ev) {
     const link = ev.currentTarget;
@@ -189,21 +148,38 @@ function NavLinks({ active }) {
 
   return (
     <div style={{ display: "flex", gap: 6 }}>
-      {sections.map((section) => (
-        <Link
-          key={section.to}
-          to={section.to}
-          className={`hub-nav-link${active === section.to ? " active" : ""}`}
-          tabIndex={0}
-          aria-current={active === section.to ? "page" : undefined}
-          onPointerDown={handleNavRipple}
-        >
-          {section.label}
-          {active === section.to && (
-            <span className="hub-nav-underline" />
-          )}
-        </Link>
-      ))}
+      {sections.map((section) =>
+        section.label !== "Auth" ? (
+          <Link
+            key={section.to}
+            to={section.to}
+            className={`hub-nav-link${active === section.to ? " active" : ""}`}
+            tabIndex={0}
+            aria-current={active === section.to ? "page" : undefined}
+            onPointerDown={handleNavRipple}
+          >
+            {section.label}
+            {active === section.to && (
+              <span className="hub-nav-underline" />
+            )}
+          </Link>
+        ) : (
+          <a
+            key="auth"
+            href="#auth"
+            className={`hub-nav-link${active === "#auth" ? " active" : ""}`}
+            tabIndex={0}
+            onClick={e => {
+              e.preventDefault();
+              const btn = document.querySelector('.hub-navbar-auth button.btn-accent');
+              if (btn) btn.focus();
+            }}
+            onPointerDown={handleNavRipple}
+          >
+            {section.label}
+          </a>
+        )
+      )}
     </div>
   );
 }
@@ -710,6 +686,7 @@ function App() {
   return (
     <Router>
       <div className="app hub-app">
+        <HeaderBar />
         <Navbar
           user={user}
           onLogout={handleLogout}
