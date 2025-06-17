@@ -1,212 +1,179 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import "./App.css";
+
+// --- SHARED COMPONENTS ---
+// PUBLIC_INTERFACE
+function ColorDot({ color }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: "10px",
+        height: "10px",
+        borderRadius: "50%",
+        background: color,
+        marginRight: 8
+      }}
+    />
+  );
+}
 
 // PUBLIC_INTERFACE
-function App() {
-  // Caching keys for localStorage
-  const CACHE_KEYS = {
-    news: 'cc_news',
-    weather: 'cc_weather',
-    events: 'cc_events',
-  };
-  const CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
-
-  // States
-  const [user, setUser] = useState(null);
-  const [news, setNews] = useState([]);
-  const [weather, setWeather] = useState(null);
-  const [events, setEvents] = useState([]);
-  const [contacts] = useState([
-    { label: 'Police', phone: '911' },
-    { label: 'Fire Dept.', phone: '911' },
-    { label: 'Ambulance', phone: '911' },
-    { label: 'Poison Control', phone: '1-800-222-1222' },
-    { label: 'Local Emergency', phone: '311' }
-  ]);
-  const [loginModalOpen, setLoginModalOpen] = useState(false);
-
-  // --- DATA FETCH & CACHE HELPERS ---
-
-  // Get cached data with expiry check
-  function getCached(key) {
-    const itemJson = localStorage.getItem(key);
-    if (!itemJson) return null;
-    try {
-      const { data, timestamp } = JSON.parse(itemJson);
-      if (Date.now() - timestamp > CACHE_EXPIRY) return null;
-      return data;
-    } catch {
-      return null;
-    }
-  }
-
-  // Set cache for a key
-  function setCached(key, data) {
-    localStorage.setItem(key, JSON.stringify({
-      data,
-      timestamp: Date.now()
-    }));
-  }
-
-  // --- DUMMY API URLs (Replace with real keys) ---
-  const NEWS_API = 'https://newsapi.org/v2/top-headlines?country=us&apiKey=demo'; // Replace demo with real key
-  const WEATHER_API = 'https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true';
-  const EVENTS_API = 'https://open-api.mycommunityconnect.com/events/sample'; // Replace with real endpoint
-
-  // --- EFFECTS: Fetch News, Weather, Events ---
-  useEffect(() => {
-    async function fetchNews() {
-      const cached = getCached(CACHE_KEYS.news);
-      if (cached) { setNews(cached); return; }
-      try {
-        const res = await fetch(NEWS_API);
-        const out = await res.json();
-        const articles = (out.articles || []).slice(0, 5);
-        setNews(articles);
-        setCached(CACHE_KEYS.news, articles);
-      } catch {
-        setNews([]);
-      }
-    }
-    fetchNews();
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    async function fetchWeather() {
-      const cached = getCached(CACHE_KEYS.weather);
-      if (cached) { setWeather(cached); return; }
-      try {
-        const res = await fetch(WEATHER_API);
-        const out = await res.json();
-        const data = out.current_weather || null;
-        setWeather(data);
-        setCached(CACHE_KEYS.weather, data);
-      } catch {
-        setWeather(null);
-      }
-    }
-    fetchWeather();
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    async function fetchEvents() {
-      const cached = getCached(CACHE_KEYS.events);
-      if (cached) { setEvents(cached); return; }
-      try {
-        // As demo API, mock events
-        const nowTs = Date.now();
-        const sample = [
-          { id: 1, name: "Farmers Market", date: new Date(nowTs + 86400000).toLocaleDateString(), location: "Central Park" },
-          { id: 2, name: "Outdoor Movie Night", date: new Date(nowTs + 2 * 86400000).toLocaleDateString(), location: "Riverfront Amphitheater" },
-        ];
-        setEvents(sample);
-        setCached(CACHE_KEYS.events, sample);
-      } catch {
-        setEvents([]);
-      }
-    }
-    fetchEvents();
-    // eslint-disable-next-line
-  }, []);
-
-  // --- USER MANAGEMENT (Basic/local demo) ---
-  // PUBLIC_INTERFACE
-  function handleLogin(username, password) {
-    // Simulate authentication; add real API call for prod!
-    if (username && password) {
-      setUser({ username });
-      setLoginModalOpen(false);
-      localStorage.setItem('cc_user', JSON.stringify({ username }));
-    }
-  }
-  // PUBLIC_INTERFACE
-  function handleLogout() {
-    setUser(null);
-    localStorage.removeItem('cc_user');
-  }
-
-  // Check for logged-in user on load
-  useEffect(() => {
-    const userJson = localStorage.getItem('cc_user');
-    if (userJson) setUser(JSON.parse(userJson));
-  }, []);
-
-  // --- COMPONENTS ---
-  const ColorDot = ({ color }) => (
-    <span style={{
-      display: "inline-block", width: "10px", height: "10px", borderRadius: "50%", background: color, marginRight: 8
-    }} />
-  );
-
+function Navbar({ user, onLogout }) {
   return (
-    <div className="app hub-app">
-      {/* NAVBAR */}
-      <nav className="navbar hub-navbar">
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-            <div className="logo hub-logo">
-              <ColorDot color="#c80000" /> CommunityConnect Hub
-            </div>
-            <div>
-              {user ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <span style={{ color: '#fff' }}>Hi, {user.username}</span>
-                  <button className="btn btn-accent" onClick={handleLogout}>Logout</button>
-                </div>
-              ) : (
-                <button className="btn btn-accent" onClick={() => setLoginModalOpen(true)}>Login</button>
-              )}
-            </div>
+    <nav className="navbar hub-navbar">
+      <div className="container">
+        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+          <div className="logo hub-logo">
+            <ColorDot color="#c80000" /> CommunityConnect Hub
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <NavLinks />
+            {user ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ color: "#fff" }}>Hi, {user.username}</span>
+                <button className="btn btn-accent" onClick={onLogout}>Logout</button>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
-      </nav>
+      </div>
+    </nav>
+  );
+}
 
-      {/* MAIN */}
-      <main className="hub-main">
-        <div className="container hub-content-layout">
-          {/* Left: News & Weather */}
-          <section className="hub-main-column">
-            <h2 className="hub-section-title"><ColorDot color="#c80000" /> Latest News</h2>
-            <NewsPanel news={news} loading={!news.length} />
-
-            <h2 className="hub-section-title" style={{ marginTop: 40 }}><ColorDot color="#009600" /> Weather</h2>
-            <WeatherPanel weather={weather} loading={!weather} />
-          </section>
-
-          {/* Center: Emergency Contacts */}
-          <section className="hub-side-column">
-            <h2 className="hub-section-title"><ColorDot color="#0000f3" /> Emergency Contacts</h2>
-            <ContactsPanel contacts={contacts} />
-          </section>
-
-          {/* Right: Events */}
-          <section className="hub-main-column">
-            <h2 className="hub-section-title"><ColorDot color="#009600" /> Upcoming Local Events</h2>
-            <EventsPanel events={events} loading={!events.length} />
-          </section>
-        </div>
-      </main>
-
-      {/* LOGIN MODAL */}
-      {loginModalOpen && (
-        <LoginModal
-          onClose={() => setLoginModalOpen(false)}
-          onLogin={handleLogin}
-        />
-      )}
+// PUBLIC_INTERFACE
+function NavLinks() {
+  // style object for links
+  const linkStyle = {
+    color: "var(--text-color)",
+    textDecoration: "none",
+    margin: "0 12px",
+    padding: "6px 0",
+    position: "relative",
+    fontWeight: "500",
+    letterSpacing: "0.1px"
+  };
+  return (
+    <div style={{ display: "flex", gap: 6 }}>
+      <Link to="/" style={linkStyle}>Home</Link>
+      <Link to="/news" style={linkStyle}>News</Link>
+      <Link to="/weather" style={linkStyle}>Weather</Link>
+      <Link to="/events" style={linkStyle}>Events</Link>
+      <Link to="/emergency-contacts" style={linkStyle}>Emergency Contacts</Link>
     </div>
   );
 }
 
-/// News Panel Component
-function NewsPanel({ news, loading }) {
+// --------------- PAGE/ROUTE COMPONENTS ---------------
+
+// PUBLIC_INTERFACE
+function HomePage({ news, weather, events, contacts }) {
+  return (
+    <main className="hub-main">
+      <div className="container hub-content-layout">
+        {/* Left: News & Weather preview */}
+        <section className="hub-main-column">
+          <h2 className="hub-section-title">
+            <ColorDot color="#c80000" /> Latest News
+          </h2>
+          <NewsPanel news={news} loading={!news.length} previewCount={2} />
+
+          <h2 className="hub-section-title" style={{ marginTop: 40 }}>
+            <ColorDot color="#009600" /> Weather
+          </h2>
+          <WeatherPanel weather={weather} loading={!weather} previewOnly />
+        </section>
+
+        {/* Center: Emergency Contacts preview */}
+        <section className="hub-side-column">
+          <h2 className="hub-section-title">
+            <ColorDot color="#0000f3" /> Emergency Contacts
+          </h2>
+          <ContactsPanel contacts={contacts} previewOnly />
+        </section>
+
+        {/* Right: Events preview */}
+        <section className="hub-main-column">
+          <h2 className="hub-section-title">
+            <ColorDot color="#009600" /> Upcoming Local Events
+          </h2>
+          <EventsPanel events={events} loading={!events.length} previewCount={2} />
+        </section>
+      </div>
+    </main>
+  );
+}
+
+// PUBLIC_INTERFACE
+function NewsPage({ news }) {
+  return (
+    <main className="hub-main">
+      <div className="container">
+        <h1 className="hub-section-title">
+          <ColorDot color="#c80000" /> News
+        </h1>
+        <NewsPanel news={news} loading={!news.length} />
+      </div>
+    </main>
+  );
+}
+
+// PUBLIC_INTERFACE
+function WeatherPage({ weather }) {
+  return (
+    <main className="hub-main">
+      <div className="container">
+        <h1 className="hub-section-title">
+          <ColorDot color="#009600" /> Weather
+        </h1>
+        <WeatherPanel weather={weather} loading={!weather} />
+      </div>
+    </main>
+  );
+}
+
+// PUBLIC_INTERFACE
+function EventsPage({ events }) {
+  return (
+    <main className="hub-main">
+      <div className="container">
+        <h1 className="hub-section-title">
+          <ColorDot color="#009600" /> Events
+        </h1>
+        <EventsPanel events={events} loading={!events.length} />
+      </div>
+    </main>
+  );
+}
+
+// PUBLIC_INTERFACE
+function EmergencyContactsPage({ contacts }) {
+  return (
+    <main className="hub-main">
+      <div className="container" style={{ maxWidth: 460 }}>
+        <h1 className="hub-section-title">
+          <ColorDot color="#0000f3" /> Emergency Contacts
+        </h1>
+        <ContactsPanel contacts={contacts} />
+      </div>
+    </main>
+  );
+}
+
+// --------------- PANEL COMPONENTS ---------------
+
+function NewsPanel({ news, loading, previewCount }) {
+  let items = news;
+  if (previewCount) items = news.slice(0, previewCount);
   if (loading) return <div className="hub-card">Loading news...</div>;
-  if (!news.length) return <div className="hub-card">No news available.</div>;
+  if (!items.length) return <div className="hub-card">No news available.</div>;
   return (
     <div>
-      {news.map((article, idx) => (
+      {items.map((article, idx) => (
         <a
           key={idx}
           href={article.url}
@@ -221,17 +188,21 @@ function NewsPanel({ news, loading }) {
           )}
           <div>
             <div className="hub-news-title">{article.title}</div>
-            <div className="hub-news-meta">{article.source?.name} &middot; {article.publishedAt?.slice(0, 10)}</div>
+            <div className="hub-news-meta">
+              {article.source?.name} &middot; {article.publishedAt?.slice(0, 10)}
+            </div>
             <div className="hub-news-desc">{article.description}</div>
           </div>
         </a>
       ))}
+      {previewCount && news.length > previewCount && (
+        <Link to="/news" className="btn btn-accent" style={{marginTop: 16, display:'inline-block'}}>See all News</Link>
+      )}
     </div>
   );
 }
 
-/// Weather Panel Component
-function WeatherPanel({ weather, loading }) {
+function WeatherPanel({ weather, loading, previewOnly }) {
   if (loading) return <div className="hub-card">Loading weather...</div>;
   if (!weather) return <div className="hub-card">No weather data.</div>;
   return (
@@ -239,14 +210,14 @@ function WeatherPanel({ weather, loading }) {
       <div style={{ fontSize: 24 }}>
         {weather.temperature != null ? `${weather.temperature}°C` : "N/A"}
         <span style={{ fontSize: 15, marginLeft: 12 }}>
-          {weather.weathercode == null ? '' :
-            getWeatherDesc(weather.weathercode)}
+          {weather.weathercode == null ? "" : getWeatherDesc(weather.weathercode)}
         </span>
       </div>
       <div style={{ color: "#aaa", fontSize: 14 }}>
-        Winds: {weather.windspeed ?? 'N/A'} km/h
+        Winds: {weather.windspeed ?? "N/A"} km/h
       </div>
       <div style={{ color: "#aaa", fontSize: 14 }}>At: New York, NY (demo)</div>
+      {previewOnly && <Link to="/weather" className="btn btn-accent" style={{marginTop:14, display:'inline-block'}}>Details</Link>}
     </div>
   );
 }
@@ -264,75 +235,234 @@ function getWeatherDesc(code) {
   return "";
 }
 
-/// Emergency Contacts Panel
-function ContactsPanel({ contacts }) {
+function ContactsPanel({ contacts, previewOnly }) {
+  const shown = previewOnly ? contacts.slice(0, 3) : contacts;
   return (
     <div className="hub-card hub-contacts-card">
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-        {contacts.map(c => (
+        {shown.map((c) => (
           <li key={c.label} className="hub-contact-item">
             <span className="hub-contact-label">{c.label}</span>
             <a href={`tel:${c.phone}`} className="hub-contact-tel">
               {c.phone}
-              <span role="img" aria-label="call" style={{ marginLeft: 6, fontSize: 16 }}>📞</span>
+              <span
+                role="img"
+                aria-label="call"
+                style={{ marginLeft: 6, fontSize: 16 }}
+              >
+                📞
+              </span>
             </a>
           </li>
         ))}
       </ul>
+      {previewOnly && contacts.length > shown.length && (
+        <Link to="/emergency-contacts" className="btn btn-accent" style={{marginTop: 8, display:'inline-block'}}>See all Contacts</Link>
+      )}
     </div>
   );
 }
 
-/// Events Panel
-function EventsPanel({ events, loading }) {
+function EventsPanel({ events, loading, previewCount }) {
+  let items = events;
+  if (previewCount) items = events.slice(0, previewCount);
   if (loading) return <div className="hub-card">Loading events...</div>;
-  if (!events.length) return <div className="hub-card">No events found.</div>;
+  if (!items.length) return <div className="hub-card">No events found.</div>;
   return (
     <div>
-      {events.map(ev => (
+      {items.map((ev) => (
         <div key={ev.id} className="hub-card hub-event-card">
           <div className="hub-event-title">{ev.name}</div>
-          <div className="hub-event-when">{ev.date} @ {ev.location}</div>
+          <div className="hub-event-when">
+            {ev.date} @ {ev.location}
+          </div>
         </div>
       ))}
+      {previewCount && events.length > previewCount && (
+        <Link to="/events" className="btn btn-accent" style={{marginTop: 16, display:'inline-block'}}>See all Events</Link>
+      )}
     </div>
   );
 }
 
-/// Login Modal
-function LoginModal({ onClose, onLogin }) {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+// PUBLIC_INTERFACE
+function App() {
+  // Caching keys for localStorage
+  const CACHE_KEYS = {
+    news: "cc_news",
+    weather: "cc_weather",
+    events: "cc_events"
+  };
+  const CACHE_EXPIRY = 10 * 60 * 1000; // 10 minutes
+
+  // States
+  const [user, setUser] = React.useState(null);
+  const [news, setNews] = React.useState([]);
+  const [weather, setWeather] = React.useState(null);
+  const [events, setEvents] = React.useState([]);
+  const [contacts] = React.useState([
+    { label: "Police", phone: "911" },
+    { label: "Fire Dept.", phone: "911" },
+    { label: "Ambulance", phone: "911" },
+    { label: "Poison Control", phone: "1-800-222-1222" },
+    { label: "Local Emergency", phone: "311" }
+  ]);
+
+  // --- DATA FETCH & CACHE HELPERS ---
+  function getCached(key) {
+    const itemJson = localStorage.getItem(key);
+    if (!itemJson) return null;
+    try {
+      const { data, timestamp } = JSON.parse(itemJson);
+      if (Date.now() - timestamp > CACHE_EXPIRY) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  function setCached(key, data) {
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        data,
+        timestamp: Date.now()
+      })
+    );
+  }
+
+  // --- DUMMY API URLs (Replace with real keys) ---
+  const NEWS_API = "https://newsapi.org/v2/top-headlines?country=us&apiKey=demo"; // Replace demo with real key
+  const WEATHER_API =
+    "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
+  const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample"; // Replace with real endpoint
+
+  // --- Effects: Fetch News, Weather, Events ---
+  React.useEffect(() => {
+    async function fetchNews() {
+      const cached = getCached(CACHE_KEYS.news);
+      if (cached) {
+        setNews(cached);
+        return;
+      }
+      try {
+        const res = await fetch(NEWS_API);
+        const out = await res.json();
+        const articles = (out.articles || []).slice(0, 5);
+        setNews(articles);
+        setCached(CACHE_KEYS.news, articles);
+      } catch {
+        setNews([]);
+      }
+    }
+    fetchNews();
+    // eslint-disable-next-line
+  }, []);
+
+  React.useEffect(() => {
+    async function fetchWeather() {
+      const cached = getCached(CACHE_KEYS.weather);
+      if (cached) {
+        setWeather(cached);
+        return;
+      }
+      try {
+        const res = await fetch(WEATHER_API);
+        const out = await res.json();
+        const data = out.current_weather || null;
+        setWeather(data);
+        setCached(CACHE_KEYS.weather, data);
+      } catch {
+        setWeather(null);
+      }
+    }
+    fetchWeather();
+    // eslint-disable-next-line
+  }, []);
+
+  React.useEffect(() => {
+    async function fetchEvents() {
+      const cached = getCached(CACHE_KEYS.events);
+      if (cached) {
+        setEvents(cached);
+        return;
+      }
+      try {
+        // As demo API, mock events
+        const nowTs = Date.now();
+        const sample = [
+          {
+            id: 1,
+            name: "Farmers Market",
+            date: new Date(nowTs + 86400000).toLocaleDateString(),
+            location: "Central Park"
+          },
+          {
+            id: 2,
+            name: "Outdoor Movie Night",
+            date: new Date(nowTs + 2 * 86400000).toLocaleDateString(),
+            location: "Riverfront Amphitheater"
+          }
+        ];
+        setEvents(sample);
+        setCached(CACHE_KEYS.events, sample);
+      } catch {
+        setEvents([]);
+      }
+    }
+    fetchEvents();
+    // eslint-disable-next-line
+  }, []);
+
+  // --- User Management: basic/local demo ---
+  // PUBLIC_INTERFACE
+  function handleLogout() {
+    setUser(null);
+    localStorage.removeItem("cc_user");
+  }
+
+  // Check for logged-in user on load
+  React.useEffect(() => {
+    const userJson = localStorage.getItem("cc_user");
+    if (userJson) setUser(JSON.parse(userJson));
+  }, []);
+
   return (
-    <div className="hub-modal-bg">
-      <div className="hub-modal">
-        <h3>Sign In</h3>
-        <input
-          type="text"
-          className="hub-input"
-          value={username}
-          placeholder="Username"
-          onChange={e => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          className="hub-input"
-          value={password}
-          placeholder="Password"
-          onChange={e => setPassword(e.target.value)}
-        />
-        <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-          <button className="btn btn-accent" onClick={() => onLogin(username, password)}>
-            Login
-          </button>
-          <button className="btn" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
+    <Router>
+      <div className="app hub-app">
+        <Navbar user={user} onLogout={handleLogout} />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomePage
+                news={news}
+                weather={weather}
+                events={events}
+                contacts={contacts}
+              />
+            }
+          />
+          <Route
+            path="/news"
+            element={<NewsPage news={news} />}
+          />
+          <Route
+            path="/weather"
+            element={<WeatherPage weather={weather} />}
+          />
+          <Route
+            path="/events"
+            element={<EventsPage events={events} />}
+          />
+          <Route
+            path="/emergency-contacts"
+            element={<EmergencyContactsPage contacts={contacts} />}
+          />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
 }
 
 export default App;
-
