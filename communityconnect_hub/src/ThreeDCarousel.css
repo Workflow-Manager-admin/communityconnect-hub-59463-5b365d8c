@@ -3,344 +3,172 @@
   width: 100%;
   max-width: 860px;
   margin: 0 auto 38px auto;
-  min-height: 320px;
-  /* Perspective now set inline via JS for realism and also dynamically from JS */
-  perspective: var(--carousel-perspective, 3200px);
-  padding-bottom: 22px;
+  min-height: 140px;
+  background: linear-gradient(99deg, #181825 70%, #12121d 100%);
+  box-shadow: 0 7px 38px 0 #000c, 0 2px 11px 6px #23233861;
+  border-radius: 26px;
+  filter: drop-shadow(0 24px 99px #000e) brightness(1.035) contrast(1.02);
   outline: none;
   transition: box-shadow 0.22s, background 0.18s;
-  background: linear-gradient(99deg, #181825 70%, #12121d 100%);
-  /* For dark theme fit and 3D pop */
-  filter: drop-shadow(0 24px 99px #000e) brightness(1.035) contrast(1.02);
+  overflow: visible;
+  padding-bottom: 25px;
+  user-select: none;
+  will-change: box-shadow, filter;
 }
 
-/* Stage is deeply 3D - smooth transform and render outside flow, softer elevation */
-.carousel-3d-stage {
-  position: relative;
+.carousel-slide-track-outer {
   width: 100%;
-  height: 355px;
-  min-height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  /* Ultra-smooth, but now with rapid snap and extra crispness */
-  transition:
-    filter 0.13s cubic-bezier(.7,.07,.3,1.01),
-    transform 0.21s cubic-bezier(.84,.21,.17,1),
-    box-shadow 0.10s;
-  will-change: transform, filter;
-}
-.carousel-3d-stage.animating {
-  /* More glow and contrast pop when moving */
-  filter: drop-shadow(0 28px 132px #283ecfbb) brightness(1.16) contrast(1.045) saturate(1.03);
-  transition:
-    filter 0.18s cubic-bezier(.84,.33,.17,.96);
+  overflow: hidden;
+  border-radius: 22px;
+  min-height: 140px;
 }
 
-.carousel-3d-slide {
-  position: absolute;
-  width: 80%;
-  left: 10%;
-  top: 0;
-  min-height: 278px;
-  background: linear-gradient(98deg, #232338 74%, #111127 98%);
-  color: var(--text-color, #fff);
-  border-radius: 32px;
-  box-shadow: 0 21px 83px 0 #0013, 0 14px 32px 16px #1a1a44c0;
-  padding: 36px 32px 26px 32px;
-  /* Animation durations much shorter for rapid transitions */
-  transition:
-    opacity 0.16s cubic-bezier(.8,0,.1,1),
-    transform 0.17s cubic-bezier(.98,.01,.12,.99),
-    filter 0.13s cubic-bezier(.62,.11,.37,1.03),
-    z-index 0.01s;
-  opacity: 0.08;
-  filter: blur(14px) grayscale(0.93) brightness(0.75);
-  will-change: transform, opacity, filter;
-  z-index: 0;
+.carousel-slide-track {
+  display: flex;
+  flex-direction: row;
+  transition: transform 0.39s cubic-bezier(.59,.09,.27,1.02);
+  width: 100%;
+  will-change: transform;
+}
+
+.carousel-slide-track.animating {
+  /* Smoother transition during animation */
+  transition: transform 0.37s cubic-bezier(.52,.14,.34,1);
+}
+
+.carousel-slide {
+  min-width: 100%;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-  border: 2.5px solid var(--border-color, #292949);
-  user-select: none;
-  background-blend-mode: luminosity;
-  /* --- advanced anim --- */
-  --carousel-slide-glow: 0 0 0px 0 #0000;
+  opacity: 0.74;
+  transition: opacity 0.42s cubic-bezier(.3,.04,.67,1.08);
+  padding: 0 1.5vw;
 }
 
-/* Advanced Animation: fade, glow, scale, blur on the entering slide (on top of rotation) */
-.carousel-3d-slide.entering-anim {
-  /* Fade/scale in + subtle blue glow to emphasize action */
-  animation: carouselFadeInScaleGlow .28s cubic-bezier(.51,.03,.21,1.10);
-  z-index: 19 !important;
-  box-shadow: 0 0 48px 12px #0000f355, 0 0 0 #000 !important;
-  filter: drop-shadow(0 0 22px #0000f4bb) brightness(1.14) blur(0.1px) !important;
-  outline: 0;
-}
-@keyframes carouselFadeInScaleGlow {
-  0% {
-    opacity: 0.06;
-    filter: blur(26px) grayscale(0.97) brightness(0.43) drop-shadow(0 0 36px #0000f3a8);
-    transform: scale(.92) translateY(40px) perspective(1300px) rotateX(2.2deg);
-    box-shadow: 0 0 0 0 #0000;
-  }
-  60% {
-    opacity: 1;
-    filter: blur(2.5px) grayscale(0.71) brightness(0.99) drop-shadow(0 0 14px #0000f299);
-    transform: scale(1.05) translateY(0) perspective(1600px);
-    box-shadow: 0 0 37px 14px #0000f35c;
-  }
-  100% {
-    opacity: 1;
-    filter: none;
-    transform: none;
-    box-shadow: 0 0 78px 20px #0000f326;
-  }
-}
-
-/* Advanced Animation: fade-out, blur, scale-down, drop-glow on the outgoing slide */
-.carousel-3d-slide.exiting-anim {
-  animation: carouselFadeOutScaleGlow .23s cubic-bezier(.31, .51, .53, 1.14);
-  will-change: opacity, filter, transform;
-  z-index: 14 !important;
-  pointer-events: none !important;
-  box-shadow: 0 0 90px 21px #eaeeff2c !important;
-  filter: blur(19px) grayscale(0.93) brightness(0.80) drop-shadow(0 0 33px #3342f5aa) !important;
-}
-@keyframes carouselFadeOutScaleGlow {
-  0% {
-    opacity: 1;
-    filter: none;
-    transform: scale(1) perspective(1700px);
-    box-shadow: 0 0 37px 14px #0000f326;
-  }
-  60% {
-    opacity: 0.43;
-    filter: blur(9px) grayscale(0.86) brightness(0.92) drop-shadow(0 0 32px #3342f599);
-    transform: scale(.96) perspective(1200px);
-    box-shadow: 0 0 79px 40px #283ecf36;
-  }
-  100% {
-    opacity: 0.11;
-    filter: blur(26px) grayscale(0.96) brightness(0.79) drop-shadow(0 0 52px #283ecfbb);
-    transform: scale(.89) translateY(34px) perspective(1000px) rotateX(5deg);
-    box-shadow: 0 0 99px 55px #283ecf22;
-  }
-}
-
-/* Subtle accent blue/cyan glow for active slide (even outside animation) */
-.carousel-3d-slide.active {
-  opacity: 1 !important;
-  filter: none !important;
-  z-index: 15;
+.carousel-slide.active {
+  opacity: 1;
+  z-index: 3;
   pointer-events: auto;
-  background: var(--hero-gradient, linear-gradient(92deg, #232338 47%, #19194c 100%));
-  box-shadow: 0 68px 196px 0 #0013ea, 0 18px 62px 0 #1212687d, 0 0 70px 21px #0000f366, 0 0 14px 5px #0000f34d;
-  border-color: var(--accent, #0000f3);
-  user-select: text;
-  background-blend-mode: normal;
-  transition:
-    box-shadow 0.16s, border-color 0.08s, filter 0.11s, opacity 0.13s, transform 0.11s;
-  outline: none;
+  transition: opacity 0.4s cubic-bezier(.21,.77,.48,1.05);
 }
 
-/* Strong blue shadow on hover/focus for active as micro-interaction */
-.carousel-3d-slide.active:focus-visible, .carousel-3d-slide.active:hover {
-  box-shadow:
-    0 90px 240px 0 #0000f3a6,
-    0 5px 7px 0 #232338bd,
-    0 0 23px 11px #216feeaa,
-    0 0 16px 8px #0000f3;
-  filter: brightness(1.12) blur(0.7px) drop-shadow(0 0 6px #009dfa77) !important;
-  border-color: #009dfa;
-}
-
-/* Sides: add motion blur + pop for visible slides (3D illusion) */
-.carousel-3d-slide:not(.active)[style*="opacity: 0.54"] {
-  opacity: 0.53 !important;
-  filter: blur(7.2px) grayscale(0.68) brightness(0.94) !important;
-  z-index: 5 !important;
-  background: linear-gradient(99deg, #181838 55%, #29294ee0 100%);
-}
-
-/* Center slide: more pop + elevated for realism */
-.carousel-3d-slide.active {
-  opacity: 1 !important;
-  filter: none !important;
-  z-index: 15;
-  pointer-events: auto;
-  background: var(--hero-gradient, linear-gradient(92deg, #232338 47%, #19194c 100%));
-  box-shadow: 0 68px 196px 0 #0013ea, 0 18px 62px 0 #1212687d, 0 0 31px 21px var(--accent, #0000f3);
-  border-color: var(--accent, #0000f3);
-  user-select: text;
-  background-blend-mode: normal;
-}
-
-/* Sides: add motion blur + pop for visible slides (3D illusion) */
-.carousel-3d-slide:not(.active)[style*="opacity: 0.54"] {
-  opacity: 0.53 !important;
-  filter: blur(7.2px) grayscale(0.68) brightness(0.94) !important;
-  z-index: 5 !important;
-  background: linear-gradient(99deg, #181838 55%, #29294ee0 100%);
-}
-
-.carousel-3d-slide:not(.active)[style*="opacity: 0.54"]:before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 33px;
-  box-shadow: 0 0 58px 0 #000a inset;
+.carousel-slide:not(.active) {
   pointer-events: none;
 }
 
-/* Farther sides: outer phantom slides, maximum blur/dim */
-.carousel-3d-slide:not(.active)[style*="opacity: 0.13"], 
-.carousel-3d-slide:not(.active)[style*="opacity: 0.18"], 
-.carousel-3d-slide:not(.active)[style*="opacity: 0.30"] {
-  opacity: 0.10 !important;
-  filter: blur(22px) grayscale(0.96) brightness(0.60) !important;
-  z-index: 1 !important;
-  background: linear-gradient(87deg, #0a101f 65%, #23162bcc 100%);
-}
-
-/* Arrows — slightly larger, soft accent glow, smoothed for dark UI */
-.carousel-3d-arrow {
+/* Navigation arrows styles */
+.carousel-arrow {
   position: absolute;
   top: 41%;
   transform: translateY(-50%);
-  background: rgba(9,14,36,0.89);
+  background: rgba(16,22,42,0.92);
   color: var(--accent, #0000f3);
   border: none;
   border-radius: 50%;
-  width: 43px;
-  height: 43px;
-  z-index: 99;
+  width: 38px;
+  height: 38px;
+  z-index: 20;
   cursor: pointer;
-  box-shadow: 0 2.5px 16px #000c, 0 1.5px 7px #c800003e inset;
-  font-size: 2.45rem;
+  box-shadow: 0 2.5px 12px #000c, 0 1.5px 6px #c8000033 inset;
+  font-size: 2.13rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition:
-    background 0.18s,
-    color 0.15s,
-    transform 0.16s,
-    box-shadow 0.16s;
+  transition: background 0.14s, color 0.13s, transform 0.13s, box-shadow 0.16s;
   opacity: 0.91;
   outline: none;
-  filter: drop-shadow(0 2px 12px #000c);
 }
 
-.carousel-3d-arrow.left {
+.carousel-arrow.left {
   left: 1.5%;
 }
-.carousel-3d-arrow.right {
+.carousel-arrow.right {
   right: 1.5%;
 }
-.carousel-3d-arrow:active {
-  transform: translateY(-50%) scale(0.91);
-  filter: brightness(0.89) contrast(1.09) drop-shadow(0 2px 10px #0004);
-  transition:
-    filter 0.09s cubic-bezier(.52,.1,.11,1.08),
-    box-shadow 0.15s,
-    background 0.09s;
-}
-.carousel-3d-arrow:focus-visible,
-.carousel-3d-arrow:hover {
-  background: linear-gradient(100deg, #282857 64%, #3c52db 130%);
-  color: #fff;
-  box-shadow: 0 16px 37px 0 #3c54f6b9, 0 8px 27px #232399af;
-  outline: 2.3px solid var(--accent, #0000f3);
-  opacity: 1;
-  filter: drop-shadow(0 7px 32px #0011bfce) brightness(1.13);
-  transition:
-    filter 0.11s cubic-bezier(.44,.52,.19,1.09),
-    background 0.18s,
-    color 0.17s,
-    box-shadow 0.17s;
+
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.92);
+  filter: brightness(0.93);
 }
 
-.carousel-3d-controls {
+.carousel-arrow:focus-visible,
+.carousel-arrow:hover {
+  background: linear-gradient(100deg, #232357 61%, #3c52db 130%);
+  color: #fff;
+  box-shadow: 0 14px 29px 0 #3464eeb9, 0 7px 20px #232399af;
+  outline: 2.3px solid var(--accent, #0000f3);
+  opacity: 1;
+  filter: brightness(1.08);
+}
+
+/* Controls bar overlays */
+.carousel-controls {
   position: absolute;
   width: 100%;
   top: 0;
   left: 0;
   pointer-events: none;
+  z-index: 10;
 }
-.carousel-3d-controls button {
+.carousel-controls button {
   pointer-events: auto;
 }
 
-.carousel-3d-indicators {
+/* Indicators (dots) */
+.carousel-indicators {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  margin-top: 19px;
+  gap: 9px;
+  margin-top: 18px;
   z-index: 14;
   pointer-events: auto;
   user-select: none;
+  width: 100%;
+  position: relative;
+  margin-bottom: 3px;
 }
-.carousel-3d-indicator {
-  width: 16px;
-  height: 16px;
+
+.carousel-indicator {
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: var(--border-color, #353545);
   border: none;
   outline: none;
   cursor: pointer;
   transition:
-    background 0.16s,
-    box-shadow 0.19s,
-    transform 0.17s;
-  margin: 0 2px;
+    background 0.11s,
+    box-shadow 0.14s,
+    transform 0.15s;
   box-shadow: 0 0.5px 2.5px #191939a2;
-  opacity: 0.81;
+  opacity: 0.76;
 }
-.carousel-3d-indicator.active,
-.carousel-3d-indicator:focus-visible {
-  background: linear-gradient(93deg, var(--accent, #0000f3) 49%, var(--primary, #c80000) 96%);
-  transform: scale(1.39);
-  box-shadow: 0 0 0 6px var(--primary, #c80000), 0 19px 42px #000a, 0 2px 16px #0000f366;
+
+.carousel-indicator.active,
+.carousel-indicator:focus-visible {
+  background: linear-gradient(93deg, var(--accent, #0000f3) 42%, var(--primary, #c80000) 96%);
+  transform: scale(1.27);
+  box-shadow: 0 0 0 4px var(--primary, #c80000), 0 11px 22px #000a, 0 1px 8px #0000f366;
   opacity: 1;
   outline: none;
   transition:
-    transform 0.22s cubic-bezier(.24,1.32,.4,1.02),
-    background 0.14s,
-    box-shadow 0.15s;
+    transform 0.17s cubic-bezier(.24,1.32,.4,1.02),
+    background 0.11s,
+    box-shadow 0.11s;
 }
 
+/* Responsive tweaks */
 @media (max-width: 900px) {
-  .three-d-carousel { max-width: 100vw; min-height: 135px; }
-  .carousel-3d-slide {
-    width: 97%;
-    left: 1.5%;
-    min-height: 94px;
-    padding: 12px 4vw 14px 4vw;
-    border-radius: 13px;
-    font-size: 0.97rem;
-    box-shadow: 0 9px 55px 0 #0013, 0 5px 20px 7px #1a1a4477;
-    transition:
-      opacity 0.58s cubic-bezier(.76,.09,.24,1.02),
-      transform 0.51s cubic-bezier(.78,.14,.16,.92),
-      filter 0.33s cubic-bezier(.42,.22,.27,1),
-      z-index 0.01s;
-  }
-  .carousel-3d-stage { height: 110px; }
-  .carousel-3d-arrow { width: 30px; height:30px; font-size: 1.1rem; }
+  .three-d-carousel { max-width: 100vw; min-height: 70px; }
+  .carousel-arrow { width: 28px; height:28px; font-size: 1.1rem; }
+  .carousel-slide { padding: 0 2vw;}
 }
-
 @media (max-width: 600px) {
-  .three-d-carousel { min-height: 56px; }
-  .carousel-3d-stage { height: 46px; }
-  .carousel-3d-slide {
-    min-height: 18px;
-    padding: 5px 1vw;
-    font-size: .93rem;
-    border-radius: 7px;
-  }
-  .carousel-3d-arrow { width: 19px; height:19px; font-size:.88rem; }
+  .three-d-carousel { min-height: 28px; }
+  .carousel-arrow { width: 15px; height:15px; font-size:.78rem; }
+  .carousel-slide { padding: 0 1vw;}
 }

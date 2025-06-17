@@ -3,178 +3,88 @@ import "./ThreeDCarousel.css";
 
 /**
  * PUBLIC_INTERFACE
- * ThreeDCarousel - Enhanced 3D cylindrical carousel component with visually rich, section-themed slides for News, Weather, Announcements, Banner, and Events.
- * Supports both JSX/react children slides OR slide object array with "type" (news, weather, announcement, banner, event, community).
- * Slides automatically render with section-specific icons, images, backgrounds, and layouts.
- * 
- * Params (updated):
- *   - autoRotate: Enable or disable auto-advancing slides
- *   - rotateInterval: Time (ms) between slide transitions (default: 2600ms for quick, smooth movement)
- *   - visibleSlideCount: Number of slides visually rendered in 3D (dynamically reduced for mobile, ideally odd number)
- *   - perspective: CSS perspective value controlling 3D illusion "depth" (default: 3200px, responsive for device)
+ * ThreeDCarousel - Classic horizontally sliding carousel component supporting arrows, indicators, and swipe.
+ * Provides a smooth translateX-based slide transition for news/weather/event/community slides.
+ * No 3D transforms or cylinder effect; all transitions move slides left/right in a classic slider manner.
+ *
+ * Props:
+ *   - slides: array of element/slide objects (news, weather, event, banner, announcement, community)
+ *   - autoRotate: ignored (manual only)
+ *   - visibleSlideCount: optional, ignored (slides shown one at a time)
  */
 function ThreeDCarousel({
   slides,
-  // Fine-tuned animation and perspective defaults for optimal effect
-  autoRotate = true,
-  // --- SPEED TUNING v3: Even faster/cleaner ---
-  rotateInterval = 790,           // INCREASED: rapid auto-rotation (was 1350); snappy yet viewable, but brisk
-  visibleSlideCount = 7,          // Plenty of peripheral slides for realism (adjusted below for small screens)
-  perspective = 3200,             // Deep 3D (unchanged)
-  carouselData = null
+  autoRotate = false,
+  visibleSlideCount = 1,
 }) {
-  // Accept either direct JSX slides or slide objects for auto-render (NEW: also handle announcement/banner/community visually)
-  let carouselSlides = Array.isArray(slides)
-    ? slides.map((s, i) => (
-        React.isValidElement(s) ? s : renderRichSlide(s, i)
-      ))
-    : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
+  // Get only slide objects, or render JSX if needed
+  const carouselSlides = Array.isArray(slides)
+    ? slides.map((s, i) => (React.isValidElement(s) ? s : renderRichSlide(s, i)))
+    : [];
   const numSlides = carouselSlides.length;
 
-  // Responsive tweaks: Adjust visible count and perspective by screen/device size for optimal readability
-  let vsc = visibleSlideCount;
-  let persp = perspective;
-  if (typeof window !== "undefined") {
-    const width = window.innerWidth;
-    if (width < 520) {
-      vsc = Math.min(3, numSlides);  // Only the center + 1 each side visible on very small screens
-      persp = 1400;
-    } else if (width < 900) {
-      vsc = Math.min(5, numSlides);
-      persp = 2000;
-    } else if (width < 1200) {
-      vsc = Math.min(7, numSlides);
-      persp = 2500;
-    }
-  }
-
-  // Clamp visible slide count for 3D effect accuracy (min 3, max 9, odd preferred for symmetry)
-  vsc = Math.max(3, Math.min(vsc, Math.min(9, numSlides > 0 ? numSlides : 5)));
-  if (vsc % 2 === 0) vsc--; // Odd number for symmetry
-  if (numSlides > 0 && vsc > numSlides) vsc = numSlides; // Don't exceed real slides
-
-  visibleSlideCount = vsc;
-  perspective = persp;
-
-  // Carousel state management
+  // Simple single-slide visibility mode
   const [active, setActive] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [transitioningIndex, setTransitioningIndex] = useState(null); // Track outgoing slide
-  const stageRef = useRef();
-  const lastInteractionRef = useRef(Date.now());
-  // --- SPEED TUNING v3: SNAPPY/CLEAN + Enhanced Anim --- //
-  const transitionDuration = 135; // ms, even faster for lively snap with new effects
+  const [direction, setDirection] = useState(0); // +1 for right, -1 for left
 
-  // Calculate rotation step and cylinder radius for true 3D perspective
-  const angleStep = numSlides > 0 ? 360 / numSlides : 360;
+  // Transition duration for slide (ms)
+  const SLIDE_DURATION = 350;
 
-  function useResponsiveRadius(count, visCount) {
-    // Deepen 3D by expanding radius so the spread is more like a large cylinder
-    const [r, setR] = useState(
-      typeof window !== "undefined" ? calcRadius(window.innerWidth) : 420
-    );
-    useEffect(() => {
-      function handleResize() { setR(calcRadius(window.innerWidth)); }
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, [count, visCount]);
-    function calcRadius(width) {
-      if (width < 520) return 88 + (visCount - 1) * 61 + (count - 3) * 8;
-      if (width < 900) return 150 + (visCount - 1) * 90 + (count - 5) * 12;
-      return 410 + (visCount - 1) * 160 + (count - 5) * 34; // Big spread on desktop
-    }
-    return r;
-  }
-  const radius = useResponsiveRadius(numSlides, visibleSlideCount);
-
-  // Handles continuous seamless looping and snap-to transitions with tuned cubic-bezier
-  function setActiveWithAnimation(newIndex) {
-    if (isAnimating || numSlides <= 1) return;
+  // Arrow/indicator handler
+  function setActiveWithAnimation(newIndex, dir) {
+    if (isAnimating || newIndex === active || numSlides <= 1) return;
+    setDirection(dir);
     setIsAnimating(true);
-    setTransitioningIndex(active); // Mark outgoing slide for animation
-    setActive(newIndex);
-    lastInteractionRef.current = Date.now();
+    setTimeout(() => {
+      setActive(newIndex);
+      setIsAnimating(false);
+    }, SLIDE_DURATION);
   }
 
-  // Remove auto-rotation logic: slides only advance via arrows, indicators, or swipe
-  // No timer-based advance, everything is now manual navigation only
-
-  useEffect(() => {
-    if (isAnimating) {
-      // Remove outgoing highlight after transition
-      const t1 = setTimeout(() => setIsAnimating(false), transitionDuration - 8);
-      const t2 = setTimeout(() => setTransitioningIndex(null), transitionDuration + 56); // Clean up extra animation
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
-    }
-  }, [isAnimating]);
-
-  // Accessibility: Keyboard navigation
+  // Keyboard navigation
   function handleKeyDown(e) {
     if (isAnimating) return;
     if (e.key === "ArrowRight" || e.key === "PageDown") {
-      nextSlideSmooth(true);
-    }
-    else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-      prevSlideSmooth(true);
-    }
-    else if (e.key === "Home") setActiveWithAnimation(0);
-    else if (e.key === "End") setActiveWithAnimation(numSlides - 1);
+      nextSlide();
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      prevSlide();
+    } else if (e.key === "Home") setActiveWithAnimation(0, -1);
+    else if (e.key === "End") setActiveWithAnimation(numSlides - 1, +1);
   }
 
-  // PUBLIC_INTERFACE
-  // Seamlessly animate to next
-  const nextSlideSmooth = useCallback((fromKeyboard = false) => {
+  // Next/Prev
+  const nextSlide = useCallback(() => {
     if (isAnimating) return;
-    setActive(prev => {
-      const target = (prev + 1) % numSlides;
-      if (fromKeyboard) lastInteractionRef.current = Date.now();
-      setIsAnimating(true);
-      return target;
-    });
-  // isAnimating, numSlides intentionally omitted for event consistency
-  }, []);
+    setDirection(1);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setActive((prev) => (prev + 1) % numSlides);
+      setIsAnimating(false);
+    }, SLIDE_DURATION);
+  }, [isAnimating, numSlides]);
 
-  // PUBLIC_INTERFACE
-  const prevSlideSmooth = useCallback((fromKeyboard = false) => {
+  const prevSlide = useCallback(() => {
     if (isAnimating) return;
-    setActive(prev => {
-      const target = (prev - 1 + numSlides) % numSlides;
-      if (fromKeyboard) lastInteractionRef.current = Date.now();
-      setIsAnimating(true);
-      return target;
-    });
-  }, []);
+    setDirection(-1);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setActive((prev) => (prev - 1 + numSlides) % numSlides);
+      setIsAnimating(false);
+    }, SLIDE_DURATION);
+  }, [isAnimating, numSlides]);
 
-  // Touch/Swipe support with chic feedback
-  useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth, setIsAnimating, setActive, numSlides, lastInteractionRef);
+  // Touch/Swipe
+  useCarouselSwipe(
+    useRef(null),
+    nextSlide,
+    prevSlide,
+    isAnimating,
+    setIsAnimating,
+    SLIDE_DURATION
+  );
 
-  // Show the visible window of slides for 3D effect
-  function getVisible(relPos) {
-    if (numSlides <= visibleSlideCount) return true;
-    let half = Math.floor(visibleSlideCount / 2);
-    if (visibleSlideCount === numSlides) return true;
-    // Ensure symmetry, always show 'half' on either side of active (including wrapping-around ends)
-    if (relPos === 0) return true;
-    if (relPos <= half || relPos >= numSlides - half) return true;
-    return false;
-  }
-
-  function getStyle(relPos) {
-    if (relPos === 0)
-      return { opacity: 1, zIndex: 12, filter: "none", pointerEvents: "auto" };
-    const half = Math.floor(visibleSlideCount / 2);
-    // Directly adjacent left/right (mild blur/fade)
-    if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
-      return { opacity: 0.54, filter: "blur(7.2px) grayscale(0.68) brightness(0.94)", zIndex: 2, pointerEvents: "none" };
-    }
-    // Outer (ghost)
-    return { opacity: 0.13, filter: "blur(22px) grayscale(0.96) brightness(0.60)", zIndex: 1, pointerEvents: "none" };
-  }
-
-  // Accessible slide description (for screenreaders)
+  // Accessible live msg
   const liveMsg =
     numSlides > 0
       ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
@@ -188,71 +98,55 @@ function ThreeDCarousel({
       aria-label="Core Features Carousel"
       style={{
         outline: "none",
-        perspective: `${perspective}px`,
         background: "linear-gradient(99deg, #181825 68%, #141426 100%)",
         filter: "drop-shadow(0 24px 99px #000e) brightness(1.03)",
         userSelect: "none",
-        "--carousel-perspective": perspective,
-        "--carousel-visible-slides": visibleSlideCount
       }}
       onKeyDown={handleKeyDown}
       aria-live="polite"
-      data-3d-carousel
+      data-carousel
     >
-      <div
-        className={`carousel-3d-stage${isAnimating ? " animating" : ""}`}
-        ref={stageRef}
-        style={{
-          transform: `translateZ(-${radius}px) rotateY(${-active * angleStep}deg)`
-        }}
-        aria-live="off"
-      >
-        {carouselSlides.length === 0 && (
-          <div className="carousel-3d-slide active" aria-hidden="false"
-            style={{
+      <div className="carousel-slide-track-outer">
+        <div
+          className={`carousel-slide-track${isAnimating ? " animating" : ""}${direction === 1 ? " slide-left" : direction === -1 ? " slide-right" : ""}`}
+          style={{
+            transform: `translateX(${-active * 100}%)`,
+            transition: isAnimating ? `transform ${SLIDE_DURATION}ms cubic-bezier(.59,.09,.27,1.02)` : 'none',
+          }}
+        >
+          {carouselSlides.length === 0 && (
+            <div className="carousel-slide active" style={{
               opacity: 1, zIndex: 9, filter: "none", pointerEvents: "auto",
-              background: "linear-gradient(98deg, #232338 70%, #18182d 100%)"
+              background: "linear-gradient(98deg, #232338 70%, #18182d 100%)",
+              minHeight: 180, display: "flex", alignItems: "center", justifyContent: "center"
             }}>
-            <span style={{ color: "#fff", fontWeight: 600 }}>No slides to display.</span>
-          </div>
-        )}
-        {carouselSlides.map((slide, i) => {
-          const theta = i * angleStep;
-          const relPos = (i - active + numSlides) % numSlides;
-          if (!getVisible(relPos)) return null;
-
-          // Assign advanced animation classes:
-          let slideClass = "carousel-3d-slide";
-          if (relPos === 0) slideClass += " active";
-          if (transitioningIndex !== null && i === transitioningIndex)
-            slideClass += " exiting-anim";  // Outgoing
-          if (relPos === 0 && isAnimating)
-            slideClass += " entering-anim"; // Animate in
-
-          return (
+              <span style={{ color: "#fff", fontWeight: 600 }}>No slides to display.</span>
+            </div>
+          )}
+          {carouselSlides.map((slide, i) => (
             <div
-              className={slideClass}
+              className={`carousel-slide${i === active ? " active" : ""}`}
               key={i}
-              aria-hidden={relPos !== 0}
-              tabIndex={relPos === 0 ? 0 : -1}
+              aria-hidden={i !== active}
+              tabIndex={i === active ? 0 : -1}
               style={{
-                transform: `rotateY(${theta}deg) translateZ(${radius}px)`,
-                transitionDelay: isAnimating && relPos === 0 ? "0.04s" : "0s",
-                ...getStyle(relPos)
+                opacity: i === active ? 1 : 0.65,
+                pointerEvents: i === active ? "auto" : "none",
+                transition: 'opacity 0.4s',
               }}
             >
               {slide}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
-      <div className="carousel-3d-controls">
+      <div className="carousel-controls">
         <button
-          className="carousel-3d-arrow left"
+          className="carousel-arrow left"
           title="Previous"
           aria-label="Previous Slide"
           tabIndex={0}
-          onClick={() => { prevSlideSmooth(); }}
+          onClick={() => { prevSlide(); }}
           disabled={isAnimating || numSlides < 2}
           style={{
             outline: isAnimating ? "none" : undefined,
@@ -262,11 +156,11 @@ function ThreeDCarousel({
           <span aria-hidden>‹</span>
         </button>
         <button
-          className="carousel-3d-arrow right"
+          className="carousel-arrow right"
           title="Next"
           aria-label="Next Slide"
           tabIndex={0}
-          onClick={() => { nextSlideSmooth(); }}
+          onClick={() => { nextSlide(); }}
           disabled={isAnimating || numSlides < 2}
           style={{
             outline: isAnimating ? "none" : undefined,
@@ -276,17 +170,17 @@ function ThreeDCarousel({
           <span aria-hidden>›</span>
         </button>
       </div>
-      <div className="carousel-3d-indicators" role="tablist" aria-label="Carousel indicators">
+      <div className="carousel-indicators" role="tablist" aria-label="Carousel indicators">
         {carouselSlides.map((_, i) => (
           <button
             key={i}
-            className={`carousel-3d-indicator${i === active ? " active" : ""}`}
+            className={`carousel-indicator${i === active ? " active" : ""}`}
             aria-label={`Go to slide ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
             tabIndex={0}
             onClick={() => {
               if (isAnimating || i === active) return;
-              setActiveWithAnimation(i);
+              setActiveWithAnimation(i, i > active ? 1 : -1);
             }}
             disabled={isAnimating || i === active}
             role="tab"
@@ -310,65 +204,47 @@ function ThreeDCarousel({
   );
 }
 
-/**
- * Render three visually rich slide types for the carousel: News, Weather, and Events.
- * Each uses themed background color, summary/details, icons, and images.
- */
+// Render each slide type
 function renderRichSlide(item, idx) {
-  // News slide: Article image, news icon, summary, colored background
   if (item.type === "news" || (item.title && item.url && !item.name)) {
     return (
-      <div
-        key={item.url || idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: "linear-gradient(95deg, #2f1308 63%, #531c00 110%)",
-          boxShadow: "0 9px 34px #c800001c",
-          borderRadius: 20,
-          border: "2.5px solid #E87A41",
-          minHeight: 240,
-          padding: 22,
-          position: "relative",
-        }}
-      >
+      <div key={item.url || idx} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+        background: "linear-gradient(95deg, #2f1308 63%, #531c00 110%)",
+        boxShadow: "0 9px 34px #c800001c",
+        borderRadius: 20,
+        border: "2.5px solid #E87A41",
+        minHeight: 180,
+        padding: 16,
+        position: "relative",
+      }}>
         <span aria-label="news" style={{
-          fontSize: 37,
-          marginBottom: 12,
+          fontSize: 32,
+          marginBottom: 8,
           color: "#E87A41",
-          position: "absolute",
-          left: 20,
-          top: 10,
-          filter: "drop-shadow(0 2px 10px #c8000077)"
+          left: 20, top: 10,
+          position: "absolute"
         }}>📰</span>
-
         {item.urlToImage && (
           <img
             src={item.urlToImage}
             alt=""
             style={{
-              width: 84,
-              height: 84,
-              objectFit: "cover",
-              borderRadius: 11,
-              margin: "0 auto 13px auto",
-              boxShadow: "0 7px 24px #0007",
-              border: "2.5px solid #E87A41",
-              background: "#292921"
+              width: 68, height: 68, objectFit: "cover", borderRadius: 11,
+              margin: "0 auto 8px auto", boxShadow: "0 7px 24px #0007",
+              border: "2.5px solid #E87A41", background: "#292921"
             }}
             loading="lazy"
             aria-hidden="true"
           />
         )}
-        <div style={{ fontWeight: 820, fontSize: "1.11rem", color: "#E87A41", marginBottom: 3 }}>{item.title}</div>
-        <div style={{ fontSize: ".98rem", color: "#ffe5b6", marginBottom: 7, fontWeight: 410 }}>
+        <div style={{ fontWeight: 800, fontSize: "1.11rem", color: "#E87A41", marginBottom: 3 }}>{item.title}</div>
+        <div style={{ fontSize: ".98rem", color: "#ffe5b6", marginBottom: 6, fontWeight: 410 }}>
           {item.description?.length > 130 ? (item.description.slice(0, 128) + "...") : item.description}
         </div>
         <div style={{ color: "#f5ddd4", fontSize: ".91em", marginBottom: 3 }}>
           {(item.source?.name ? item.source.name : "")}
-          {item.publishedAt?.slice?.(0,10) ? <>&nbsp;<span style={{ color: "#ffd7b4" }}>•</span> {item.publishedAt.slice(0,10)}</> : null}
+          {item.publishedAt?.slice?.(0, 10) ? <>&nbsp;• {item.publishedAt.slice(0, 10)}</> : null}
         </div>
         <a
           href={item.url}
@@ -382,7 +258,7 @@ function renderRichSlide(item, idx) {
             fontSize: "1em",
             background: "linear-gradient(90deg, #e87a41 70%, #c80000 110%)",
             boxShadow: "0 0 13px #c8000040",
-            padding: "8px 22px",
+            padding: "7px 18px",
             borderRadius: "11px",
             marginTop: 8,
             border: "none"
@@ -393,46 +269,38 @@ function renderRichSlide(item, idx) {
       </div>
     );
   }
-  // Weather slide: Emoji icon, description, metrics, styled background
   if (item.type === "weather" || item.weathercode !== undefined || item.icon || (item.temperature !== undefined && item.city)) {
     const icon = getWeatherIcon(item);
     return (
-      <div
-        key={item.city || idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: "linear-gradient(100deg, #1d4b2c 74%, #164b24 110%)",
-          boxShadow: "0 7px 32px #00960029",
-          borderRadius: 20,
-          border: "2.5px solid #009600",
-          color: "#fff",
-          minHeight: 200,
-          position: "relative",
-          padding: 20,
-        }}
-      >
+      <div key={item.city || idx} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+        background: "linear-gradient(100deg, #1d4b2c 74%, #164b24 110%)",
+        boxShadow: "0 7px 32px #00960029",
+        borderRadius: 20,
+        border: "2.5px solid #009600",
+        color: "#fff",
+        minHeight: 150,
+        position: "relative",
+        padding: 14,
+      }}>
         <span aria-label="weather" style={{
-          fontSize: 48,
-          marginBottom: 16,
+          fontSize: 39,
+          marginBottom: 8,
           color: "#56ffa2",
           position: "absolute",
-          left: 20,
+          left: 18,
           top: 10,
-          filter: "drop-shadow(0 2px 13px #00c97c66)"
         }}>{icon}</span>
-        <div style={{ fontWeight: 820, fontSize: "2.05rem", color: "#fff", marginBottom: 8, marginTop: 20 }}>
+        <div style={{ fontWeight: 800, fontSize: "1.38rem", color: "#fff", marginBottom: 7, marginTop: 19 }}>
           {item.temperature != null ? `${item.temperature}°C` : "N/A"}
         </div>
-        <div style={{ fontSize: "1.15em", color: "#bbffca", marginBottom: 7 }}>
+        <div style={{ fontSize: "1.08em", color: "#bbffca", marginBottom: 7 }}>
           {item.weathercode !== undefined ? getWeatherDescription(item.weathercode) : ""}
         </div>
-        <div style={{ color: "#93e39b", fontSize: ".97em", marginBottom: 7 }}>
+        <div style={{ color: "#93e39b", fontSize: ".97em", marginBottom: 6 }}>
           {item.city && item.country ? (<>{item.city}, {item.country}</>) : (item.city || "Chennai")}
         </div>
-        <div style={{ color: "#e3ffe9", fontSize: ".96em", marginBottom: 9 }}>
+        <div style={{ color: "#e3ffe9", fontSize: ".96em", marginBottom: 7 }}>
           Winds: {item.windspeed ?? "N/A"} km/h
         </div>
         <a
@@ -443,9 +311,9 @@ function renderRichSlide(item, idx) {
             fontWeight: 700,
             fontSize: "1em",
             background: "linear-gradient(90deg, #21e682 74%, #009600 110%)",
-            padding: "8px 24px",
-            borderRadius: "10px",
-            marginTop: 4,
+            padding: "6px 14px",
+            borderRadius: "9px",
+            marginTop: 3,
             border: "none"
           }}
         >
@@ -454,49 +322,39 @@ function renderRichSlide(item, idx) {
       </div>
     );
   }
-  // Announcements slide: prominent "!" icon, colored banner look, maybe dismissable (future), extra styling
   if (item.type === "announcement" || item.type === "community") {
     return (
-      <div
-        key={item.title || idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: "linear-gradient(93deg, #2d3360 60%, #0a1c38 120%)",
-          border: "2.7px solid #fbe056",
-          borderRadius: 28,
-          boxShadow: "0 7px 32px 1px #fbe05633, 0 9px 42px #000c",
-          minHeight: 154,
-          padding: "38px 17px 26px 17px",
-          color: "#ffe56b",
-          position: "relative",
-          fontFamily: "inherit"
-        }}
-      >
+      <div key={item.title || idx} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+        background: "linear-gradient(93deg, #2d3360 60%, #0a1c38 120%)",
+        border: "2.7px solid #fbe056",
+        borderRadius: 22,
+        boxShadow: "0 7px 32px 1px #fbe05633, 0 9px 42px #000c",
+        minHeight: 110,
+        padding: "26px 11px 17px 11px",
+        color: "#ffe56b",
+        position: "relative",
+        fontFamily: "inherit"
+      }}>
         <span aria-label="announcement" style={{
-          fontSize: 48,
+          fontSize: 38,
           color: "#ffe56b",
-          marginBottom: 10,
-          marginTop: -13,
+          marginBottom: 6,
+          marginTop: -10,
           position: "absolute",
-          left: 20,
+          left: 16,
           top: 10,
-          filter: "drop-shadow(0 4px 12px #ffe96ed1)"
         }}>📣</span>
         <div style={{
-          fontWeight: 820, fontSize: "1.29rem", marginBottom: 7, color: "#ffe56b", marginTop: 20, lineHeight: 1.18,
-          textShadow: "0 3px 14px #000, 0 1px 8px #ffe96e58"
+          fontWeight: 800, fontSize: "1.11rem", marginBottom: 7, color: "#ffe56b", marginTop: 15, lineHeight: 1.18,
         }}>
           {item.title || "Community Announcement"}
         </div>
         {item.message && <div style={{
           color: "#fffde7",
-          fontWeight: 420,
-          marginBottom: 8,
-          fontSize: "1.09rem",
-          textShadow: "0 2px 8px #ffe96e38"
+          fontWeight: 410,
+          marginBottom: 5,
+          fontSize: ".99rem",
         }}>{item.message}</div>}
         {item.link && (
           <a
@@ -506,11 +364,11 @@ function renderRichSlide(item, idx) {
             style={{
               color: "#2d3e80",
               background: "linear-gradient(90deg, #ffe56b 75%, #fffbe7 100%)",
-              fontWeight: 850,
-              padding: "7px 22px",
-              borderRadius: 10,
+              fontWeight: 800,
+              padding: "6px 13px",
+              borderRadius: 8,
               boxShadow: "0 0 12px #ffe56e54",
-              marginTop: 10,
+              marginTop: 6,
               textDecoration: "none"
             }}
           >Learn More</a>
@@ -518,55 +376,41 @@ function renderRichSlide(item, idx) {
       </div>
     );
   }
-  // Banner slide: very bold (maybe promotional, campaign, sponsor, or app-wide message)
   if (item.type === "banner") {
     return (
-      <div
-        key={item.title || "banner" + idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: "linear-gradient(98deg, #0e0e1c 78%, #000 100%)",
-          backgroundImage: item.bgImage ? `url(${item.bgImage})` : undefined,
-          backgroundRepeat: item.bgImage ? "no-repeat" : "unset",
-          backgroundSize: item.bgImage ? "cover" : "unset",
-          boxShadow: "0 24px 98px 2px #000a, 0 5px 30px #000, 0 5.5px 32px #fffbe771",
-          border: "2.9px solid #fffbe7",
-          borderRadius: 38,
-          minHeight: 155,
-          padding: "38px 13px 30px 13px",
-          color: "#fffdfb",
-          position: "relative",
-          overflow: "hidden"
-        }}
-      >
+      <div key={item.title || "banner" + idx} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+        background: "linear-gradient(98deg, #0e0e1c 78%, #000 100%)",
+        boxShadow: "0 24px 98px 2px #000a, 0 5px 30px #000, 0 5.5px 32px #fffbe771",
+        border: "2.9px solid #fffbe7",
+        borderRadius: 26,
+        minHeight: 110,
+        padding: "27px 10px 18px 10px",
+        color: "#fffdfb",
+        position: "relative",
+        overflow: "hidden"
+      }}>
         {item.icon && <span aria-label="banner-icon" style={{
-          fontSize: 50,
+          fontSize: 36,
           color: "#fffbe7",
           position: "absolute",
-          left: 24,
-          top: 15,
-          filter: "drop-shadow(0 5px 20px #fffbe7cf)"
+          left: 18,
+          top: 13,
         }}>{item.icon}</span>}
         <div style={{
-          fontWeight: 940,
-          fontSize: "1.51rem",
-          marginBottom: 10,
-          letterSpacing: ".011em",
+          fontWeight: 900,
+          fontSize: "1.18rem",
+          marginBottom: 9,
           color: "#fffbe7",
-          marginTop: 20,
-          textShadow: "0 3px 21px #c8000013, 0 0.5px 7px #fffbe786"
+          marginTop: 17,
         }}>
           {item.title}
         </div>
         <div style={{
           color: "#fff",
-          fontWeight: 560,
-          fontSize: "1.09rem",
-          textShadow: "0 1.5px 13px #fffbe774",
-          marginBottom: 6
+          fontWeight: 520,
+          fontSize: ".99rem",
+          marginBottom: 5
         }}>{item.message}</div>
         {item.link && (
           <a
@@ -576,59 +420,50 @@ function renderRichSlide(item, idx) {
             style={{
               color: "#000",
               background: "linear-gradient(90deg, #fffbe7 87%, #fff7cb 100%)",
-              fontWeight: 890,
+              fontWeight: 760,
               borderRadius: 8,
-              padding: "7px 29px",
+              padding: "6px 18px",
               textDecoration: "none",
-              boxShadow: "0 0 18px #fffbe752",
-              marginTop: 6,
-              fontSize: "1.09rem"
+              marginTop: 4,
+              fontSize: ".99rem"
             }}
           >{item.cta || "See Details"}</a>
         )}
       </div>
     );
   }
-  // Event slide: Event title, date/time, summary, icon, colored background
   if (item.type === "event" || (item.name && item.date && item.location)) {
     return (
-      <div
-        key={item.name || idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: "linear-gradient(95deg, #1b3417 62%, #0a221a 110%)",
-          boxShadow: "0 7px 40px #18bd2c23",
-          borderRadius: 20,
-          border: "2.5px solid #18bd2c",
-          minHeight: 175,
-          padding: 20,
-          position: "relative",
-        }}
-      >
+      <div key={item.name || idx} style={{
+        display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center",
+        background: "linear-gradient(95deg, #1b3417 62%, #0a221a 110%)",
+        boxShadow: "0 7px 40px #18bd2c23",
+        borderRadius: 20,
+        border: "2.5px solid #18bd2c",
+        minHeight: 135,
+        padding: 14,
+        position: "relative",
+      }}>
         <span aria-label="event" style={{
-          fontSize: 40,
-          marginBottom: 12,
+          fontSize: 30,
+          marginBottom: 6,
           color: "#18bd2c",
           position: "absolute",
-          left: 20,
+          left: 17,
           top: 10,
-          filter: "drop-shadow(0 2px 11px #18bd2c99)"
         }}>🎉</span>
-        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#18bd2c", marginBottom: 5, marginTop: 20 }}>
+        <div style={{ fontWeight: 750, fontSize: "1.03rem", color: "#18bd2c", marginBottom: 5, marginTop: 15 }}>
           {item.name}
         </div>
-        <div style={{ fontSize: ".99em", color: "#c2ffe0", fontWeight: 500, marginBottom: 6 }}>
+        <div style={{ fontSize: ".98em", color: "#c2ffe0", fontWeight: 500, marginBottom: 4 }}>
           <span role="img" aria-label="calendar">📅</span>&nbsp;{item.date}
         </div>
-        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
+        <div style={{ fontSize: ".94em", color: "#fff", marginBottom: 6 }}>
           <span role="img" aria-label="map">📍</span>&nbsp;{item.location}
         </div>
         {item.description && (
-          <div style={{ color: "#bfffcf", marginBottom: 7, fontSize: ".98em" }}>
-            {item.description.length > 110 ? (item.description.slice(0, 110) + "...") : item.description}
+          <div style={{ color: "#bfffcf", marginBottom: 6, fontSize: ".96em" }}>
+            {item.description.length > 80 ? (item.description.slice(0, 80) + "...") : item.description}
           </div>
         )}
         <a
@@ -639,9 +474,9 @@ function renderRichSlide(item, idx) {
             fontWeight: 700,
             fontSize: "1em",
             background: "linear-gradient(90deg, #0eebb8 66%, #18bd2c 100%)",
-            padding: "7px 20px",
-            borderRadius: "10px",
-            marginTop: 8,
+            padding: "5px 12px",
+            borderRadius: "8px",
+            marginTop: 7,
             border: "none"
           }}
         >
@@ -652,17 +487,14 @@ function renderRichSlide(item, idx) {
   }
   // Fallback basic slide
   return (
-    <div style={{ color: "#fff", textAlign: "center", padding: 30 }} key={idx}>
+    <div style={{ color: "#fff", textAlign: "center", padding: 20 }} key={idx}>
       {item.title || item.name || item.message || "Untitled"}
     </div>
   );
 }
 
-/**
- * Select emoji/icon for weather slide by icon code or weather code.
- */
+// Select emoji/icon for weather slide by icon code or weather code
 function getWeatherIcon(item) {
-  // OpenWeatherMap icon codes
   if (item.icon) {
     if (/01d/.test(item.icon)) return "☀️";
     if (/01n/.test(item.icon)) return "🌙";
@@ -672,7 +504,6 @@ function getWeatherIcon(item) {
     if (/13/.test(item.icon)) return "❄️";
     if (/50/.test(item.icon)) return "🌫️";
   }
-  // Weather code fallback
   const code = item.weathercode;
   if (code !== undefined) {
     if ([0].includes(code)) return "☀️";
@@ -699,63 +530,70 @@ function getWeatherDescription(code) {
   return "";
 }
 
-// Try to extract human-friendly label for a slide (for aria-live)
+// Human-friendly label for slide (for aria-live)
 function getSlideLabel(slide) {
   if (!slide || typeof slide === "string") return slide || "";
   if (slide.props && slide.props.title)
     return slide.props.title;
-  // Try to access string child in rich JSX
   if (slide.props && typeof slide.props.children === "string")
     return slide.props.children;
   return "";
 }
 
 /**
- * Touch/swipe navigation hook with snap-to-rotation and tactile feedback for 3D carousel.
+ * Touch/swipe navigation hook for classic slider (left/right).
  */
-function useCarouselSwipe(ref, next, prev, setIsAnimating, setActive, numSlides, lastInteractionRef) {
-  // We'll add basic horizontal swipe: drag left => next, drag right => previous, with short debounce
+function useCarouselSwipe(
+  ref,
+  next,
+  prev,
+  isAnimating,
+  setIsAnimating,
+  duration
+) {
+  const containerRef = React.useRef();
   useEffect(() => {
-    const stage = ref.current;
-    if (!stage) return;
-    let startX = null, lastX = null, delta = null, started = false, downTime = 0;
+    const container = containerRef.current;
+    let startX = null, lastX = null, delta = null, started = false;
+
     function handleTouchStart(e) {
-      if (e.touches && e.touches.length === 1) {
-        startX = e.touches[0].clientX;
-        lastX = startX;
-        started = true;
-        downTime = Date.now();
-      }
+      if (isAnimating || !e.touches || e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      lastX = startX;
+      started = true;
     }
     function handleTouchMove(e) {
-      if (!started || !startX) return;
+      if (!started || startX === null) return;
       lastX = e.touches[0].clientX;
     }
     function handleTouchEnd() {
-      if (!started || !startX || lastX == null) return;
+      if (!started || startX === null || lastX == null) return;
       delta = lastX - startX;
       if (Math.abs(delta) > 37) {
         if (delta < 0) next();
         else prev();
         setIsAnimating && setIsAnimating(true);
-        if (lastInteractionRef) lastInteractionRef.current = Date.now();
       }
       startX = lastX = delta = null;
       started = false;
-      downTime = 0;
     }
-    stage.addEventListener("touchstart", handleTouchStart, { passive: true });
-    stage.addEventListener("touchmove", handleTouchMove, { passive: true });
-    stage.addEventListener("touchend", handleTouchEnd, { passive: true });
+    if (container) {
+      container.addEventListener("touchstart", handleTouchStart, { passive: true });
+      container.addEventListener("touchmove", handleTouchMove, { passive: true });
+      container.addEventListener("touchend", handleTouchEnd, { passive: true });
+    }
     return () => {
-      stage.removeEventListener("touchstart", handleTouchStart);
-      stage.removeEventListener("touchmove", handleTouchMove);
-      stage.removeEventListener("touchend", handleTouchEnd);
+      if (container) {
+        container.removeEventListener("touchstart", handleTouchStart);
+        container.removeEventListener("touchmove", handleTouchMove);
+        container.removeEventListener("touchend", handleTouchEnd);
+      }
     };
-    // eslint-disable-next-line
-  }, [ref, next, prev, setIsAnimating, setActive, numSlides]);
+  }, [next, prev, isAnimating, setIsAnimating, duration]);
+  // attach ref if supplied (otherwise create hidden root)
+  if (ref && ref.current === null) ref.current = containerRef.current;
+  return containerRef;
 }
 
 // PUBLIC_INTERFACE
 export default ThreeDCarousel;
-
