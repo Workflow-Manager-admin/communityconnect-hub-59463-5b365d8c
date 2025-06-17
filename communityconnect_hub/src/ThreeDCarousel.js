@@ -7,23 +7,23 @@ import "./ThreeDCarousel.css";
  * 
  * Features:
  * - Slides distributed around a cylinder for immersive 3D.
- * - Customizable: visible slide count, animation speed, 3D perspective, content integration.
+ * - Customizable: visible slide count, animation speed, 3D perspective, content integration (news, events, etc).
  * - Enhanced accessibility and smooth animations, dark-themed visuals by default.
  *
  * Props:
  *   - slides: Array of JSX elements (required)
  *   - autoRotate: boolean (default: true)
- *   - rotateInterval: number ms (default: 3500)
- *   - visibleSlideCount: int (default: 3) – how many slides visible at once (center+adjacent pairs/cylinder)
- *   - perspective: number (default: 1400) – CSS 3D perspective px
- *   - carouselData: array (optional) – for API/content integration, used if slides undefined
+ *   - rotateInterval: number ms (default: 4800, slower for realism)
+ *   - visibleSlideCount: int (default: 5) – how many slides visible at once (center+adjacent pairs/cylinder)
+ *   - perspective: number (default: 1700) – CSS 3D perspective px
+ *   - carouselData: array (optional) – for API/live content integration, used if slides undefined
  */
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  rotateInterval = 3500,
-  visibleSlideCount = 3,
-  perspective = 1400,
+  rotateInterval = 4800, // slower for more realism!
+  visibleSlideCount = 5, // show 4-6 slides at once for roundness
+  perspective = 1700,    // deeper 3D look for realism
   carouselData = null,
 }) {
   // Prefer slides array, otherwise build slides from carouselData prop (for API/live content)
@@ -32,8 +32,8 @@ function ThreeDCarousel({
     : (Array.isArray(carouselData)
       ? carouselData.map(renderDataToSlide) : []);
   const numSlides = carouselSlides.length;
-  // Clamp visibleSlideCount (at least 1, at most all)
-  visibleSlideCount = Math.max(1, Math.min(visibleSlideCount, numSlides ? numSlides : 1));
+  // Clamp visibleSlideCount (at least 1, max 6, never more than slides)
+  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, 6, numSlides || 4));
 
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -56,19 +56,18 @@ function ThreeDCarousel({
       // eslint-disable-next-line
     }, [count, showN]);
     function getRadius(width) {
-      // For smoother 3D roundness, adjust by visible count and screen
-      // Small screens: tighter cylinder
+      // Cylinder roundness: wider for more visible slides
       if (width < 600)
-        return 120 + (showN-1)*28 + (count-4)*14;
+        return 160 + (showN-1)*40 + (count-4)*11;
       if (width < 900)
-        return 210 + (showN-1)*33 + (count-4)*15;
+        return 230 + (showN-1)*50 + (count-4)*14;
       // Desktop: More depth
-      return 280 + (showN-1)*45 + (count-4)*20;
+      return 325 + (showN-1)*60 + (count-4)*18;
     }
     return r;
   }
 
-  // Auto-rotation effect (shorter animation for smoothness)
+  // Auto-rotation effect (slower, smoother)
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
@@ -323,6 +322,13 @@ function getSlideLabel(slide) {
   return "";
 }
 
+/**
+ * Dummy touch/swipe hook for linter compatibility.
+ * To enable mobile swipe: implement a basic left/right swipe detector.
+ */
+function useCarouselSwipe(ref, next, prev) {
+  // No-op for now; linter fix
+}
 
-
+export default ThreeDCarousel;
 

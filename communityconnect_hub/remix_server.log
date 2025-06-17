@@ -7,13 +7,13 @@
 <i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
 <i> [webpack-dev-server] Content not from webpack is served from './public' directory
 Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
-asset bundle.js 1.85 MiB [emitted] (name: main)
+asset bundle.js 1.86 MiB [emitted] (name: main)
 asset index.html 1.98 KiB [emitted]
 runtime modules 28.7 KiB 15 modules
 modules by path ./node_modules/ 1.54 MiB 34 modules
-modules by path ./src/ 111 KiB
-  modules by path ./src/*.css 37.9 KiB 6 modules
-  modules by path ./src/*.js 73.5 KiB
+modules by path ./src/ 118 KiB
+  modules by path ./src/*.css 38 KiB 6 modules
+  modules by path ./src/*.js 79.5 KiB
     ./src/index.js 615 bytes [built] [code generated]
     + 3 modules
 modules by path ./.ve/ 15.1 KiB
@@ -22,234 +22,82 @@ modules by path ./.ve/ 15.1 KiB
     ./.ve/EditorOverlay.css 2.25 KiB [built] [code generated]
     ./node_modules/css-loader/dist/cjs.js!./.ve/EditorOverlay.css 697 bytes [built] [code generated]
   ./.ve/EditorOverlay.jsx 1.58 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 1821 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.84 MiB
-  asset bundle.js 1.84 MiB [emitted] (name: main)
-  asset main.4ca90329e3baf5d78170.hot-update.js 5.73 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.4ca90329e3baf5d78170.hot-update.json 54 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.84 MiB = bundle.js 1.84 MiB main.4ca90329e3baf5d78170.hot-update.js 5.73 KiB
-cached modules 1.6 MiB [cached] 46 modules
-runtime modules 28.7 KiB 15 modules
-javascript modules 57.5 KiB
-  ./src/App.js 57.4 KiB [code generated]
-  ./src/ThreeDCarousel.js 39 bytes [built] [code generated] [1 error]
-
-ERROR in ./src/ThreeDCarousel.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/ThreeDCarousel.js: Identifier 'useCarouselSwipe' has already been declared. (369:9)
-
-  367 |  * Adds touch-swipe navigation to the given ref element.
-  368 |  */
-> 369 | function useCarouselSwipe(ref, onNext, onPrev) {
-      |          ^
-  370 |   useEffect(() => {
-  371 |     if (!ref.current) return;
-  372 |     let startX = null;
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.registerFunctionStatementId (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13381:16)
-    at JSXParserMixin.parseFunction (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13365:12)
-    at JSXParserMixin.parseFunctionStatement (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13044:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12709:21)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/App.js 4:0-46 556:28-42
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 125 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.85 MiB
-  asset bundle.js 1.84 MiB [emitted] (name: main)
-  asset main.0fab406fe62c457a2720.hot-update.js 7.62 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.0fab406fe62c457a2720.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.85 MiB = bundle.js 1.84 MiB main.0fab406fe62c457a2720.hot-update.js 7.62 KiB
-cached modules 1.62 MiB [cached] 45 modules
-runtime modules 28.7 KiB 15 modules
-javascript modules 30.5 KiB
-  ./src/ThreeDCarousel.js 39 bytes [built] [1 error]
-  ./node_modules/css-loader/dist/cjs.js!./src/App.css 25.5 KiB [built]
-  ./node_modules/css-loader/dist/cjs.js!./src/ThreeDCarousel.css 5.02 KiB [built] [code generated]
-
-ERROR in ./src/ThreeDCarousel.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/ThreeDCarousel.js: Identifier 'useCarouselSwipe' has already been declared. (369:9)
-
-  367 |  * Adds touch-swipe navigation to the given ref element.
-  368 |  */
-> 369 | function useCarouselSwipe(ref, onNext, onPrev) {
-      |          ^
-  370 |   useEffect(() => {
-  371 |     if (!ref.current) return;
-  372 |     let startX = null;
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.registerFunctionStatementId (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13381:16)
-    at JSXParserMixin.parseFunction (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13365:12)
-    at JSXParserMixin.parseFunctionStatement (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13044:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12709:21)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
-    at processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at runNextTicks (node:internal/process/task_queues:64:3)
-    at process.processImmediate (node:internal/timers:447:9)
- @ ./src/App.js 4:0-46 556:28-42
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 111 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.91 MiB
-  asset bundle.js 1.84 MiB [emitted] (name: main)
-  asset main.a0711cbe6841554ac43a.hot-update.js 73.2 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.a0711cbe6841554ac43a.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.91 MiB = bundle.js 1.84 MiB main.a0711cbe6841554ac43a.hot-update.js 73.2 KiB
-cached modules 1.6 MiB [cached] 46 modules
-runtime modules 28.7 KiB 15 modules
-javascript modules 57.5 KiB
-  ./src/App.js 57.5 KiB [built] [code generated]
-  ./src/ThreeDCarousel.js 39 bytes [built] [1 error]
-
-ERROR in ./src/ThreeDCarousel.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/ThreeDCarousel.js: Identifier 'useCarouselSwipe' has already been declared. (369:9)
-
-  367 |  * Adds touch-swipe navigation to the given ref element.
-  368 |  */
-> 369 | function useCarouselSwipe(ref, onNext, onPrev) {
-      |          ^
-  370 |   useEffect(() => {
-  371 |     if (!ref.current) return;
-  372 |     let startX = null;
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.registerFunctionStatementId (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13381:16)
-    at JSXParserMixin.parseFunction (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13365:12)
-    at JSXParserMixin.parseFunctionStatement (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13044:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12709:21)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
- @ ./src/App.js 4:0-46 556:28-42
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 278 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.84 MiB
-  asset bundle.js 1.84 MiB [emitted] (name: main)
-  asset main.2e26117baebd24f49df5.hot-update.js 854 bytes [emitted] [immutable] [hmr] (name: main)
-asset main.2e26117baebd24f49df5.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.84 MiB = bundle.js 1.84 MiB main.2e26117baebd24f49df5.hot-update.js 854 bytes
-cached modules 1.65 MiB [cached] 47 modules
-runtime modules 28.7 KiB 15 modules
-./src/ThreeDCarousel.js 39 bytes [built] [1 error]
-
-ERROR in ./src/ThreeDCarousel.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/ThreeDCarousel.js: Only one default export allowed per module. (328:0)
-
-  326 | export default ThreeDCarousel;
-  327 |
-> 328 | export default ThreeDCarousel;
-      | ^
-  329 |
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at JSXParserMixin.checkDuplicateExports (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13992:14)
-    at JSXParserMixin.checkExport (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13922:14)
-    at JSXParserMixin.parseExport (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13750:12)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12797:27)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/App.js 4:0-46 556:28-42
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 79 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.88 MiB
-  asset bundle.js 1.86 MiB [emitted] (name: main)
-  asset main.7eea520d8fcf002d77bd.hot-update.js 25.2 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.7eea520d8fcf002d77bd.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.7eea520d8fcf002d77bd.hot-update.js 25.2 KiB
-cached modules 1.66 MiB [cached] 48 modules
-runtime modules 28.7 KiB 15 modules
-./src/ThreeDCarousel.js 13.5 KiB [built] [code generated]
 
 WARNING in ./src/App.js 556:28-42
 export 'default' (imported as 'ThreeDCarousel') was not found in './ThreeDCarousel' (module has no exports)
  @ ./src/index.js 5:0-24 14:32-35
 
-webpack 5.99.9 compiled with 1 warning in 117 ms
+webpack 5.99.9 compiled with 1 warning in 1693 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.88 MiB
+  asset bundle.js 1.86 MiB [emitted] (name: main)
+  asset main.8f77894c3b677fdedb2e.hot-update.js 17.7 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.8f77894c3b677fdedb2e.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.8f77894c3b677fdedb2e.hot-update.js 17.7 KiB
+cached modules 1.66 MiB [cached] 48 modules
+runtime modules 28.7 KiB 15 modules
+./src/ThreeDCarousel.js 13.6 KiB [built] [code generated]
+
+WARNING in ./src/App.js 556:28-42
+export 'default' (imported as 'ThreeDCarousel') was not found in './ThreeDCarousel' (module has no exports)
+ @ ./src/index.js 5:0-24 14:32-35
+
+webpack 5.99.9 compiled with 1 warning in 181 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.87 MiB
+  asset bundle.js 1.86 MiB [emitted] (name: main)
+  asset main.271ce6ee02ad512d2423.hot-update.js 8.36 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.271ce6ee02ad512d2423.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.87 MiB = bundle.js 1.86 MiB main.271ce6ee02ad512d2423.hot-update.js 8.36 KiB
+cached modules 1.64 MiB [cached] 47 modules
+runtime modules 28.7 KiB 15 modules
+javascript modules 31.2 KiB
+  ./node_modules/css-loader/dist/cjs.js!./src/App.css 25.5 KiB [built]
+  ./node_modules/css-loader/dist/cjs.js!./src/ThreeDCarousel.css 5.74 KiB [built] [code generated]
+
+WARNING in ./src/App.js 556:28-42
+export 'default' (imported as 'ThreeDCarousel') was not found in './ThreeDCarousel' (module has no exports)
+ @ ./src/index.js 5:0-24 14:32-35
+
+webpack 5.99.9 compiled with 1 warning in 110 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.93 MiB
+  asset bundle.js 1.86 MiB [emitted] (name: main)
+  asset main.c22fa00d1bb756654816.hot-update.js 73.3 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.c22fa00d1bb756654816.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.93 MiB = bundle.js 1.86 MiB main.c22fa00d1bb756654816.hot-update.js 73.3 KiB
+cached modules 1.61 MiB [cached] 48 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 57.6 KiB [built] [code generated]
+
+WARNING in ./src/App.js 556:28-42
+export 'default' (imported as 'ThreeDCarousel') was not found in './ThreeDCarousel' (module has no exports)
+ @ ./src/index.js 5:0-24 14:32-35
+
+webpack 5.99.9 compiled with 1 warning in 397 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.88 MiB
+  asset bundle.js 1.86 MiB [emitted] (name: main)
+  asset main.e3f5836e72a8b486bd5d.hot-update.js 18 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.e3f5836e72a8b486bd5d.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.e3f5836e72a8b486bd5d.hot-update.js 18 KiB
+cached modules 1.6 MiB [cached] 47 modules
+runtime modules 28.7 KiB 15 modules
+javascript modules 71.3 KiB
+  ./src/App.js 57.6 KiB [code generated]
+  ./src/ThreeDCarousel.js 13.7 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 84 ms
+assets by status 1.86 MiB [cached] 2 assets
+cached modules 1.66 MiB (javascript) 28.7 KiB (runtime) [cached] 63 modules
+./src/ThreeDCarousel.js 13.7 KiB [built]
+webpack 5.99.9 compiled successfully in 122 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.88 MiB
+  asset bundle.js 1.86 MiB [emitted] (name: main)
+  asset main.74762732fdaa0d612e62.hot-update.js 18.1 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.74762732fdaa0d612e62.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.74762732fdaa0d612e62.hot-update.js 18.1 KiB
+cached modules 1.66 MiB [cached] 48 modules
+runtime modules 28.7 KiB 15 modules
+./src/ThreeDCarousel.js 13.9 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 108 ms

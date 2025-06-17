@@ -302,9 +302,9 @@ function HomePage() {
         <ThreeDCarousel
           slides={slides}
           autoRotate={true}
-          rotateInterval={3400}
-          visibleSlideCount={3}
-          perspective={1400}
+          rotateInterval={4800}        // Slower for realism
+          visibleSlideCount={5}        // 4-6 visible: best roundness and depth
+          perspective={1700}           // More impressive 3D
         />
         {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>
