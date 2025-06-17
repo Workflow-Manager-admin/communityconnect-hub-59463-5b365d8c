@@ -531,11 +531,20 @@ function App() {
   // --- API URLs ---
   // All news data must now be fetched only via the secure backend proxy endpoint.
   // External News API must never be called from the client.
-  const NEWS_API = "/api/news";
-  // Weather data must be fetched only via the secure backend proxy endpoint.
-  // External weather API must never be called from the client.
-  const WEATHER_API = "/api/weather";
+  // For local dev: must call backend at http://localhost:3300/api/news if served on another port
+  let NEWS_API = "/api/news";
+  let WEATHER_API = "/api/weather";
   const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
+
+  // Ensure correct backend base when on localhost/dev (fix issues with CORS/network failures)
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost" &&
+    window.location.port !== "3300"
+  ) {
+    NEWS_API = "http://localhost:3300/api/news";
+    WEATHER_API = "http://localhost:3300/api/weather";
+  }
 
   // --- Effects: Fetch News, Weather, Events ---
   React.useEffect(() => {
@@ -553,35 +562,47 @@ function App() {
       }
       try {
         // Always use the secure backend endpoint for fetching news
-        // Use relative URL to enable proxy in production & localhost in dev
         let API_URL = NEWS_API;
-        // TIP: If you run the frontend on a *different* port than the backend, you must use a proxy or match CORS.
-        // In dev, React's proxy setting can route "/api" to http://localhost:3300
-        // But if frontend is served statically (not 'npm start'), must ensure requests hit backend port
-
-        // Remove explicit localhost override, use REACT_APP_API_BASE if exists, or relative
+        // Optional: override using env for deployments/proxies
         if (process.env.REACT_APP_API_BASE) {
           API_URL = `${process.env.REACT_APP_API_BASE}/api/news`;
         }
-
         const res = await fetch(API_URL, {
-          credentials: "include" // In case cookies with API in future (not needed now)
+          credentials: "include" // Not required now, for future-proof
         });
-        if (!res.ok) throw new Error("Failed to fetch news from proxy");
+        if (!res.ok) {
+          const msg = `Failed to fetch news from proxy (status ${res.status})`;
+          // Try to get error reason if backend provided
+          try {
+            const errorJson = await res.json();
+            // eslint-disable-next-line
+            //console.error("API error:", errorJson);
+          } catch {}
+          throw new Error(msg);
+        }
         const out = await res.json();
 
         // Defensive: backend should always send {articles: [...]}
         let articles = [];
         if (out && Array.isArray(out.articles)) {
-          articles = out.articles.slice(0, 5); // Show top 5 to limit
+          articles = out.articles.slice(0, 5); // Show top 5
+        } else {
+          // Try legacy fallback
+          if (Array.isArray(out.data?.articles)) {
+            articles = out.data.articles.slice(0, 5);
+          } else if (Array.isArray(out.data)) {
+            // In case API returns array at root
+            articles = out.data.slice(0, 5);
+          }
         }
         if (active) {
           setNews(articles);
           setCached(CACHE_KEYS.news, articles);
         }
       } catch (err) {
-        // Optionally log error for debug
-        //console.error("Error fetching news:", err);
+        // Show helpful log message if something fails
+        // eslint-disable-next-line
+        //console.error("Error fetching news:", err && err.message ? err.message : err);
         if (active) setNews([]);
       }
     }

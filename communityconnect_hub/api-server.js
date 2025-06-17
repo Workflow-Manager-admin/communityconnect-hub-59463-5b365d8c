@@ -19,29 +19,48 @@ app.get("/api/news", async (req, res) => {
   // This endpoint proxies NewsAPI and outputs { articles: [...] }
   // CORS: express cors() middleware allows all origins; adjust as needed for prod
 
+  // Default country: us (Aligned with frontend expectation)
   const country = req.query.country || "us";
+  // Optional search
   const q = req.query.q ? `&q=${encodeURIComponent(req.query.q)}` : "";
 
-  const url = `https://newsapi.org/v2/top-headlines?country=${country}${q}&apiKey=${NEWS_API_KEY}`;
+  // Validate API Key present
+  if (!NEWS_API_KEY) {
+    return res.status(500).json({ error: "News API key not configured on server." });
+  }
+
+  // Only allow valid country, fallback to us on invalid (keeps API happy)
+  const allowedCountries = ["us", "in", "gb", "au", "ca", "fr", "de"];
+  const chosenCountry = allowedCountries.includes(country) ? country : "us";
+
+  const url = `https://newsapi.org/v2/top-headlines?country=${chosenCountry}${q}&apiKey=${NEWS_API_KEY}`;
 
   try {
     const apiRes = await fetch(url);
-    const data = await apiRes.json();
 
-    if (!data.articles) {
-      // Pass backend error up for debug, but don't leak to client in prod
-      return res.status(502).json({ error: "Failed to fetch news." });
+    if (!apiRes.ok) {
+      // Pass along error/status code from upstream if possible
+      const errorData = await apiRes.json().catch(() => {});
+      const errorMsg = errorData && errorData.message ? errorData.message : "News provider error";
+      return res.status(apiRes.status).json({ error: "Failed to fetch news.", details: errorMsg });
     }
 
-    // Only return the fields the frontend requires
-    // Ensure every field exists and fallback so frontend is not confused by undefined
+    const data = await apiRes.json();
+
+    // Defensive: structure expected from NewsAPI is { articles: [] }
+    if (!data.articles || !Array.isArray(data.articles)) {
+      // If error or API changed format
+      return res.status(502).json({ error: "Failed to fetch news or no articles found." });
+    }
+
+    // Ensure every field exists, avoid undefined for React
     const articles = data.articles.map(a => ({
-      title: a.title || "",
-      description: a.description || "",
-      url: a.url || "",
-      urlToImage: a.urlToImage || "",
-      source: a.source || { name: "" },
-      publishedAt: a.publishedAt || ""
+      title: a?.title || "",
+      description: a?.description || "",
+      url: a?.url || "",
+      urlToImage: a?.urlToImage || "",
+      source: (a?.source && a.source.name) ? a.source : { name: "" },
+      publishedAt: a?.publishedAt || ""
     }));
 
     res.json({ articles });
