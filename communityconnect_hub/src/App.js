@@ -188,21 +188,22 @@ function NavLinks({ active }) {
  * PUBLIC_INTERFACE
  * Modernized HomePage: Contemporary hero, advanced layout, visual depth with grid overlays, enhanced cards, modern CTAs, and soft gradients.
  */
-function HomePage({ news, weather, events, contacts, newsError }) {
-  // Micro-interaction: Smooth scroll from hero CTA buttons
-  const handleHeroCTAClick = (selector) => (e) => {
+function HomePage() {
+  // Use the React Router navigation hook unconditionally (rules of hooks)
+  const navigate = useNavigate();
+  // Micro-interaction: On CTA, navigate to section page.
+  const handleHeroCTAClick = (path) => (e) => {
     e.preventDefault();
-    const el = document.querySelector(selector);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.classList.add("hub-section-flash");
-      setTimeout(() => el.classList.remove("hub-section-flash"), 700);
+    if (navigate) {
+      navigate(path);
+    } else if (window && window.location) {
+      window.location.href = path;
     }
   };
 
   return (
     <main className="hub-main hub-homepage-main">
-      {/* Redesigned HERO SECTION */}
+      {/* Redesigned HERO SECTION - Only hero and CTA, no preview blocks */}
       <section className="hub-hero-section hub-section-entrance enhanced-hero">
         {/* Animated Blobs/Deco BG */}
         <div className="hero-bg-visuals" aria-hidden>
@@ -224,39 +225,39 @@ function HomePage({ news, weather, events, contacts, newsError }) {
           </p>
           <div className="hero-cta-bar">
             <a
-              href="#hub-news-sec"
+              href="/news"
               className="btn btn-accent btn-large hero-btn"
-              onClick={handleHeroCTAClick("#hub-news-sec")}
+              onClick={handleHeroCTAClick("/news")}
             >
               <span role="img" aria-label="news" style={{ marginRight: 9 }}>📰</span>
               View News
             </a>
             <a
-              href="#hub-weather-sec"
+              href="/weather"
               className="btn btn-large hero-btn"
               style={{ background: "var(--secondary)", color: "#fff" }}
-              onClick={handleHeroCTAClick("#hub-weather-sec")}
+              onClick={handleHeroCTAClick("/weather")}
             >
               <span role="img" aria-label="weather" style={{ marginRight: 8 }}>☁️</span>
               Check Weather
             </a>
             <a
-              href="#hub-contacts-sec"
+              href="/emergency-contacts"
               className="btn btn-large hero-btn"
               style={{ background: "var(--accent)", color: "#fff" }}
-              onClick={handleHeroCTAClick("#hub-contacts-sec")}
+              onClick={handleHeroCTAClick("/emergency-contacts")}
             >
               <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>🆘</span>
               Emergency Contacts
             </a>
             <a
-              href="#hub-events-sec"
+              href="/events"
               className="btn btn-large hero-btn"
               style={{
                 background: "linear-gradient(88deg, #c80000 25%, #009600 70%, #0000f3 100%)",
                 color: "#fff"
               }}
-              onClick={handleHeroCTAClick("#hub-events-sec")}
+              onClick={handleHeroCTAClick("/events")}
             >
               <span role="img" aria-label="events" style={{ marginRight: 6 }}>🎉</span>
               Upcoming Events
@@ -268,67 +269,7 @@ function HomePage({ news, weather, events, contacts, newsError }) {
           <div/><div/><div/><div/><div/> 
         </div>
       </section>
-
-      {/* Modernized Content Layout */}
-      <div className="container hub-content-layout home-content-grid">
-        {/* Left Column: News + Weather */}
-        <section
-          id="hub-news-sec"
-          className="hub-main-column hub-section-entrance"
-          tabIndex={-1}
-          aria-label="News section"
-          style={{
-            scrollMarginTop: 98,
-            animationDelay: "0.085s",
-            borderTop: "3px solid #c8000055"
-          }}
-        >
-          <h2 className="hub-section-title modern-section-title" style={{marginTop:0}}>
-            <ColorDot color="#c80000" animated /> Latest News
-          </h2>
-          <NewsPanel news={news} loading={!news.length && !newsError} previewCount={3} error={newsError} />
-          <h2 id="hub-weather-sec" className="hub-section-title modern-section-title" style={{marginTop: 38}}>
-            <ColorDot color="#009600" animated /> Weather
-          </h2>
-          <WeatherPanel weather={weather} loading={!weather} previewOnly />
-        </section>
-
-        {/* Center: Emergency Contacts */}
-        <section
-          id="hub-contacts-sec"
-          className="hub-side-column hub-section-entrance"
-          tabIndex={-1}
-          aria-label="Emergency contacts section"
-          style={{
-            scrollMarginTop: 98,
-            animationDelay: "0.17s",
-            borderTop: "3px solid #0000f364"
-          }}
-        >
-          <h2 className="hub-section-title modern-section-title" style={{marginTop:0}}>
-            <ColorDot color="#0000f3" animated /> Emergency Contacts
-          </h2>
-          <ContactsPanel contacts={contacts} previewOnly />
-        </section>
-
-        {/* Right: Chennai Events */}
-        <section
-          id="hub-events-sec"
-          className="hub-main-column hub-section-entrance"
-          tabIndex={-1}
-          aria-label="Events section"
-          style={{
-            scrollMarginTop: 98,
-            animationDelay: "0.255s",
-            borderTop: "3px solid #00960072"
-          }}
-        >
-          <h2 className="hub-section-title modern-section-title" style={{marginTop:0}}>
-            <ColorDot color="#009600" animated /> Upcoming Events in Chennai
-          </h2>
-          <EventsPanel events={events} loading={!events.length} previewCount={3} showChennaiNotice />
-        </section>
-      </div>
+      {/* No cross-section previews/content shown on homepage */}
     </main>
   );
 }
