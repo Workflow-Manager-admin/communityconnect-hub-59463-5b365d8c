@@ -21,23 +21,26 @@ import "./ThreeDCarousel.css";
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  // Adjusted: slightly faster default speed for more dynamic carousel (still smooth)
-  rotateInterval = 4100,
-  // Adjust visible slides to a more cylindrical effect: 6 looks best for full round (fallback to max content)
-  visibleSlideCount = 6,
-  // Adjusted perspective for more pronounced 3D cylinder (vertical stacking is improved with ~1450)
-  perspective = 1450,
+  // More natural, slightly quicker but smooth auto-rotation (was 4100)
+  rotateInterval = 3200,
+  // Set the clear visible slide count to 5 (as requested, best for cyl effect and content visibility)
+  visibleSlideCount = 5,
+  // Deepen the perspective for even more pronounced 3D (stronger than before)
+  perspective = 1950,
   carouselData = null,
 }) {
-  // Prefer "slides", but if not provided use "carouselData" (from APIs: news, events, weather)
+  // Accept slides or fallback to dynamic carouselData
   let carouselSlides = Array.isArray(slides)
     ? slides
     : (Array.isArray(carouselData)
       ? carouselData.map(renderDataToSlide) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp: show at least 4 but maximum 6, but never more than slides available (keep cylinder realistic)
+  // Clamp: ensure 4 <= visibleSlideCount <= 6, but never > slides present
   visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, 6, numSlides > 0 ? numSlides : 4));
+
+  // Ensure always odd for balance (when <numSlides allows)
+  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--;
 
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -45,10 +48,10 @@ function ThreeDCarousel({
   const intervalRef = useRef();
   const stageRef = useRef();
 
-  // Single, clear angle per slide for circular effect
+  // Per-slide angle for 3D roundness
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
 
-  // Compute the cylinder radius based on screen and slide count for appropriate depth
+  // Compute 3D radius responsively, with stronger depth (cylinder feeling!) on desktop
   function useResponsiveRadius(count, showN) {
     const [r, setR] = useState(getRadius(window.innerWidth));
     useEffect(() => {
@@ -57,27 +60,27 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, showN]);
     function getRadius(width) {
-      // More perspective for more visible slides; deeper on desktop
-      if (width < 600) return 155 + (showN - 1) * 36 + (count - 4) * 7;
-      if (width < 900) return 215 + (showN-1)*44 + (count-4)*11;
-      return 345 + (showN-1)*57 + (count-4)*18;
+      // Sharper depth: side slides fall away more for 3D illusion
+      if (width < 500) return 120 + (showN - 1) * 34 + (count - 4) * 8;
+      if (width < 900) return 210 + (showN - 1) * 52 + (count - 4) * 15;
+      return 425 + (showN - 1) * 72 + (count - 4) * 21;
     }
     return r;
   }
   const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Auto-rotate for showcase; slow for realism/legibility
+  // Smooth auto-rotate logic
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
     return () => clearInterval(intervalRef.current);
   }, [autoRotate, rotateInterval, numSlides, paused, active]);
 
-  // Animation state
+  // Animation state for disabling rapid user nav
   useEffect(() => {
     if (!isAnimating) return;
-    // Transition slightly faster (CSS duration is ~0.62s for main slide)
-    const t = setTimeout(() => setIsAnimating(false), 470);
+    // Slightly slower than CSS (matches .62s in css) for smoothness
+    const t = setTimeout(() => setIsAnimating(false), 630);
     return () => clearTimeout(t);
   }, [isAnimating]);
 
@@ -114,24 +117,35 @@ function ThreeDCarousel({
   // Touch/Swipe navigation for mobile
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
 
-  // For a cylinder, center is 0, flanking slides are ±1...N, others are out of view for performance
+  // For a cylinder: only show actual visible slide count
   function getVisible(relPos) {
-    // Shows a balanced cylinder regardless of slide count; ensures symmetry
-    let min, max;
+    // Sides wrap; use abs for both direction
     if (numSlides <= visibleSlideCount) return true;
-    // Handle wrap-around properly, works for both sides
-    let half = Math.floor(visibleSlideCount / 2);
-    let behind = Math.floor((visibleSlideCount - 1) / 2);
-    let ahead = visibleSlideCount - 1 - behind;
-
-    // relPos = how far ahead this slide is from current (modulo numSlides)
+    let halfCount = Math.floor(visibleSlideCount / 2);
     if (relPos === 0) return true;
-    if (relPos > 0 && relPos <= ahead) return true;
-    if (relPos > numSlides - behind - 1 && relPos < numSlides) return true;
+    if (relPos <= halfCount) return true; // after active, up to visible edge
+    if (relPos >= numSlides - halfCount) return true; // before active, wraps around
     return false;
   }
 
-  // aria-live message for accessibility: which slide is active
+  // For main/side/far slides, provide custom opacity/blur for realism cylinder (side slides fade out)
+  function getStyle(relPos) {
+    if (relPos === 0) {
+      return { opacity: 1, zIndex: 10, filter: "none", pointerEvents: "auto" };
+    }
+    const half = Math.floor(visibleSlideCount / 2);
+    let sideOrFar = (relPos <= half && relPos !== 0)
+      || (relPos > numSlides - half && relPos < numSlides);
+
+    if (sideOrFar) {
+      // balanced inner side slide
+      return { opacity: 0.54, filter: "blur(4px) grayscale(0.5)", zIndex: 3, pointerEvents: "none" };
+    }
+    // farther ones (at outer edge of visible window), fade to background
+    return { opacity: 0.30, filter: "blur(8px) grayscale(0.8) brightness(0.93)", zIndex: 1, pointerEvents: "none" };
+  }
+
+  // aria-live: current slide info for accessibility
   const liveMsg =
     numSlides > 0
       ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
@@ -143,7 +157,12 @@ function ThreeDCarousel({
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="Core Features Carousel"
-      style={{ outline: "none", perspective: `${perspective}px`, background: "transparent" }}
+      style={{
+        outline: "none",
+        perspective: `${perspective}px`,
+        background: "linear-gradient(98deg, #111124 70%, #19192d 100%)",
+        filter: "drop-shadow(0 19px 90px #000a) brightness(1.02)"
+      }}
       onKeyDown={handleKeyDown}
       onMouseEnter={pause}
       onMouseLeave={resume}
@@ -160,18 +179,20 @@ function ThreeDCarousel({
         aria-live="off"
       >
         {carouselSlides.length === 0 && (
-          <div className="carousel-3d-slide active" aria-hidden="false" style={{
-            opacity: 1, zIndex: 2,
-            filter: "none", pointerEvents: "auto"
-          }}>
+          <div className="carousel-3d-slide active" aria-hidden="false"
+            style={{
+              opacity: 1, zIndex: 9, filter: "none", pointerEvents: "auto",
+              background: "linear-gradient(98deg, #232338 70%, #18182d 100%)"
+            }}>
             <span style={{ color: "#fff", fontWeight: 600 }}>No slides to display.</span>
           </div>
         )}
         {carouselSlides.map((slide, i) => {
           const theta = i * angleStep;
+          // circular offset
           const relPos = (i - active + numSlides) % numSlides;
-          const visible = getVisible(relPos) || numSlides < visibleSlideCount + 1;
-
+          // show only right amount of slides for strong cylinder
+          if (!getVisible(relPos)) return null;
           return (
             <div
               className={`carousel-3d-slide${relPos === 0 ? " active" : ""}`}
@@ -180,10 +201,8 @@ function ThreeDCarousel({
               tabIndex={relPos === 0 ? 0 : -1}
               style={{
                 transform: `rotateY(${theta}deg) translateZ(${radius}px)`,
-                zIndex: relPos === 0 ? 3 : 1,
-                opacity: visible ? (relPos === 0 ? 1 : 0.54) : 0,
-                pointerEvents: relPos === 0 ? "auto" : "none",
-                transitionDelay: isAnimating && relPos === 0 ? "0.08s" : "0s"
+                transitionDelay: isAnimating && relPos === 0 ? "0.05s" : "0s",
+                ...getStyle(relPos)
               }}
             >
               {slide}
