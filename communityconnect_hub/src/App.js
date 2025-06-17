@@ -414,10 +414,34 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
 
   // Compose dynamic slides
   const slides = [
+    // --- Static or dynamic announcement slide (inserted at FRONT for visibility, adjust as desired) ---
+    {
+      type: "announcement",
+      title: "Community Clean-up: April 28th, Join Us!",
+      message: "Let’s keep our parks clean. Volunteers needed for this Sunday’s morning drive. All ages welcome!",
+      link: "/events"
+    },
+    // --- Static promotional/banner slide (may remove or replace as needed) ---
+    {
+      type: "banner",
+      title: "Welcome to the New CommunityConnect Hub!",
+      message: "Your gateway to local news, weather, events, and community resources.",
+      icon: "⭐",
+      cta: "About Us",
+      link: "/about"
+    },
+    // Existing dynamic slides
     <NewsSlide key="slide-news" />,
     <WeatherSlide key="slide-weather" />,
     <ContactsSlide key="slide-contacts" />,
     <EventSlide key="slide-event" />,
+    // --- Example: additional dynamic community announcement (simulate from API in future) ---
+    {
+      type: "community",
+      title: "Water Outage Notice",
+      message: "Planned water supply interruption on May 3 (Thurs) from 8am-2pm for pipe repair in Adyar zone. Please store water.",
+      link: "/news"
+    }
   ];
 
   return (
@@ -431,13 +455,13 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
             <ellipse cx="410" cy="220" rx="360" ry="70" fill="#1a1a1a" fillOpacity={0.10} />
           </svg>
         </div>
-        {/* 3D Carousel with dynamic content */}
+        {/* 3D Carousel with dynamic content, including static/dynamic extra slides */}
         <ThreeDCarousel
           slides={slides}
           autoRotate={true}
-          rotateInterval={4800}
-          visibleSlideCount={4}
-          perspective={1700}
+          rotateInterval={4100}
+          visibleSlideCount={5}
+          perspective={1800}
         />
         {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>

@@ -8,7 +8,7 @@ import "./ThreeDCarousel.css";
  *
  * Props:
  *   - slides: Array of JSX elements (overrides carouselData, auto-rendered as slides if not present)
- *   - carouselData: array of slide objects ({type: "news"|"weather"|"event", ...}) for dynamic content
+ *   - carouselData: array of slide objects ({type: "news"|"weather"|"event"|"community"|"banner", ...}) for dynamic content
  *   - autoRotate, rotateInterval, visibleSlideCount, perspective: carousel controls
  */
 function ThreeDCarousel({
@@ -373,6 +373,141 @@ function renderRichSlide(item, idx) {
         >
           Full Forecast
         </a>
+      </div>
+    );
+  }
+  // Announcements slide: prominent "!" icon, colored banner look, maybe dismissable (future), extra styling
+  if (item.type === "announcement" || item.type === "community") {
+    return (
+      <div
+        key={item.title || idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: "linear-gradient(93deg, #2d3360 60%, #0a1c38 120%)",
+          border: "2.7px solid #fbe056",
+          borderRadius: 28,
+          boxShadow: "0 7px 32px 1px #fbe05633, 0 9px 42px #000c",
+          minHeight: 154,
+          padding: "38px 17px 26px 17px",
+          color: "#ffe56b",
+          position: "relative",
+          fontFamily: "inherit"
+        }}
+      >
+        <span aria-label="announcement" style={{
+          fontSize: 48,
+          color: "#ffe56b",
+          marginBottom: 10,
+          marginTop: -13,
+          position: "absolute",
+          left: 20,
+          top: 10,
+          filter: "drop-shadow(0 4px 12px #ffe96ed1)"
+        }}>📣</span>
+        <div style={{
+          fontWeight: 820, fontSize: "1.29rem", marginBottom: 7, color: "#ffe56b", marginTop: 20, lineHeight: 1.18,
+          textShadow: "0 3px 14px #000, 0 1px 8px #ffe96e58"
+        }}>
+          {item.title || "Community Announcement"}
+        </div>
+        {item.message && <div style={{
+          color: "#fffde7",
+          fontWeight: 420,
+          marginBottom: 8,
+          fontSize: "1.09rem",
+          textShadow: "0 2px 8px #ffe96e38"
+        }}>{item.message}</div>}
+        {item.link && (
+          <a
+            href={item.link}
+            target={item.link.startsWith("/") ? "_self" : "_blank"}
+            rel={item.link.startsWith("/") ? undefined : "noopener noreferrer"}
+            style={{
+              color: "#2d3e80",
+              background: "linear-gradient(90deg, #ffe56b 75%, #fffbe7 100%)",
+              fontWeight: 850,
+              padding: "7px 22px",
+              borderRadius: 10,
+              boxShadow: "0 0 12px #ffe56e54",
+              marginTop: 10,
+              textDecoration: "none"
+            }}
+          >Learn More</a>
+        )}
+      </div>
+    );
+  }
+  // Banner slide: very bold (maybe promotional, campaign, sponsor, or app-wide message)
+  if (item.type === "banner") {
+    return (
+      <div
+        key={item.title || "banner" + idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: "linear-gradient(98deg, #0e0e1c 78%, #000 100%)",
+          backgroundImage: item.bgImage ? `url(${item.bgImage})` : undefined,
+          backgroundRepeat: item.bgImage ? "no-repeat" : "unset",
+          backgroundSize: item.bgImage ? "cover" : "unset",
+          boxShadow: "0 24px 98px 2px #000a, 0 5px 30px #000, 0 5.5px 32px #fffbe771",
+          border: "2.9px solid #fffbe7",
+          borderRadius: 38,
+          minHeight: 155,
+          padding: "38px 13px 30px 13px",
+          color: "#fffdfb",
+          position: "relative",
+          overflow: "hidden"
+        }}
+      >
+        {item.icon && <span aria-label="banner-icon" style={{
+          fontSize: 50,
+          color: "#fffbe7",
+          position: "absolute",
+          left: 24,
+          top: 15,
+          filter: "drop-shadow(0 5px 20px #fffbe7cf)"
+        }}>{item.icon}</span>}
+        <div style={{
+          fontWeight: 940,
+          fontSize: "1.51rem",
+          marginBottom: 10,
+          letterSpacing: ".011em",
+          color: "#fffbe7",
+          marginTop: 20,
+          textShadow: "0 3px 21px #c8000013, 0 0.5px 7px #fffbe786"
+        }}>
+          {item.title}
+        </div>
+        <div style={{
+          color: "#fff",
+          fontWeight: 560,
+          fontSize: "1.09rem",
+          textShadow: "0 1.5px 13px #fffbe774",
+          marginBottom: 6
+        }}>{item.message}</div>
+        {item.link && (
+          <a
+            href={item.link}
+            target={item.link.startsWith("/") ? "_self" : "_blank"}
+            rel={item.link.startsWith("/") ? undefined : "noopener noreferrer"}
+            style={{
+              color: "#000",
+              background: "linear-gradient(90deg, #fffbe7 87%, #fff7cb 100%)",
+              fontWeight: 890,
+              borderRadius: 8,
+              padding: "7px 29px",
+              textDecoration: "none",
+              boxShadow: "0 0 18px #fffbe752",
+              marginTop: 6,
+              fontSize: "1.09rem"
+            }}
+          >{item.cta || "See Details"}</a>
+        )}
       </div>
     );
   }
