@@ -8,6 +8,7 @@ import {
   useNavigate
 } from "react-router-dom";
 import "./App.css";
+import ThreeDCarousel from "./ThreeDCarousel";
 import { LoginForm, RegisterForm } from "./AuthForms";
 
 // --- SHARED COMPONENTS ---
@@ -189,9 +190,7 @@ function NavLinks({ active }) {
  * Modernized HomePage: Contemporary hero, advanced layout, visual depth with grid overlays, enhanced cards, modern CTAs, and soft gradients.
  */
 function HomePage() {
-  // Use the React Router navigation hook unconditionally (rules of hooks)
   const navigate = useNavigate();
-  // Micro-interaction: On CTA, navigate to section page.
   const handleHeroCTAClick = (path) => (e) => {
     e.preventDefault();
     if (navigate) {
@@ -201,75 +200,111 @@ function HomePage() {
     }
   };
 
+  // 3D slider slides: highlight features with CTA
+  const slides = [
+    (
+      <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
+        <h1 className="hub-hero-main-title" style={{marginBottom: 5}}>
+          <span className="hub-hero-main-brand">CommunityConnect Hub</span>
+          <span className="hub-hero-edition-badge">Chennai Edition</span>
+        </h1>
+        <p className="hub-hero-tagline-modern" style={{marginBottom: 24}}>
+          Your city's trusted platform for <span className="hero-news-highlight">news</span>, <span className="hero-weather-highlight">weather</span>, <span className="hero-events-highlight">events</span>, & <span className="hero-contacts-highlight">emergency contacts</span>.<br/>
+          <span className="hero-stay-connected">Stay informed. Stay safe. Stay connected.</span>
+        </p>
+        <a
+          href="/news"
+          className="btn btn-accent btn-large hero-btn"
+          onClick={handleHeroCTAClick("/news")}
+        >
+          <span role="img" aria-label="news" style={{ marginRight: 10 }}>📰</span>
+          See Chennai News
+        </a>
+      </div>
+    ),
+    (
+      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
+        <h2 style={{fontWeight:900, fontSize:"2.18rem", margin:"0 0 7px 0", letterSpacing:".01em", color:"var(--secondary)"}}>
+          <span role="img" aria-label="weather" style={{ marginRight: 9 }}>☀️</span>
+          Live Weather Updates
+        </h2>
+        <p className="hub-hero-tagline-modern" style={{marginBottom: 19}}>
+          Get instant, hyperlocal <span className="hero-weather-highlight">weather</span> updates for Chennai so you can plan your day with confidence.
+        </p>
+        <a
+          href="/weather"
+          className="btn btn-large hero-btn"
+          style={{ background: "var(--secondary)", color: "#fff" }}
+          onClick={handleHeroCTAClick("/weather")}
+        >
+          <span role="img" aria-label="weather" style={{ marginRight: 7 }}>🌦️</span>
+          Check Weather
+        </a>
+      </div>
+    ),
+    (
+      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
+        <h2 style={{fontWeight:900,fontSize:"2.02rem",margin:"0 0 7px 0", letterSpacing:".01em",color:"var(--accent)"}}>
+          <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>🆘</span>
+          Emergency Contacts
+        </h2>
+        <p className="hub-hero-tagline-modern" style={{marginBottom: 17}}>
+          Quick-dial key <span className="hero-contacts-highlight">emergency numbers</span>&nbsp;for Chennai at your fingertips—police, fire, shelters, and more.
+        </p>
+        <a
+          href="/emergency-contacts"
+          className="btn btn-large hero-btn"
+          style={{ background: "var(--accent)", color: "#fff" }}
+          onClick={handleHeroCTAClick("/emergency-contacts")}
+        >
+          <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>📱</span>
+          View Contacts
+        </a>
+      </div>
+    ),
+    (
+      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
+        <h2 style={{fontWeight:900,fontSize:"2.02rem",margin:"0 0 7px 0",letterSpacing:".02em",color:"var(--primary)"}}>
+          <span role="img" aria-label="events" style={{ marginRight: 7 }}>🎉</span>
+          Upcoming Events
+        </h2>
+        <p className="hub-hero-tagline-modern" style={{marginBottom: 19}}>
+          Discover <span className="hero-events-highlight">local happenings</span>, from cultural festivals to community activities, all in one place.
+        </p>
+        <a
+          href="/events"
+          className="btn btn-large hero-btn"
+          style={{
+            background: "linear-gradient(88deg, #c80000 25%, #009600 70%, #0000f3 100%)",
+            color: "#fff"
+          }}
+          onClick={handleHeroCTAClick("/events")}
+        >
+          <span role="img" aria-label="events" style={{ marginRight: 6 }}>📅</span>
+          Browse Events
+        </a>
+      </div>
+    )
+  ];
+
   return (
     <main className="hub-main hub-homepage-main">
-      {/* Redesigned HERO SECTION - Only hero and CTA, no preview blocks */}
-      <section className="hub-hero-section hub-section-entrance enhanced-hero">
-        {/* Animated Blobs/Deco BG */}
+      <section className="hub-hero-section hub-section-entrance enhanced-hero" style={{background:"none",boxShadow:"none",padding:"40px 0 0 0",minHeight:"unset"}}>
+        {/* Animate glass/gradient background on parent */}
         <div className="hero-bg-visuals" aria-hidden>
           <svg width="100%" height="100%" viewBox="0 0 820 260" style={{position: "absolute", left:0, top:0, width:"100%", height:"100%", zIndex:0, pointerEvents: "none"}}>
-            <ellipse cx="630" cy="110" rx="190" ry="80" fill="#0000f31c" />
-            <ellipse cx="120" cy="159" rx="90" ry="72" fill="#c8000044" />
-            <ellipse cx="370" cy="240" rx="340" ry="60" fill="#1a1a1a" fillOpacity={0.13} />
+            <ellipse cx="630" cy="108" rx="188" ry="80" fill="#0000f319" />
+            <ellipse cx="170" cy="177" rx="115" ry="62" fill="#c8000044" />
+            <ellipse cx="410" cy="220" rx="360" ry="70" fill="#1a1a1a" fillOpacity={0.10} />
           </svg>
         </div>
-        <div className="hero-content" style={{zIndex: 1, position:"relative"}}>
-          <h1 className="hub-hero-main-title">
-            <span className="hub-hero-main-brand">CommunityConnect Hub</span>
-            <span className="hub-hero-edition-badge">Chennai Edition</span>
-          </h1>
-          <p className="hub-hero-tagline-modern">
-            Your city's trusted platform for <span className="hero-news-highlight">news</span>, <span className="hero-weather-highlight">weather</span>, <span className="hero-events-highlight">events</span>, & <span className="hero-contacts-highlight">emergency contacts</span>.
-            <br/>
-            <span className="hero-stay-connected">Stay informed. Stay safe. Stay connected.</span>
-          </p>
-          <div className="hero-cta-bar">
-            <a
-              href="/news"
-              className="btn btn-accent btn-large hero-btn"
-              onClick={handleHeroCTAClick("/news")}
-            >
-              <span role="img" aria-label="news" style={{ marginRight: 9 }}>📰</span>
-              View News
-            </a>
-            <a
-              href="/weather"
-              className="btn btn-large hero-btn"
-              style={{ background: "var(--secondary)", color: "#fff" }}
-              onClick={handleHeroCTAClick("/weather")}
-            >
-              <span role="img" aria-label="weather" style={{ marginRight: 8 }}>☁️</span>
-              Check Weather
-            </a>
-            <a
-              href="/emergency-contacts"
-              className="btn btn-large hero-btn"
-              style={{ background: "var(--accent)", color: "#fff" }}
-              onClick={handleHeroCTAClick("/emergency-contacts")}
-            >
-              <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>🆘</span>
-              Emergency Contacts
-            </a>
-            <a
-              href="/events"
-              className="btn btn-large hero-btn"
-              style={{
-                background: "linear-gradient(88deg, #c80000 25%, #009600 70%, #0000f3 100%)",
-                color: "#fff"
-              }}
-              onClick={handleHeroCTAClick("/events")}
-            >
-              <span role="img" aria-label="events" style={{ marginRight: 6 }}>🎉</span>
-              Upcoming Events
-            </a>
-          </div>
-        </div>
-        {/* Hero glass decor grid overlay for depth */}
+        {/* 3D Carousel itself */}
+        <ThreeDCarousel slides={slides} autoRotate={true} rotateInterval={4800}/>
+        {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>
-          <div/><div/><div/><div/><div/> 
+          <div/><div/><div/><div/><div/>
         </div>
       </section>
-      {/* No cross-section previews/content shown on homepage */}
     </main>
   );
 }
