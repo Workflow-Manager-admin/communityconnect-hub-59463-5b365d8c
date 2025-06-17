@@ -23,7 +23,10 @@ function ColorDot({ color, animated = false }) {
   return <span aria-hidden="true" style={style} />;
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * Navbar: updated for centered large website name and new navigation links.
+ */
 function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
   // Show active tab highlight, keyboard nav & focus, skip to content link for accessibility
   const location = useLocation();
@@ -33,18 +36,67 @@ function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
         Skip to main content
       </a>
       <nav className="navbar hub-navbar" aria-label="Main navigation">
-        <div className="container">
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            alignItems: "center"
-          }}>
-            <div className="logo hub-logo" tabIndex={0} aria-label="CommunityConnect Hub Home" style={{outline: "none"}}>
-              <ColorDot color="#c80000" animated /> CommunityConnect Hub
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div className="container" style={{ position: "relative", paddingInline: 0 }}>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 58,
+              position: "relative"
+            }}
+          >
+            {/* Nav links */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                minWidth: 0,
+                flex: 1,
+                justifyContent: "flex-start",
+                zIndex: 2
+              }}
+            >
               <NavLinks active={location.pathname} />
+            </div>
+
+            {/* Centered name */}
+            <div
+              className="hub-navbar-title"
+              aria-label="CommunityConnect Hub home"
+              tabIndex={0}
+              style={{
+                color: "#fff",
+                fontWeight: 800,
+                fontSize: "2rem",
+                lineHeight: 1,
+                letterSpacing: ".013em",
+                textAlign: "center",
+                position: "absolute",
+                left: 0,
+                right: 0,
+                margin: "auto",
+                zIndex: 3,
+                pointerEvents: "auto",
+                userSelect: "text",
+                textShadow: "0 2px 12px #000a, 0 0 5px #c8000022"
+              }}
+            >
+              CommunityConnect Hub
+            </div>
+
+            {/* Auth/User Section (right side) */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 15,
+                flex: 1,
+                zIndex: 2
+              }}
+            >
               {user ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ color: "#fff" }}>Hi, {user.username}</span>

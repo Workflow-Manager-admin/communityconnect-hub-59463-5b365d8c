@@ -72,6 +72,34 @@ body {
   letter-spacing: 0.5px;
   text-shadow: 0 0 2px #c8000032, 0 1px 4px #0004;
 }
+
+/* Centered Nav Title - prominent white title for navbar */
+.hub-navbar-title {
+  font-family: inherit;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #fff !important;
+  letter-spacing: 0.015em;
+  text-shadow:
+    0 2px 12px #000a,
+    0 0 5px #c8000020;
+  text-align: center;
+  line-height: 1.02;
+  margin: 0 auto;
+  padding-block: 0;
+  background: transparent;
+  pointer-events: auto;
+  user-select: text;
+}
+
+@media (max-width: 700px) {
+  .hub-navbar-title {
+    font-size: 1.27rem;
+    white-space: pre-line;
+    padding-inline: 4px;
+  }
+}
+
 /* Enhanced Navigation Links */
 .hub-nav-link {
   color: var(--text-color);
