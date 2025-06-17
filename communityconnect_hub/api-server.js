@@ -16,7 +16,9 @@ app.use(express.json());
 // PUBLIC_INTERFACE
 // GET /api/news - Proxy for News API, never expose API key to client
 app.get("/api/news", async (req, res) => {
-  // You can optionally allow query params (e.g., ?q=something)
+  // This endpoint proxies NewsAPI and outputs { articles: [...] }
+  // CORS: express cors() middleware allows all origins; adjust as needed for prod
+
   const country = req.query.country || "us";
   const q = req.query.q ? `&q=${encodeURIComponent(req.query.q)}` : "";
 
@@ -27,22 +29,24 @@ app.get("/api/news", async (req, res) => {
     const data = await apiRes.json();
 
     if (!data.articles) {
+      // Pass backend error up for debug, but don't leak to client in prod
       return res.status(502).json({ error: "Failed to fetch news." });
     }
 
-    // Only return the fields the frontend requires (never proxy all!)
+    // Only return the fields the frontend requires
+    // Ensure every field exists and fallback so frontend is not confused by undefined
     const articles = data.articles.map(a => ({
-      title: a.title,
-      description: a.description,
-      url: a.url,
-      urlToImage: a.urlToImage,
-      source: a.source,
-      publishedAt: a.publishedAt
+      title: a.title || "",
+      description: a.description || "",
+      url: a.url || "",
+      urlToImage: a.urlToImage || "",
+      source: a.source || { name: "" },
+      publishedAt: a.publishedAt || ""
     }));
 
     res.json({ articles });
   } catch (err) {
-    res.status(500).json({ error: "Error fetching news.", details: err.message });
+    res.status(500).json({ error: "Error fetching news.", details: err.message || err });
   }
 });
 
