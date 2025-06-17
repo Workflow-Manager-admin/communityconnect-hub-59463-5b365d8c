@@ -21,19 +21,23 @@ import "./ThreeDCarousel.css";
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  rotateInterval = 4800, // slower for more realism!
-  visibleSlideCount = 5, // show 4-6 slides at once for roundness
-  perspective = 1700,    // deeper 3D look for realism
+  // Speed adjustment: slower for realism but also smooth – user can override if desired
+  rotateInterval = 5400,
+  // Cylinder: use up to 6 slides for realism, but scale to content
+  visibleSlideCount = 5,
+  // Slightly deeper 3D by default for wider displays
+  perspective = 1950,
   carouselData = null,
 }) {
-  // Prefer slides array, otherwise build slides from carouselData prop (for API/live content)
+  // Prefer "slides", but if not provided use "carouselData" (from APIs: news, events, weather)
   let carouselSlides = Array.isArray(slides)
     ? slides
     : (Array.isArray(carouselData)
       ? carouselData.map(renderDataToSlide) : []);
   const numSlides = carouselSlides.length;
-  // Clamp visibleSlideCount (at least 1, max 6, never more than slides)
-  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, 6, numSlides || 4));
+
+  // Clamp: show at least 4 but maximum 6, but never more than slides available (keep cylinder realistic)
+  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, 6, numSlides > 0 ? numSlides : 4));
 
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -41,44 +45,39 @@ function ThreeDCarousel({
   const intervalRef = useRef();
   const stageRef = useRef();
 
-  // Compute the rotation angle per slide
+  // Single, clear angle per slide for circular effect
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
-  // Cylinder Z-translate distance
-  const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Responsive: adjust the cylinder radius with viewport width, slide, and visibleSlideCount
+  // Compute the cylinder radius based on screen and slide count for appropriate depth
   function useResponsiveRadius(count, showN) {
     const [r, setR] = useState(getRadius(window.innerWidth));
     useEffect(() => {
       function handleResize() { setR(getRadius(window.innerWidth)); }
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
-      // eslint-disable-next-line
     }, [count, showN]);
     function getRadius(width) {
-      // Cylinder roundness: wider for more visible slides
-      if (width < 600)
-        return 160 + (showN-1)*40 + (count-4)*11;
-      if (width < 900)
-        return 230 + (showN-1)*50 + (count-4)*14;
-      // Desktop: More depth
-      return 325 + (showN-1)*60 + (count-4)*18;
+      // More perspective for more visible slides; deeper on desktop
+      if (width < 600) return 155 + (showN - 1) * 36 + (count - 4) * 7;
+      if (width < 900) return 215 + (showN-1)*44 + (count-4)*11;
+      return 345 + (showN-1)*57 + (count-4)*18;
     }
     return r;
   }
+  const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Auto-rotation effect (slower, smoother)
+  // Auto-rotate for showcase; slow for realism/legibility
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
     return () => clearInterval(intervalRef.current);
-    // eslint-disable-next-line
   }, [autoRotate, rotateInterval, numSlides, paused, active]);
 
-  // Animation lock for transitions (matching css, slightly reduced for snappier navigation)
+  // Animation state
   useEffect(() => {
     if (!isAnimating) return;
-    const t = setTimeout(() => setIsAnimating(false), 510);
+    // Transition slightly faster (CSS duration is ~0.62s for main slide)
+    const t = setTimeout(() => setIsAnimating(false), 470);
     return () => clearTimeout(t);
   }, [isAnimating]);
 
