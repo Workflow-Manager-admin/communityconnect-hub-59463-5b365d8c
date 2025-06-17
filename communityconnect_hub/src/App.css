@@ -1,0 +1,275 @@
+:root {
+  --primary: #c80000;
+  --secondary: #009600;
+  --accent: #0000f3;
+  --dark-bg: #1a1a1a;
+  --panel-bg: #232338;
+  --card-bg: #212128;
+  --border-color: #353545;
+  --text-color: #fff;
+  --text-secondary: #bbb;
+}
+
+body {
+  background: var(--dark-bg);
+  color: var(--text-color);
+}
+
+.app.hub-app {
+  min-height: 100vh;
+  background: var(--dark-bg);
+  color: var(--text-color);
+}
+
+/* Navbar */
+.hub-navbar {
+  background: var(--panel-bg);
+  padding: 18px 0;
+  border-bottom: 1.5px solid var(--primary);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 120;
+}
+.hub-logo {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* Main Layout */
+.hub-main {
+  padding-top: 86px;
+  min-height: 80vh;
+}
+.hub-content-layout {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.hub-main-column, .hub-side-column {
+  flex: 1 1 325px;
+  min-width: 310px;
+  max-width: 380px;
+  margin-bottom: 32px;
+}
+.hub-side-column {
+  max-width: 260px;
+}
+
+/* Section Titles */
+.hub-section-title {
+  font-size: 1.18rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.hub-section-title:nth-child(2), .hub-section-title[style*="009600"] {
+  color: var(--secondary) !important;
+}
+.hub-section-title[style*="0000f3"] {
+  color: var(--accent) !important;
+}
+
+/* Cards and Panels */
+.hub-card {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+  padding: 18px 18px 14px 18px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+.hub-card:hover {
+  box-shadow: 0 3px 26px 0 rgba(0,0,10,0.15);
+}
+
+.hub-news-card {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.08s;
+}
+.hub-news-card:hover {
+  background: #232338ea;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.hub-news-img-wrap {
+  flex-shrink: 0;
+  width: 70px;
+  height: 70px;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #2a2a3d;
+  margin-right: 6px;
+}
+.hub-news-img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+.hub-news-title {
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+.hub-news-meta {
+  font-size: 0.91rem;
+  color: var(--accent);
+}
+.hub-news-desc {
+  font-size: 0.97rem;
+  color: var(--text-secondary);
+}
+
+/* Weather */
+.hub-weather-card {
+  text-align: left;
+  font-size: 1.09rem;
+}
+
+/* Emergency Contacts */
+.hub-contacts-card {
+  padding-bottom: 8px;
+}
+.hub-contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8.5px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.hub-contact-label {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 1.06rem;
+}
+.hub-contact-tel {
+  color: var(--secondary);
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.14s;
+}
+.hub-contact-tel:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* Events */
+.hub-event-card {
+  margin-bottom: 11px;
+}
+.hub-event-title {
+  color: var(--secondary);
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+.hub-event-when {
+  font-size: 0.99rem;
+  color: var(--text-secondary);
+}
+
+/* Button Styles */
+.btn {
+  background: var(--secondary);
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn:hover, .btn:focus {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-accent {
+  background: var(--accent);
+}
+.btn-accent:hover, .btn-accent:focus {
+  background: var(--primary);
+}
+
+.btn-large {
+  font-size: 1.11rem;
+  padding: 12px 28px;
+}
+
+/* Modal */
+.hub-modal-bg {
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: rgba(26, 26, 40, 0.87);
+  z-index: 200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hub-modal {
+  background: var(--panel-bg);
+  color: var(--text-color);
+  border-radius: 12px;
+  padding: 34px 32px 26px 32px;
+  max-width: 370px;
+  width: 100%;
+  box-shadow: 0 8px 18px 0 rgba(0,0,40,0.19);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.hub-modal h3 {
+  margin: 0 0 18px 0;
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 1.23rem;
+}
+
+/* Inputs */
+.hub-input {
+  background: #19192e;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.15s;
+}
+.hub-input:focus {
+  border: 1px solid var(--accent);
+}
+
+/* Responsive */
+@media (max-width: 1050px) {
+  .hub-content-layout {
+    gap: 13px;
+  }
+}
+@media (max-width: 900px) {
+  .hub-content-layout {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .hub-main-column, .hub-side-column {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+}
