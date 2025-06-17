@@ -63,8 +63,15 @@ app.get(
   "/api/news",
   logPerformance("/api/news"),
   timeEndpoint(async (req, res) => {
-    // This endpoint proxies NewsAPI and outputs { articles: [...] }
-    // CORS: express cors() middleware allows all origins; adjust as needed for prod
+    // --- BEGIN: Custom diagnostic logging for incoming news request ---
+    console.log("[Backend][api/news] Incoming request:", {
+      method: req.method,
+      originalUrl: req.originalUrl,
+      query: req.query,
+      ip: req.ip,
+      headers: req.headers
+    });
+    // --- END: Diagnostic logging ---
 
     // Default country: us (Aligned with frontend expectation)
     const country = req.query.country || "us";
@@ -73,6 +80,7 @@ app.get(
 
     // Validate API Key present
     if (!NEWS_API_KEY) {
+      console.error("[Backend][api/news] NEWS_API_KEY missing.");
       return res.status(500).json({ error: "News API key not configured on server." });
     }
 
@@ -81,6 +89,8 @@ app.get(
     const chosenCountry = allowedCountries.includes(country) ? country : "us";
 
     const url = `https://newsapi.org/v2/top-headlines?country=${chosenCountry}${q}&apiKey=${NEWS_API_KEY}`;
+    // Log proxied NewsAPI URL
+    console.log("[Backend][api/news] Proxying NewsAPI call with URL:", url);
 
     try {
       const apiRes = await fetch(url);
@@ -95,9 +105,9 @@ app.get(
             return {status: apiRes.status, preview: obj};
           }
         }).catch(()=>"decode error");
-        console.log("[NewsAPI RES]", url, previewClone);
+        console.log("[Backend][api/news][NewsAPI RES]", url, previewClone);
       } catch(e) {
-        console.warn("[NewsAPI DIAGNOSE: Cannot parse NewsAPI response]", e);
+        console.warn("[Backend][api/news][DIAGNOSE: Cannot parse NewsAPI response]", e);
       }
 
       if (!apiRes.ok) {
@@ -105,7 +115,7 @@ app.get(
         const errorData = await apiRes.json().catch(() => {});
         const errorMsg = errorData && errorData.message ? errorData.message : "News provider error";
         // Log error with as much info as available
-        console.error("[NewsAPI ERROR]", {
+        console.error("[Backend][api/news][ERROR]", {
           status: apiRes.status,
           url,
           errorMsg,
@@ -124,7 +134,7 @@ app.get(
       // Defensive: structure expected from NewsAPI is { articles: [] }
       if (!data.articles || !Array.isArray(data.articles)) {
         // If error or API changed format
-        const msg = "[NewsAPI ERROR] Invalid or missing articles array in API response";
+        const msg = "[Backend][api/news][ERROR] Invalid or missing articles array in API response";
         console.error(msg, {
           url,
           received: data
@@ -139,7 +149,7 @@ app.get(
 
       // Always warn and return an error if 0 articles are received (Frontend should see as error!)
       if (data.articles.length === 0) {
-        const msg = "[NewsAPI WARNING] NewsAPI returned 0 articles for URL:";
+        const msg = "[Backend][api/news][WARNING] NewsAPI returned 0 articles for URL:";
         console.warn(msg, url);
         // Return as failure (not just success with empty array), so the frontend can report a problem more clearly.
         return res.status(502).json({
@@ -159,11 +169,13 @@ app.get(
         publishedAt: a?.publishedAt || ""
       }));
 
+      // Log the final articles response size and a sample
+      console.log("[Backend][api/news] Returning news response to frontend: count:", articles.length, "Sample:", articles[0] || null);
       // Only return valid result if articles array is truly non-empty and valid.
       return res.json({ articles });
     } catch (err) {
-      // Always log exceptions visibly and include stack trace
-      console.error("[NewsAPI EXCEPTION]", err && err.stack ? err.stack : err);
+      // Always log exceptions visibly and include stack trace + error object
+      console.error("[Backend][api/news][EXCEPTION]", err && err.stack ? err.stack : err);
       res.status(500).json({
         error: "Error fetching news.",
         details: err && err.message ? err.message : err,

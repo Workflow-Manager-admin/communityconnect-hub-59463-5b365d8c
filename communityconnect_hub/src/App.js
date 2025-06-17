@@ -1082,20 +1082,28 @@ function App() {
         if (process.env.REACT_APP_API_BASE) {
           API_URL = `${process.env.REACT_APP_API_BASE}/api/news`;
         }
-        const res = await fetch(API_URL, {
+        const fetchOptions = {
           credentials: "include"
-        });
+        };
+        // Log the request URL and options for debugability
+        // eslint-disable-next-line
+        console.log("[Frontend][fetchNews] Fetching news with URL:", API_URL, "Options:", fetchOptions);
+
+        const res = await fetch(API_URL, fetchOptions);
         let out;
         try {
           out = await res.json();
         } catch (e) {
+          // Log detailed parse error
+          // eslint-disable-next-line
+          console.error("[Frontend][fetchNews] Failed to parse news API response JSON.", e);
           out = null;
         }
 
         if (out && (out.error || out.status >= 400)) {
           // Always log error for diagnosis
           // eslint-disable-next-line
-          console.error("NewsAPI backend error:", out);
+          console.error("[Frontend][fetchNews] NewsAPI backend error object:", out);
           // Improved: Make detailed, user-friendly error messages
           let userMsg = "";
           if (out.status === 502 && /no articles/i.test(out.details || "")) {
@@ -1119,14 +1127,14 @@ function App() {
           // Always log detailed non-ok response for debugability
           // eslint-disable-next-line
           console.error(
-            "Failed HTTP for news fetch. Status:",
+            "[Frontend][fetchNews] Failed HTTP for news fetch. Status:",
             res.status,
             out || ""
           );
           try {
             res.clone().text().then(txt => {
               // eslint-disable-next-line
-              console.warn("NewsAPI fetch returned non-ok response. Text body:", txt);
+              console.warn("[Frontend][fetchNews] NewsAPI fetch returned non-ok response. Text body:", txt);
             });
           } catch (e) {}
           let msg = (out && (out.error || out.details)) ||
@@ -1173,13 +1181,13 @@ function App() {
       } catch (err) {
         // eslint-disable-next-line
         console.error(
-          "Error fetching news (frontend):",
-          err && err.message ? err.message : err
+          "[Frontend][fetchNews] Error fetching news:",
+          err
         );
-        // If error object has stack/log more
+        // Show stack explicitly if available
         if (err && err.stack) {
           // eslint-disable-next-line
-          console.error("News fetch stack trace (frontend):", err.stack);
+          console.error("[Frontend][fetchNews] News fetch stack trace:", err.stack);
         }
         if (active) {
           setNews([]);
