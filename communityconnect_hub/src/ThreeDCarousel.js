@@ -17,9 +17,9 @@ function ThreeDCarousel({
   slides,
   // Fine-tuned animation and perspective defaults for optimal effect
   autoRotate = true,
-  rotateInterval = 2600,           // Faster auto-rotation for livelier effect
-  visibleSlideCount = 7,           // Plenty of peripheral slides for realism (adjusted below for small screens)
-  perspective = 3200,              // Much deeper 3D (larger px) for stronger cylindrical realism
+  rotateInterval = 1350,          // Much faster auto-rotation (was 2600), feels lively but not overwhelming
+  visibleSlideCount = 7,          // Plenty of peripheral slides for realism (adjusted below for small screens)
+  perspective = 3200,             // Deep 3D (unchanged)
   carouselData = null
 }) {
   // Accept either direct JSX slides or slide objects for auto-render (NEW: also handle announcement/banner/community visually)
@@ -62,7 +62,7 @@ function ThreeDCarousel({
   const intervalRef = useRef();
   const stageRef = useRef();
   const lastInteractionRef = useRef(Date.now());
-  const transitionDuration = 600; // ms, matches CSS 0.60s for perfect sync
+  const transitionDuration = 380; // ms, matches to about 0.38s for punchier, faster slide snap
 
   // Calculate rotation step and cylinder radius for true 3D perspective
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
@@ -95,10 +95,11 @@ function ThreeDCarousel({
   // Auto-rotation: handles instant catch-up if navigation was quick
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
+    clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       // Ensure instant snap if last nav was < transitionDuration ago
-      if (Date.now() - lastInteractionRef.current < transitionDuration - 100) {
-        setActive(a => (a + 1) % numSlides); // catch-up rotation if rapid
+      if (Date.now() - lastInteractionRef.current < transitionDuration - 60) {
+        setActive(a => (a + 1) % numSlides);
         setIsAnimating(true);
       } else {
         nextSlideSmooth();
@@ -110,7 +111,8 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (isAnimating) {
-      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 40);
+      // TransitionDuration is now shorter. The -20 gives a crisp unpause between fast rotations.
+      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 20);
       return () => clearTimeout(t);
     }
   }, [isAnimating]);
