@@ -190,37 +190,245 @@ function NavLinks({ active }) {
  * Modified HomePage/NewsPage to accept and display newsError.
  * NewsPanel takes 'error' prop, passed down from main error state.
  */
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * Modernized HomePage: Adds visually engaging hero section, grid layout,
+ * prominent CTAs, improved hierarchy, animated entry, and modern UX details.
+ */
 function HomePage({ news, weather, events, contacts, newsError }) {
-  React.useEffect(() => {}, []);
+  // Micro-interaction: Smooth scroll from hero CTA buttons
+  const handleHeroCTAClick = (selector) => (e) => {
+    e.preventDefault();
+    const el = document.querySelector(selector);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add('hub-section-flash');
+      setTimeout(()=>el.classList.remove('hub-section-flash'), 700);
+    }
+  };
+
   return (
     <main className="hub-main">
-      <div className="container hub-content-layout">
-        {/* Left: News & Weather preview */}
-        <section className="hub-main-column hub-section-entrance">
-          <h2 className="hub-section-title">
-            <ColorDot color="#c80000" /> Latest News
+      {/* HERO SECTION */}
+      <section
+        className="hub-hero-section hub-section-entrance"
+        style={{
+          position: 'relative',
+          minHeight: '340px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          padding: '52px 0 12px 0',
+          background: 'linear-gradient(90deg, #232338 45%, #181832 100%)',
+          borderRadius: '22px',
+          boxShadow: '0 8px 38px 0 #0007, 0 1px 10px 5px #18183226',
+          margin: '0 auto 33px auto',
+          maxWidth: 1050
+        }}
+      >
+        <div style={{
+          maxWidth: 690,
+          textAlign: 'center',
+          margin: "0 auto",
+        }}>
+          <h1
+            style={{
+              fontSize: '2.85rem',
+              fontFamily: "'Segoe UI', 'Inter', Arial, sans-serif",
+              color: "#fff",
+              fontWeight: 900,
+              letterSpacing: '.01em',
+              marginBottom: 10,
+              marginTop: 0,
+              textShadow: "0 6px 36px #000f, 0 2px 16px #c8000030",
+              lineHeight: 1.07,
+              filter: "brightness(1.13)"
+            }}
+          >
+            <span style={{
+              background: "linear-gradient(90deg, #c80000 45%, #0000f3 95%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              display: "inline"
+            }}>CommunityConnect Hub</span>
+            <span style={{
+              display: 'inline-block',
+              fontWeight: 600,
+              fontSize: '0.91em',
+              marginLeft: 8,
+              padding: '2px 10px',
+              borderRadius: '7px',
+              letterSpacing: ".03em",
+              background: "linear-gradient(88deg, #c80000e5, #0000f3 100%)",
+              color: "#fff7",
+              opacity: 0.76
+            }}>Chennai Edition</span>
+          </h1>
+          <div
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: '1.18rem',
+              fontWeight: 400,
+              maxWidth: 520,
+              margin: "6px auto 24px auto",
+              lineHeight: 1.44,
+              letterSpacing: ".01em",
+              textShadow: "0 2px 17px #0006"
+            }}
+          >
+            Your central hub for trusted local <span style={{ color: "#c80000", fontWeight: 600 }}>news</span>, real-time <span style={{ color: "#009600", fontWeight: 600 }}>weather</span>, <span style={{ color: "#0000f3", fontWeight: 700 }}>emergency contacts</span>, and the latest <span style={{ color: "#009600", fontWeight: 600 }}>events</span> in Chennai.<br />
+            <span style={{
+              fontWeight: 450,
+              color: "#fff",
+              filter: "brightness(1.05)",
+              fontSize: "1.07em"
+            }}>Stay informed. Stay safe. Stay connected.</span>
+          </div>
+        </div>
+
+        <div style={{
+          display: "flex",
+          gap: 18,
+          justifyContent: "center",
+          margin: "14px auto 0 auto",
+          flexWrap: 'wrap'
+        }}>
+          <a
+            href="#hub-news-sec"
+            className="btn btn-accent btn-large"
+            onClick={handleHeroCTAClick("#hub-news-sec")}
+            style={{
+              fontWeight: 600,
+              fontSize: "1.10em",
+              letterSpacing: ".01em",
+              boxShadow: "0 1.5px 15px 0 #0002"
+            }}
+          >
+            <span role="img" aria-label="news" style={{ marginRight: 9 }}>📰</span>
+            View News
+          </a>
+          <a
+            href="#hub-weather-sec"
+            className="btn btn-large"
+            onClick={handleHeroCTAClick("#hub-weather-sec")}
+            style={{
+              background: "var(--secondary)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "1.10em"
+            }}
+          >
+            <span role="img" aria-label="weather" style={{ marginRight: 8 }}>☁️</span>
+            Check Weather
+          </a>
+          <a
+            href="#hub-contacts-sec"
+            className="btn btn-large"
+            onClick={handleHeroCTAClick("#hub-contacts-sec")}
+            style={{
+              background: "var(--accent)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "1.10em"
+            }}
+          >
+            <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>🆘</span>
+            Emergency Contacts
+          </a>
+          <a
+            href="#hub-events-sec"
+            className="btn btn-large"
+            onClick={handleHeroCTAClick("#hub-events-sec")}
+            style={{
+              background: "linear-gradient(88deg, #c80000 25%, #009600 65%, #0000f3 100%)",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: "1.10em",
+              transition: "filter .17s"
+            }}
+          >
+            <span role="img" aria-label="events" style={{ marginRight: 6 }}>🎉</span>
+            Upcoming Events
+          </a>
+        </div>
+
+        {/* Decorative hero background svg wave/light */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            left: 0,
+            bottom: 0,
+            width: "100%",
+            height: 60,
+            background: "linear-gradient(180deg, transparent, #18183299 70%)",
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+            pointerEvents: "none"
+          }}
+        />
+      </section>
+      {/* END HERO */}
+
+      {/* Main Content: grid-based responsive layout */}
+      <div className="container hub-content-layout" style={{ marginTop: 10 }}>
+        {/* News & Weather (Left) */}
+        <section
+          id="hub-news-sec"
+          className="hub-main-column hub-section-entrance"
+          tabIndex={-1}
+          aria-label="News section"
+          style={{
+            scrollMarginTop: 100,
+            animationDelay: '0.09s',
+            borderTop: "3px solid #c8000055"
+          }}
+        >
+          <h2 className="hub-section-title" style={{marginTop:0}}>
+            <ColorDot color="#c80000" animated /> Latest News
           </h2>
           <NewsPanel news={news} loading={!news.length && !newsError} previewCount={2} error={newsError} />
-
-          <h2 className="hub-section-title" style={{ marginTop: 40 }}>
-            <ColorDot color="#009600" /> Weather
+          
+          <h2 id="hub-weather-sec" className="hub-section-title" style={{ marginTop: 38 }}>
+            <ColorDot color="#009600" animated /> Weather
           </h2>
           <WeatherPanel weather={weather} loading={!weather} previewOnly />
         </section>
-
-        {/* Center: Emergency Contacts preview */}
-        <section className="hub-side-column hub-section-entrance">
-          <h2 className="hub-section-title">
-            <ColorDot color="#0000f3" /> Emergency Contacts
+        
+        {/* Emergency Contacts (Center sidebar) */}
+        <section
+          id="hub-contacts-sec"
+          className="hub-side-column hub-section-entrance"
+          tabIndex={-1}
+          aria-label="Emergency contacts section"
+          style={{
+            scrollMarginTop: 100,
+            animationDelay: '0.18s',
+            borderTop: "3px solid #0000f364"
+          }}
+        >
+          <h2 className="hub-section-title" style={{marginTop:0}}>
+            <ColorDot color="#0000f3" animated /> Emergency Contacts
           </h2>
           <ContactsPanel contacts={contacts} previewOnly />
         </section>
-
-        {/* Right: Events preview */}
-        <section className="hub-main-column hub-section-entrance">
-          <h2 className="hub-section-title">
-            <ColorDot color="#009600" /> Upcoming Events in Chennai
+        
+        {/* Events (Right) */}
+        <section
+          id="hub-events-sec"
+          className="hub-main-column hub-section-entrance"
+          tabIndex={-1}
+          aria-label="Events section"
+          style={{
+            scrollMarginTop: 100,
+            animationDelay: '0.26s',
+            borderTop: "3px solid #00960072"
+          }}
+        >
+          <h2 className="hub-section-title" style={{marginTop:0}}>
+            <ColorDot color="#009600" animated /> Upcoming Events in Chennai
           </h2>
           <EventsPanel events={events} loading={!events.length} previewCount={2} showChennaiNotice />
         </section>
