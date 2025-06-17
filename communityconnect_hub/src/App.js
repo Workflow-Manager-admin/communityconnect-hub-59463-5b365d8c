@@ -574,11 +574,18 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
         </form>
       )}
       {items.map((ev) => (
-        <div key={ev.id} className="hub-card hub-event-card" tabIndex={0}>
+        <div key={ev.id} className="hub-card hub-event-card" tabIndex={0} style={{marginBottom: 18}}>
           <div className="hub-event-title">{ev.name}</div>
-          <div className="hub-event-when">
-            {ev.date} @ {ev.location}
+          <div className="hub-event-when" style={{marginBottom: 6}}>
+            <span role="img" aria-label="calendar" style={{marginRight: 3}}>📅</span> {ev.date}
+            <span aria-label="at" style={{fontWeight: 400, margin: "0 6px"}}>@</span>
+            <span role="img" aria-label="map" style={{marginRight: 3}}>📍</span> {ev.location}
           </div>
+          {ev.description && (
+            <div style={{fontSize: ".99rem", color: "#bfffcf", marginBottom: 5, fontWeight: 400, whiteSpace: "pre-line"}}>
+              {ev.description}
+            </div>
+          )}
         </div>
       ))}
       {previewCount && events.length > previewCount && (
@@ -819,32 +826,72 @@ function App() {
         return;
       }
       try {
-        const nowTs = Date.now();
+        const now = new Date();
+        // Preset sample events in Chennai with realistic info
         const chennaiEvents = [
           {
             id: 1,
             name: "Marina Beach Cleanup Drive",
-            date: new Date(nowTs + 86400000).toLocaleDateString(),
-            location: "Marina Beach, Chennai"
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2).toLocaleDateString(),
+            location: "Marina Beach, Chennai",
+            description: "Join volunteers to help keep Marina Beach clean. Free refreshments will be provided. Open for all age groups."
           },
           {
             id: 2,
             name: "Thiruvanmiyur Organic Farmer's Market",
-            date: new Date(nowTs + 2 * 86400000).toLocaleDateString(),
-            location: "Thiruvanmiyur, Chennai"
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5).toLocaleDateString(),
+            location: "Thiruvanmiyur, Chennai",
+            description: "Support local organic farmers! Fresh produce, crafts, and workshops every Sunday morning at Thiruvanmiyur."
           },
           {
             id: 3,
-            name: "Classical Carnatic Concert",
-            date: new Date(nowTs + 3 * 86400000).toLocaleDateString(),
-            location: "Music Academy, Chennai"
+            name: "Classical Carnatic Concert: Music for All",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7).toLocaleDateString(),
+            location: "Music Academy, Chennai",
+            description: "An enchanting evening of Carnatic music featuring leading artists. Entry free for students. Seats fill fast!"
           },
           {
             id: 4,
             name: "Chennai Book Fair",
-            date: new Date(nowTs + 4 * 86400000).toLocaleDateString(),
-            location: "YMCA Grounds, Chennai"
-          }
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 10).toLocaleDateString(),
+            location: "YMCA Grounds, Nandanam, Chennai",
+            description: "The city's largest annual book fair – books, literary talks, and children's activities. Every day 10am–8pm for 2 weeks."
+          },
+          {
+            id: 5,
+            name: "Heritage Walk: Fort St. George",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 13).toLocaleDateString(),
+            location: "Fort St. George, Chennai",
+            description: "Explore Chennai's colonial past with a guided tour in English & Tamil. Registration required; limited to 30 participants."
+          },
+          {
+            id: 6,
+            name: "Startup Networking Night",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 15).toLocaleDateString(),
+            location: "Tidel Park, Chennai",
+            description: "Pitch your startup idea or connect with founders and VCs. Free pizza and beverages for all attendees. RSVP online."
+          },
+          {
+            id: 7,
+            name: "Inter-school Robotics Challenge",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 17).toLocaleDateString(),
+            location: "Anna University, Chennai",
+            description: "Witness innovative solutions as school teams compete with their robots for the city trophy. Open to public."
+          },
+          {
+            id: 8,
+            name: "Kolam Art Workshop",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 19).toLocaleDateString(),
+            location: "Besant Nagar Beach, Chennai",
+            description: "Learn traditional kolam art from local women artisans. All materials provided; prior registration recommended."
+          },
+          {
+            id: 9,
+            name: "Community Medical Camp",
+            date: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 21).toLocaleDateString(),
+            location: "Saidapet Community Hall, Chennai",
+            description: "Free health check-ups and doctor consultations for all residents. Blood donation drive also conducted on-site."
+          },
         ];
         setEvents(chennaiEvents);
         setCached(CACHE_KEYS.events, chennaiEvents);
