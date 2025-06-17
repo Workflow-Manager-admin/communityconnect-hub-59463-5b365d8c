@@ -24,16 +24,18 @@
   align-items: center;
   justify-content: center;
   transform-style: preserve-3d;
-  /* Animation: snappier and more responsive */
+  /* Ultra-smooth, natural 3D effect with continuous easing and snap */
   transition:
-    filter 0.19s,
-    transform 0.41s cubic-bezier(.55,.19,.44,1.16),
-    box-shadow 0.17s;
+    filter 0.21s cubic-bezier(.6,.05,.4,1.01),
+    transform 0.60s cubic-bezier(.84,.11,.17,.99),
+    box-shadow 0.16s;
   will-change: transform, filter;
 }
 .carousel-3d-stage.animating {
   /* More glow and contrast pop when moving */
-  filter: drop-shadow(0 24px 110px #1940cb99) brightness(1.13) contrast(1.037);
+  filter: drop-shadow(0 28px 132px #283ecfbb) brightness(1.16) contrast(1.045) saturate(1.03);
+  transition:
+    filter 0.18s cubic-bezier(.84,.33,.17,.96);
 }
 
 .carousel-3d-slide {
@@ -45,12 +47,13 @@
   background: linear-gradient(98deg, #232338 74%, #111127 98%);
   color: var(--text-color, #fff);
   border-radius: 32px;
-  box-shadow: 0 19px 77px 0 #0013, 0 14px 32px 16px #1a1a44c0;
+  box-shadow: 0 21px 83px 0 #0013, 0 14px 32px 16px #1a1a44c0;
   padding: 36px 32px 26px 32px;
+  /* Use more coordinated animation for both transform and opacity/blur */
   transition:
-    opacity 0.46s cubic-bezier(.41,.28,.51,1.11),
-    transform 0.58s cubic-bezier(.55,.19,.35,1.08),
-    filter 0.39s cubic-bezier(.48,.09,.49,.97),
+    opacity 0.62s cubic-bezier(.7,0,.2,1),
+    transform 0.58s cubic-bezier(.84,.11,.17,.99),
+    filter 0.44s cubic-bezier(.69,.05,.3,1.03),
     z-index 0.01s;
   opacity: 0.08;
   filter: blur(14px) grayscale(0.93) brightness(0.75);
@@ -142,17 +145,26 @@
   right: 1.5%;
 }
 .carousel-3d-arrow:active {
-  transform: translateY(-50%) scale(0.93);
-  filter: brightness(0.93);
+  transform: translateY(-50%) scale(0.91);
+  filter: brightness(0.89) contrast(1.09) drop-shadow(0 2px 10px #0004);
+  transition:
+    filter 0.09s cubic-bezier(.52,.1,.11,1.08),
+    box-shadow 0.15s,
+    background 0.09s;
 }
 .carousel-3d-arrow:focus-visible,
 .carousel-3d-arrow:hover {
-  background: linear-gradient(100deg, #282857 58%, #3232c2 110%);
+  background: linear-gradient(100deg, #282857 64%, #3c52db 130%);
   color: #fff;
-  box-shadow: 0 8px 27px 0 #232399af;
-  outline: 2px solid var(--accent, #0000f3);
+  box-shadow: 0 16px 37px 0 #3c54f6b9, 0 8px 27px #232399af;
+  outline: 2.3px solid var(--accent, #0000f3);
   opacity: 1;
-  filter: drop-shadow(0 5px 18px #000f) brightness(1.08);
+  filter: drop-shadow(0 7px 32px #0011bfce) brightness(1.13);
+  transition:
+    filter 0.11s cubic-bezier(.44,.52,.19,1.09),
+    background 0.18s,
+    color 0.17s,
+    box-shadow 0.17s;
 }
 
 .carousel-3d-controls {
@@ -194,9 +206,14 @@
 .carousel-3d-indicator.active,
 .carousel-3d-indicator:focus-visible {
   background: linear-gradient(93deg, var(--accent, #0000f3) 49%, var(--primary, #c80000) 96%);
-  transform: scale(1.31);
-  box-shadow: 0 0 0 4px var(--primary, #c80000), 0 16px 35px #000a, 0 1.7px 14px #0000f366;
+  transform: scale(1.39);
+  box-shadow: 0 0 0 6px var(--primary, #c80000), 0 19px 42px #000a, 0 2px 16px #0000f366;
   opacity: 1;
+  outline: none;
+  transition:
+    transform 0.22s cubic-bezier(.24,1.32,.4,1.02),
+    background 0.14s,
+    box-shadow 0.15s;
 }
 
 @media (max-width: 900px) {
@@ -209,6 +226,11 @@
     border-radius: 13px;
     font-size: 0.97rem;
     box-shadow: 0 9px 55px 0 #0013, 0 5px 20px 7px #1a1a4477;
+    transition:
+      opacity 0.58s cubic-bezier(.76,.09,.24,1.02),
+      transform 0.51s cubic-bezier(.78,.14,.16,.92),
+      filter 0.33s cubic-bezier(.42,.22,.27,1),
+      z-index 0.01s;
   }
   .carousel-3d-stage { height: 110px; }
   .carousel-3d-arrow { width: 30px; height:30px; font-size: 1.1rem; }

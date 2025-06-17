@@ -61,6 +61,8 @@ function ThreeDCarousel({
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef();
   const stageRef = useRef();
+  const lastInteractionRef = useRef(Date.now());
+  const transitionDuration = 600; // ms, matches CSS 0.60s for perfect sync
 
   // Calculate rotation step and cylinder radius for true 3D perspective
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
@@ -74,7 +76,6 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, visCount]);
     function calcRadius(width) {
-      // Visually simulate a *deeper* curve and keep sides readable with larger radius at higher perspectives
       if (width < 520) return 88 + (visCount - 1) * 61 + (count - 3) * 8;
       if (width < 900) return 150 + (visCount - 1) * 90 + (count - 5) * 12;
       return 410 + (visCount - 1) * 160 + (count - 5) * 34; // Big spread on desktop
@@ -83,48 +84,80 @@ function ThreeDCarousel({
   }
   const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Auto-rotation logic (improved timing/UX for more 3D realism)
+  // Handles continuous seamless looping and snap-to transitions with tuned cubic-bezier
+  function setActiveWithAnimation(newIndex) {
+    if (isAnimating || numSlides <= 1) return;
+    setIsAnimating(true);
+    setActive(newIndex);
+    lastInteractionRef.current = Date.now();
+  }
+
+  // Auto-rotation: handles instant catch-up if navigation was quick
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
-    intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
+    intervalRef.current = setInterval(() => {
+      // Ensure instant snap if last nav was < transitionDuration ago
+      if (Date.now() - lastInteractionRef.current < transitionDuration - 100) {
+        setActive(a => (a + 1) % numSlides); // catch-up rotation if rapid
+        setIsAnimating(true);
+      } else {
+        nextSlideSmooth();
+      }
+    }, rotateInterval);
     return () => clearInterval(intervalRef.current);
-  }, [autoRotate, rotateInterval, numSlides, paused, active]);
+    // eslint-disable-next-line
+  }, [autoRotate, rotateInterval, numSlides, paused, active, isAnimating]);
 
   useEffect(() => {
-    if (!isAnimating) return;
-    const t = setTimeout(() => setIsAnimating(false), 370); // Quicker settle for snappier experience
-    return () => clearTimeout(t);
+    if (isAnimating) {
+      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 40);
+      return () => clearTimeout(t);
+    }
   }, [isAnimating]);
 
   // Accessibility: Keyboard navigation
   function handleKeyDown(e) {
     if (isAnimating) return;
-    if (e.key === "ArrowRight" || e.key === "PageDown") nextSlideSmooth();
-    else if (e.key === "ArrowLeft" || e.key === "PageUp") prevSlideSmooth();
-    else if (e.key === "Home") setActive(0);
-    else if (e.key === "End") setActive(numSlides - 1);
+    if (e.key === "ArrowRight" || e.key === "PageDown") {
+      nextSlideSmooth(true);
+    }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      prevSlideSmooth(true);
+    }
+    else if (e.key === "Home") setActiveWithAnimation(0);
+    else if (e.key === "End") setActiveWithAnimation(numSlides - 1);
   }
 
   // PUBLIC_INTERFACE
-  const nextSlideSmooth = useCallback(() => {
+  // Seamlessly animate to next
+  const nextSlideSmooth = useCallback((fromKeyboard = false) => {
     if (isAnimating) return;
-    setActive(a => (a + 1) % numSlides);
-    setIsAnimating(true);
-  }, [isAnimating, numSlides]);
+    setActive(prev => {
+      const target = (prev + 1) % numSlides;
+      if (fromKeyboard) lastInteractionRef.current = Date.now();
+      setIsAnimating(true);
+      return target;
+    });
+  // isAnimating, numSlides intentionally omitted for event consistency
+  }, []);
 
   // PUBLIC_INTERFACE
-  const prevSlideSmooth = useCallback(() => {
+  const prevSlideSmooth = useCallback((fromKeyboard = false) => {
     if (isAnimating) return;
-    setActive(a => (a - 1 + numSlides) % numSlides);
-    setIsAnimating(true);
-  }, [isAnimating, numSlides]);
+    setActive(prev => {
+      const target = (prev - 1 + numSlides) % numSlides;
+      if (fromKeyboard) lastInteractionRef.current = Date.now();
+      setIsAnimating(true);
+      return target;
+    });
+  }, []);
 
   // Pause carousel on hover/focus, resume on leave/blur
   const pause = () => setPaused(true);
   const resume = () => setPaused(false);
 
-  // Touch/Swipe support stub (mobile)
-  useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
+  // Touch/Swipe support with chic feedback
+  useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth, setIsAnimating, setActive, numSlides, lastInteractionRef);
 
   // Show the visible window of slides for 3D effect
   function getVisible(relPos) {
@@ -222,8 +255,12 @@ function ThreeDCarousel({
           title="Previous"
           aria-label="Previous Slide"
           tabIndex={0}
-          onClick={prevSlideSmooth}
+          onClick={() => { prevSlideSmooth(); }}
           disabled={isAnimating || numSlides < 2}
+          style={{
+            outline: isAnimating ? "none" : undefined,
+            pointerEvents: isAnimating || numSlides < 2 ? "none" : "auto"
+          }}
         >
           <span aria-hidden>‹</span>
         </button>
@@ -232,8 +269,12 @@ function ThreeDCarousel({
           title="Next"
           aria-label="Next Slide"
           tabIndex={0}
-          onClick={nextSlideSmooth}
+          onClick={() => { nextSlideSmooth(); }}
           disabled={isAnimating || numSlides < 2}
+          style={{
+            outline: isAnimating ? "none" : undefined,
+            pointerEvents: isAnimating || numSlides < 2 ? "none" : "auto"
+          }}
         >
           <span aria-hidden>›</span>
         </button>
@@ -246,10 +287,17 @@ function ThreeDCarousel({
             aria-label={`Go to slide ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
             tabIndex={0}
-            onClick={() => !isAnimating && setActive(i)}
+            onClick={() => {
+              if (isAnimating || i === active) return;
+              setActiveWithAnimation(i);
+            }}
             disabled={isAnimating || i === active}
             role="tab"
             aria-selected={i === active}
+            style={{
+              outline: i === active ? "none" : undefined,
+              pointerEvents: isAnimating || i === active ? "none" : "auto"
+            }}
           />
         ))}
       </div>
@@ -665,8 +713,51 @@ function getSlideLabel(slide) {
   return "";
 }
 
-// Dummy/stub touch-swipe hook for compatibility (can be expanded for real mobile swipe in future)
-function useCarouselSwipe(ref, next, prev) { }
+/**
+ * Touch/swipe navigation hook with snap-to-rotation and tactile feedback for 3D carousel.
+ */
+function useCarouselSwipe(ref, next, prev, setIsAnimating, setActive, numSlides, lastInteractionRef) {
+  // We'll add basic horizontal swipe: drag left => next, drag right => previous, with short debounce
+  useEffect(() => {
+    const stage = ref.current;
+    if (!stage) return;
+    let startX = null, lastX = null, delta = null, started = false, downTime = 0;
+    function handleTouchStart(e) {
+      if (e.touches && e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        lastX = startX;
+        started = true;
+        downTime = Date.now();
+      }
+    }
+    function handleTouchMove(e) {
+      if (!started || !startX) return;
+      lastX = e.touches[0].clientX;
+    }
+    function handleTouchEnd() {
+      if (!started || !startX || lastX == null) return;
+      delta = lastX - startX;
+      if (Math.abs(delta) > 37) {
+        if (delta < 0) next();
+        else prev();
+        setIsAnimating && setIsAnimating(true);
+        if (lastInteractionRef) lastInteractionRef.current = Date.now();
+      }
+      startX = lastX = delta = null;
+      started = false;
+      downTime = 0;
+    }
+    stage.addEventListener("touchstart", handleTouchStart, { passive: true });
+    stage.addEventListener("touchmove", handleTouchMove, { passive: true });
+    stage.addEventListener("touchend", handleTouchEnd, { passive: true });
+    return () => {
+      stage.removeEventListener("touchstart", handleTouchStart);
+      stage.removeEventListener("touchmove", handleTouchMove);
+      stage.removeEventListener("touchend", handleTouchEnd);
+    };
+    // eslint-disable-next-line
+  }, [ref, next, prev, setIsAnimating, setActive, numSlides]);
+}
 
 // PUBLIC_INTERFACE
 export default ThreeDCarousel;
