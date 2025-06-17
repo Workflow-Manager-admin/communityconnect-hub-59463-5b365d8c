@@ -460,12 +460,13 @@ function ContactsPanel({ contacts, previewOnly }) {
 
 // Updated EventsPanel to support event adding and display as described
 function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, onAddEvent }) {
-  // Internal state for the event form (only for logged-in users, reflects at the EventsPage only)
-  const [form, setForm] = React.useState({ name: "", date: "", location: "" });
+  // Extended event form to support: title, date, location, and description
+  const [form, setForm] = React.useState({ name: "", date: "", location: "", description: "" });
   const [addErr, setAddErr] = React.useState("");
   const [addMsg, setAddMsg] = React.useState("");
   let items = events;
   if (previewCount) items = events.slice(0, previewCount);
+
   if (loading)
     return (
       <div className="hub-card hub-event-card hub-section-entrance">
@@ -497,25 +498,33 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
     e.preventDefault();
     setAddErr("");
     setAddMsg("");
-    if (!form.name.trim() || !form.date.trim() || !form.location.trim()) {
+
+    // Simple validation
+    if (!form.name.trim() || !form.date.trim() || !form.location.trim() || !form.description.trim()) {
       setAddErr("All fields are required.");
       return;
     }
-    // Limit: Only Chennai-based events
+    // Chennai location validation
     if (!/chennai/i.test(form.location)) {
       setAddErr("Location must be within Chennai.");
       return;
     }
-    // Add the event via callback provided by App (updates parent state)
+    // Description length validation
+    if (form.description.trim().length < 10) {
+      setAddErr("Description should be at least 10 characters.");
+      return;
+    }
+    // All checks pass: Add event via callback
     if (onAddEvent) {
       onAddEvent({
         id: Date.now(),
         name: form.name.trim(),
         date: form.date.trim(),
-        location: form.location.trim()
+        location: form.location.trim(),
+        description: form.description.trim()
       });
       setAddMsg("Event added!");
-      setForm({ name: "", date: "", location: "" });
+      setForm({ name: "", date: "", location: "", description: "" });
     }
   }
 
@@ -538,7 +547,7 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
             Add a Chennai Event
           </div>
           <input
-            className="hub-input"
+            className={`hub-input${addErr && !form.name.trim() ? " error" : ""}`}
             type="text"
             name="name"
             placeholder="Event Name"
@@ -546,9 +555,11 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
             onChange={handleEventFormChange}
             required
             style={{marginBottom: 7}}
+            maxLength={64}
+            autoComplete="off"
           />
           <input
-            className="hub-input"
+            className={`hub-input${addErr && !form.date.trim() ? " error" : ""}`}
             type="date"
             name="date"
             value={form.date}
@@ -557,7 +568,7 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
             style={{marginBottom: 7}}
           />
           <input
-            className="hub-input"
+            className={`hub-input${addErr && (!form.location.trim() || !/chennai/i.test(form.location)) ? " error" : ""}`}
             type="text"
             name="location"
             placeholder="Location (must include Chennai)"
@@ -565,6 +576,20 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, o
             onChange={handleEventFormChange}
             required
             style={{marginBottom: 7}}
+            maxLength={64}
+            autoComplete="off"
+          />
+          <textarea
+            className={`hub-input${addErr && (!form.description.trim() || form.description.trim().length < 10) ? " error" : ""}`}
+            name="description"
+            placeholder="Description (at least 10 chars)"
+            value={form.description}
+            onChange={handleEventFormChange}
+            required
+            style={{marginBottom: 7, minHeight: 52, fontFamily: "inherit", resize: "vertical"}}
+            minLength={10}
+            maxLength={260}
+            autoComplete="off"
           />
           {addErr && <div style={{color: "#e87a41", fontSize: 14, marginBottom: 6}}>{addErr}</div>}
           {addMsg && <div style={{color: "#4ee144", fontSize: 14, marginBottom: 6}}>{addMsg}</div>}
