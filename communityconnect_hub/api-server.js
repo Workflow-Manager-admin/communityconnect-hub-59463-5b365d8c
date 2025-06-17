@@ -44,9 +44,9 @@ function logPerformance(endpoint) {
  * Use the new API key for authenticating all /api/news requests.
  * This key must be kept secure and never exposed to the frontend or any client-side code.
  */
-const NEWS_API_KEY = "7eb021fdd0745282f9816f080ee0ab4d";
+const NEWS_API_KEY = process.env.NEWS_API_KEY || "7eb021fdd0745282f9816f080ee0ab4d";
 // Weather API Key (do NOT expose this to frontend!)
-const WEATHER_API_KEY = "e91a8166503a4e9e967174436251706";
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY || "e91a8166503a4e9e967174436251706";
 
 const app = express();
 const PORT = process.env.PORT || 3300;
@@ -85,10 +85,26 @@ app.get(
     try {
       const apiRes = await fetch(url);
 
+      // Always log backend NewsAPI response for diagnosis (status, truncated JSON)
+      try {
+        const previewClone = await apiRes.clone().json().then(obj=>{
+          if (obj && obj.articles && Array.isArray(obj.articles)) {
+            const first = obj.articles[0];
+            return {status: apiRes.status, articlesCount: obj.articles.length, firstArticle: first};
+          } else {
+            return {status: apiRes.status, preview: obj};
+          }
+        }).catch(()=>"decode error");
+        console.log("[NewsAPI RES]", url, previewClone);
+      } catch(e) {
+        console.warn("[NewsAPI DIAGNOSE: Cannot parse NewsAPI response]", e);
+      }
+
       if (!apiRes.ok) {
         // Pass along error/status code from upstream if possible
         const errorData = await apiRes.json().catch(() => {});
         const errorMsg = errorData && errorData.message ? errorData.message : "News provider error";
+        // Log error with as much info as available
         console.error("[NewsAPI ERROR]", {
           status: apiRes.status,
           url,

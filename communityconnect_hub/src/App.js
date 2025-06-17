@@ -1113,6 +1113,13 @@ function App() {
             res.status,
             out || ""
           );
+          // Enhanced: log fetch text for debugging if possible
+          try {
+            res.clone().text().then(txt => {
+              // eslint-disable-next-line
+              console.warn("NewsAPI fetch returned non-ok response. Text body:", txt);
+            });
+          } catch (e) {}
           if (active) {
             setNews([]);
             setNewsError(
@@ -1157,6 +1164,11 @@ function App() {
           "Error fetching news (frontend):",
           err && err.message ? err.message : err
         );
+        // If error object has stack/log more
+        if (err && err.stack) {
+          // eslint-disable-next-line
+          console.error("News fetch stack trace (frontend):", err.stack);
+        }
         if (active) {
           setNews([]);
           setNewsError(
