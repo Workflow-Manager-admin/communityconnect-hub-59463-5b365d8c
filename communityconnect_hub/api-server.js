@@ -61,21 +61,29 @@ app.get("/api/news", async (req, res) => {
     // Defensive: structure expected from NewsAPI is { articles: [] }
     if (!data.articles || !Array.isArray(data.articles)) {
       // If error or API changed format
-      console.error("[NewsAPI ERROR] Invalid or missing articles array in API response", {
+      const msg = "[NewsAPI ERROR] Invalid or missing articles array in API response";
+      console.error(msg, {
         url,
         received: data
       });
       return res.status(502).json({
         error: "Failed to fetch news or no articles found.",
-        details: "API did not return an articles array.",
+        details: "NewsAPI response did not return an articles array.",
         status: 502,
         providerResponse: data
       });
     }
 
-    // Log if we receive empty articles (not a backend error, but helps diagnosis)
+    // Always warn and return an error if 0 articles are received (Frontend should see as error!)
     if (data.articles.length === 0) {
-      console.warn("[NewsAPI WARNING] NewsAPI returned 0 articles for URL:", url);
+      const msg = "[NewsAPI WARNING] NewsAPI returned 0 articles for URL:";
+      console.warn(msg, url);
+      // Return as failure (not just success with empty array), so the frontend can report a problem more clearly.
+      return res.status(502).json({
+        error: "News API returned no articles.",
+        details: "News provider did not supply any news articles for your query.",
+        status: 502
+      });
     }
 
     // Ensure every field exists, avoid undefined for React
@@ -88,8 +96,10 @@ app.get("/api/news", async (req, res) => {
       publishedAt: a?.publishedAt || ""
     }));
 
-    res.json({ articles });
+    // Only return valid result if articles array is truly non-empty and valid.
+    return res.json({ articles });
   } catch (err) {
+    // Always log exceptions visibly and include stack trace
     console.error("[NewsAPI EXCEPTION]", err && err.stack ? err.stack : err);
     res.status(500).json({
       error: "Error fetching news.",
