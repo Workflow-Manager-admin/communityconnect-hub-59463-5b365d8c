@@ -60,11 +60,12 @@ function ThreeDCarousel({
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [transitioningIndex, setTransitioningIndex] = useState(null); // Track outgoing slide
   const intervalRef = useRef();
   const stageRef = useRef();
   const lastInteractionRef = useRef(Date.now());
-  // --- SPEED TUNING v3: SNAPPY/CLEAN --- //
-  const transitionDuration = 190; // ms, much shorter for ultra-snappy, but fast enough to avoid overlap/stutter
+  // --- SPEED TUNING v3: SNAPPY/CLEAN + Enhanced Anim --- //
+  const transitionDuration = 135; // ms, even faster for lively snap with new effects
 
   // Calculate rotation step and cylinder radius for true 3D perspective
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
@@ -90,6 +91,7 @@ function ThreeDCarousel({
   function setActiveWithAnimation(newIndex) {
     if (isAnimating || numSlides <= 1) return;
     setIsAnimating(true);
+    setTransitioningIndex(active); // Mark outgoing slide for animation
     setActive(newIndex);
     lastInteractionRef.current = Date.now();
   }
@@ -113,9 +115,13 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (isAnimating) {
-      // TransitionDuration is now much shorter; a small negative offset to ensure no overlap at high speeds.
-      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 8);
-      return () => clearTimeout(t);
+      // Remove outgoing highlight after transition
+      const t1 = setTimeout(() => setIsAnimating(false), transitionDuration - 8);
+      const t2 = setTimeout(() => setTransitioningIndex(null), transitionDuration + 56); // Clean up extra animation
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [isAnimating]);
 
@@ -236,9 +242,18 @@ function ThreeDCarousel({
           const theta = i * angleStep;
           const relPos = (i - active + numSlides) % numSlides;
           if (!getVisible(relPos)) return null;
+
+          // Assign advanced animation classes:
+          let slideClass = "carousel-3d-slide";
+          if (relPos === 0) slideClass += " active";
+          if (transitioningIndex !== null && i === transitioningIndex)
+            slideClass += " exiting-anim";  // Outgoing
+          if (relPos === 0 && isAnimating)
+            slideClass += " entering-anim"; // Animate in
+
           return (
             <div
-              className={`carousel-3d-slide${relPos === 0 ? " active" : ""}`}
+              className={slideClass}
               key={i}
               aria-hidden={relPos !== 0}
               tabIndex={relPos === 0 ? 0 : -1}

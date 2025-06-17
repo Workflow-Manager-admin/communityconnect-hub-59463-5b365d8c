@@ -51,9 +51,9 @@
   padding: 36px 32px 26px 32px;
   /* Animation durations much shorter for rapid transitions */
   transition:
-    opacity 0.17s cubic-bezier(.8,0,.1,1),
-    transform 0.19s cubic-bezier(.85,.07,.18,.99),
-    filter 0.14s cubic-bezier(.62,.11,.37,1.03),
+    opacity 0.16s cubic-bezier(.8,0,.1,1),
+    transform 0.17s cubic-bezier(.98,.01,.12,.99),
+    filter 0.13s cubic-bezier(.62,.11,.37,1.03),
     z-index 0.01s;
   opacity: 0.08;
   filter: blur(14px) grayscale(0.93) brightness(0.75);
@@ -67,6 +67,103 @@
   border: 2.5px solid var(--border-color, #292949);
   user-select: none;
   background-blend-mode: luminosity;
+  /* --- advanced anim --- */
+  --carousel-slide-glow: 0 0 0px 0 #0000;
+}
+
+/* Advanced Animation: fade, glow, scale, blur on the entering slide (on top of rotation) */
+.carousel-3d-slide.entering-anim {
+  /* Fade/scale in + subtle blue glow to emphasize action */
+  animation: carouselFadeInScaleGlow .28s cubic-bezier(.51,.03,.21,1.10);
+  z-index: 19 !important;
+  box-shadow: 0 0 48px 12px #0000f355, 0 0 0 #000 !important;
+  filter: drop-shadow(0 0 22px #0000f4bb) brightness(1.14) blur(0.1px) !important;
+  outline: 0;
+}
+@keyframes carouselFadeInScaleGlow {
+  0% {
+    opacity: 0.06;
+    filter: blur(26px) grayscale(0.97) brightness(0.43) drop-shadow(0 0 36px #0000f3a8);
+    transform: scale(.92) translateY(40px) perspective(1300px) rotateX(2.2deg);
+    box-shadow: 0 0 0 0 #0000;
+  }
+  60% {
+    opacity: 1;
+    filter: blur(2.5px) grayscale(0.71) brightness(0.99) drop-shadow(0 0 14px #0000f299);
+    transform: scale(1.05) translateY(0) perspective(1600px);
+    box-shadow: 0 0 37px 14px #0000f35c;
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    box-shadow: 0 0 78px 20px #0000f326;
+  }
+}
+
+/* Advanced Animation: fade-out, blur, scale-down, drop-glow on the outgoing slide */
+.carousel-3d-slide.exiting-anim {
+  animation: carouselFadeOutScaleGlow .23s cubic-bezier(.31, .51, .53, 1.14);
+  will-change: opacity, filter, transform;
+  z-index: 14 !important;
+  pointer-events: none !important;
+  box-shadow: 0 0 90px 21px #eaeeff2c !important;
+  filter: blur(19px) grayscale(0.93) brightness(0.80) drop-shadow(0 0 33px #3342f5aa) !important;
+}
+@keyframes carouselFadeOutScaleGlow {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1) perspective(1700px);
+    box-shadow: 0 0 37px 14px #0000f326;
+  }
+  60% {
+    opacity: 0.43;
+    filter: blur(9px) grayscale(0.86) brightness(0.92) drop-shadow(0 0 32px #3342f599);
+    transform: scale(.96) perspective(1200px);
+    box-shadow: 0 0 79px 40px #283ecf36;
+  }
+  100% {
+    opacity: 0.11;
+    filter: blur(26px) grayscale(0.96) brightness(0.79) drop-shadow(0 0 52px #283ecfbb);
+    transform: scale(.89) translateY(34px) perspective(1000px) rotateX(5deg);
+    box-shadow: 0 0 99px 55px #283ecf22;
+  }
+}
+
+/* Subtle accent blue/cyan glow for active slide (even outside animation) */
+.carousel-3d-slide.active {
+  opacity: 1 !important;
+  filter: none !important;
+  z-index: 15;
+  pointer-events: auto;
+  background: var(--hero-gradient, linear-gradient(92deg, #232338 47%, #19194c 100%));
+  box-shadow: 0 68px 196px 0 #0013ea, 0 18px 62px 0 #1212687d, 0 0 70px 21px #0000f366, 0 0 14px 5px #0000f34d;
+  border-color: var(--accent, #0000f3);
+  user-select: text;
+  background-blend-mode: normal;
+  transition:
+    box-shadow 0.16s, border-color 0.08s, filter 0.11s, opacity 0.13s, transform 0.11s;
+  outline: none;
+}
+
+/* Strong blue shadow on hover/focus for active as micro-interaction */
+.carousel-3d-slide.active:focus-visible, .carousel-3d-slide.active:hover {
+  box-shadow:
+    0 90px 240px 0 #0000f3a6,
+    0 5px 7px 0 #232338bd,
+    0 0 23px 11px #216feeaa,
+    0 0 16px 8px #0000f3;
+  filter: brightness(1.12) blur(0.7px) drop-shadow(0 0 6px #009dfa77) !important;
+  border-color: #009dfa;
+}
+
+/* Sides: add motion blur + pop for visible slides (3D illusion) */
+.carousel-3d-slide:not(.active)[style*="opacity: 0.54"] {
+  opacity: 0.53 !important;
+  filter: blur(7.2px) grayscale(0.68) brightness(0.94) !important;
+  z-index: 5 !important;
+  background: linear-gradient(99deg, #181838 55%, #29294ee0 100%);
 }
 
 /* Center slide: more pop + elevated for realism */
