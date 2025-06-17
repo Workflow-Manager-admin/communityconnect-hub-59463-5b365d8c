@@ -14,10 +14,11 @@ import "./ThreeDCarousel.css";
  */
 function ThreeDCarousel({
   slides,
+  // Fine-tuned animation and perspective defaults for optimal effect
   autoRotate = true,
-  rotateInterval = 4000,
-  visibleSlideCount = 5,
-  perspective = 1750,
+  rotateInterval = 3300,           // Slightly quicker auto-rotation
+  visibleSlideCount = 7,           // More peripheral slides for richer effect if enough content
+  perspective = 2350,              // Stronger 3D illusion
   carouselData = null
 }) {
   // Accept either direct JSX slides or slide objects for auto-render (NEW: also handle announcement/banner/community visually)
@@ -28,9 +29,12 @@ function ThreeDCarousel({
     : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp visible slide count for 3D effect accuracy (min 4, max 7, odd preferred)
-  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, Math.min(7, numSlides > 0 ? numSlides : 4)));
-  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--;
+  // Clamp visible slide count for 3D effect accuracy (min 4, max 9, odd preferred for symmetry)
+  visibleSlideCount = Math.max(5, Math.min(visibleSlideCount, Math.min(9, numSlides > 0 ? numSlides : 5)));
+  // Odd number for symmetry
+  if (visibleSlideCount % 2 === 0) visibleSlideCount--;
+  // If there are less slides, reduce visibleSlideCount to match
+  if (numSlides > 0 && visibleSlideCount > numSlides) visibleSlideCount = numSlides;
 
   // Carousel state management
   const [active, setActive] = useState(0);
@@ -50,10 +54,10 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, visCount]);
     function calcRadius(width) {
-      // Slightly boost radius for more pop, especially if slide count exceeds 5
-      if (width < 520) return 115 + (visCount - 1) * 39 + (count - 4) * 7;
-      if (width < 950) return 210 + (visCount - 1) * 62 + (count - 4) * 17;
-      return 408 + (visCount - 1) * 86 + (count - 4) * 23;
+      // Even more pronounced radius to match bigger visibleSlideCount/perspective
+      if (width < 520) return 108 + (visCount - 1) * 44 + (count - 5) * 9;
+      if (width < 950) return 210 + (visCount - 1) * 74 + (count - 5) * 21;
+      return 470 + (visCount - 1) * 112 + (count - 5) * 33;
     }
     return r;
   }
@@ -68,7 +72,7 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (!isAnimating) return;
-    const t = setTimeout(() => setIsAnimating(false), 540); // Faster settling for snap
+    const t = setTimeout(() => setIsAnimating(false), 370); // Quicker settle for snappier experience
     return () => clearTimeout(t);
   }, [isAnimating]);
 
@@ -107,20 +111,22 @@ function ThreeDCarousel({
     if (numSlides <= visibleSlideCount) return true;
     let half = Math.floor(visibleSlideCount / 2);
     if (visibleSlideCount === numSlides) return true;
-    // Always center active, spread half/half on sides
-    return (relPos === 0 || relPos <= half || relPos >= numSlides - half);
+    // Ensure symmetry, always show 'half' on either side of active (including wrapping-around ends)
+    if (relPos === 0) return true;
+    if (relPos <= half || relPos >= numSlides - half) return true;
+    return false;
   }
 
   function getStyle(relPos) {
     if (relPos === 0)
       return { opacity: 1, zIndex: 12, filter: "none", pointerEvents: "auto" };
     const half = Math.floor(visibleSlideCount / 2);
-    // Adjacent slides left/right
+    // Directly adjacent left/right (mild blur/fade)
     if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
-      return { opacity: 0.58, filter: "blur(3.7px) grayscale(0.45) brightness(0.97)", zIndex: 3, pointerEvents: "none" };
+      return { opacity: 0.54, filter: "blur(4.2px) grayscale(0.53) brightness(0.95)", zIndex: 2, pointerEvents: "none" };
     }
-    // Further out (phantom)
-    return { opacity: 0.18, filter: "blur(12.5px) grayscale(0.9) brightness(0.85)", zIndex: 1, pointerEvents: "none" };
+    // Outer (ghost)
+    return { opacity: 0.13, filter: "blur(15.8px) grayscale(0.94) brightness(0.80)", zIndex: 1, pointerEvents: "none" };
   }
 
   // Accessible slide description (for screenreaders)

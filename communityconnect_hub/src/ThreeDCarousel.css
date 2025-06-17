@@ -21,11 +21,11 @@
   align-items: center;
   justify-content: center;
   transform-style: preserve-3d;
-  /* Animation eased and softened for realism */
+  /* Animation: snappier and more responsive */
   transition:
-    filter 0.22s,
-    transform 0.66s cubic-bezier(.55,.16,.36,1.08),
-    box-shadow 0.23s;
+    filter 0.19s,
+    transform 0.41s cubic-bezier(.55,.19,.44,1.16),
+    box-shadow 0.17s;
   will-change: transform, filter;
 }
 .carousel-3d-stage.animating {
@@ -70,7 +70,7 @@
   z-index: 10;
   pointer-events: auto;
   background: var(--hero-gradient, linear-gradient(92deg, #232338 47%, #19194c 100%));
-  box-shadow: 0 49px 110px 0 #000fea, 0 10px 46px 0 #1212683b, 0 0 20px 9px var(--accent, #0000f3);
+  box-shadow: 0 64px 170px 0 #0013ea, 0 15px 56px 0 #12126861, 0 0 24px 16px var(--accent, #0000f3);
   border-color: var(--accent, #0000f3);
   user-select: text;
   background-blend-mode: normal;
@@ -189,8 +189,8 @@
 .carousel-3d-indicator.active,
 .carousel-3d-indicator:focus-visible {
   background: linear-gradient(93deg, var(--accent, #0000f3) 49%, var(--primary, #c80000) 96%);
-  transform: scale(1.19);
-  box-shadow: 0 0 0 3px var(--primary, #c80000), 0 10px 25px #0007;
+  transform: scale(1.31);
+  box-shadow: 0 0 0 4px var(--primary, #c80000), 0 16px 35px #000a, 0 1.7px 14px #0000f366;
   opacity: 1;
 }
 
