@@ -8,7 +8,7 @@ import "./ThreeDCarousel.css";
  * Slides automatically render with section-specific icons, images, backgrounds, and layouts.
  *
  * Props:
- *   - slides: Array of JSX elements (overrides carouselData, auto-rendered as slides if not present)
+ *   - slides: Array of JSX elements or objects (slide objects auto-rendered)
  *   - carouselData: array of slide objects ({type: "news"|"weather"|"event"|"community"|"banner"|"announcement", ...}) for dynamic content
  *   - autoRotate, rotateInterval, visibleSlideCount, perspective: carousel controls
  */
@@ -20,10 +20,9 @@ function ThreeDCarousel({
   perspective = 1750,
   carouselData = null
 }) {
-  // Enhanced: Accept either direct JSX slides or slide objects for auto-render
+  // Accept either direct JSX slides or slide objects for auto-render (NEW: also handle announcement/banner/community visually)
   let carouselSlides = Array.isArray(slides)
     ? slides.map((s, i) => (
-        // Auto-wrap slide objects via renderer if not React element
         React.isValidElement(s) ? s : renderRichSlide(s, i)
       ))
     : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
