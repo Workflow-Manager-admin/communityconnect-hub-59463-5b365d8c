@@ -1093,39 +1093,51 @@ function App() {
         }
 
         if (out && (out.error || out.status >= 400)) {
+          // Always log error for diagnosis
           // eslint-disable-next-line
           console.error("NewsAPI backend error:", out);
-          if (active) {
-            setNews([]);
-            setNewsError(
+          // Improved: Make detailed, user-friendly error messages
+          let userMsg = "";
+          if (out.status === 502 && /no articles/i.test(out.details || "")) {
+            userMsg = "No news available from provider at this time (NewsAPI returned no articles).";
+          } else if (out.status === 429 || (out.details && /rate.*limit|quota/i.test(out.details))) {
+            userMsg = "News unavailable: API rate limit was reached. Please try again later.";
+          } else {
+            userMsg =
               out.details
                 ? `${out.error || "Failed to fetch news."} (${out.details})`
-                : out.error || "Failed to fetch news."
-            );
+                : out.error || "Failed to fetch news.";
+          }
+          if (active) {
+            setNews([]);
+            setNewsError(userMsg);
           }
           return;
         }
 
         if (!res.ok) {
+          // Always log detailed non-ok response for debugability
           // eslint-disable-next-line
           console.error(
             "Failed HTTP for news fetch. Status:",
             res.status,
             out || ""
           );
-          // Enhanced: log fetch text for debugging if possible
           try {
             res.clone().text().then(txt => {
               // eslint-disable-next-line
               console.warn("NewsAPI fetch returned non-ok response. Text body:", txt);
             });
           } catch (e) {}
+          let msg = (out && (out.error || out.details)) ||
+              `Failed to fetch news (HTTP ${res.status}).`;
+          // Parse finer error for user
+          if (res.status === 429 || /rate.*limit/i.test(msg)) {
+            msg = "News unavailable: You have exceeded the allowed news requests (rate limit hit). Please try again soon.";
+          }
           if (active) {
             setNews([]);
-            setNewsError(
-              (out && (out.error || out.details)) ||
-                `Failed to fetch news (HTTP ${res.status}).`
-            );
+            setNewsError(msg);
           }
           return;
         }
