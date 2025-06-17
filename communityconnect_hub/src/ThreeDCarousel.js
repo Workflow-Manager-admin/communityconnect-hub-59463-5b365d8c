@@ -21,12 +21,12 @@ import "./ThreeDCarousel.css";
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  // Speed adjustment: slower for realism but also smooth – user can override if desired
-  rotateInterval = 5400,
-  // Cylinder: use up to 6 slides for realism, but scale to content
-  visibleSlideCount = 5,
-  // Slightly deeper 3D by default for wider displays
-  perspective = 1950,
+  // Adjusted: slightly faster default speed for more dynamic carousel (still smooth)
+  rotateInterval = 4100,
+  // Adjust visible slides to a more cylindrical effect: 6 looks best for full round (fallback to max content)
+  visibleSlideCount = 6,
+  // Adjusted perspective for more pronounced 3D cylinder (vertical stacking is improved with ~1450)
+  perspective = 1450,
   carouselData = null,
 }) {
   // Prefer "slides", but if not provided use "carouselData" (from APIs: news, events, weather)
@@ -116,14 +116,19 @@ function ThreeDCarousel({
 
   // For a cylinder, center is 0, flanking slides are ±1...N, others are out of view for performance
   function getVisible(relPos) {
-    // relPos === 0: center, ±1, ±2, ...
-    // For even visibleSlideCount, show more on right
-    const half = Math.floor((visibleSlideCount-1)/2);
-    return (
-      relPos === 0 ||
-      (relPos <= half && relPos > 0) ||
-      (relPos >= numSlides-half && relPos <= numSlides-1)
-    );
+    // Shows a balanced cylinder regardless of slide count; ensures symmetry
+    let min, max;
+    if (numSlides <= visibleSlideCount) return true;
+    // Handle wrap-around properly, works for both sides
+    let half = Math.floor(visibleSlideCount / 2);
+    let behind = Math.floor((visibleSlideCount - 1) / 2);
+    let ahead = visibleSlideCount - 1 - behind;
+
+    // relPos = how far ahead this slide is from current (modulo numSlides)
+    if (relPos === 0) return true;
+    if (relPos > 0 && relPos <= ahead) return true;
+    if (relPos > numSlides - behind - 1 && relPos < numSlides) return true;
+    return false;
   }
 
   // aria-live message for accessibility: which slide is active
