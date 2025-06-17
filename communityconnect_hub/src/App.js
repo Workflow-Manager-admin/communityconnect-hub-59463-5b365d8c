@@ -527,7 +527,8 @@ function App() {
   }
 
   // --- API URLs ---
-  // Use backend proxy for News API to keep API key secure
+  // All news data must now be fetched only via the secure backend proxy endpoint.
+  // External News API must never be called from the client.
   const NEWS_API = "/api/news";
   const WEATHER_API =
     "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
@@ -537,6 +538,7 @@ function App() {
   React.useEffect(() => {
     let active = true;
     let refreshInterval = null;
+
     // PUBLIC_INTERFACE
     async function fetchNews(force = false) {
       if (!force) {
@@ -547,30 +549,33 @@ function App() {
         }
       }
       try {
-        // If on localhost dev, ensure full url to backend server
+        // Always use the secure backend endpoint for fetching news
         let API_URL = NEWS_API;
         if (
           typeof window !== "undefined" &&
           window.location.hostname === "localhost"
         ) {
-          // The backend runs on port 3300 in local dev
+          // Explicitly set full URL for local development
           API_URL = "http://localhost:3300/api/news";
         }
         const res = await fetch(API_URL);
-        if (!res.ok) throw new Error("Failed to fetch news");
+        if (!res.ok) throw new Error("Failed to fetch news from proxy");
         const out = await res.json();
-        const articles = (out.articles || []).slice(0, 5);
+        // Use the articles array from backend only (never from the external News API directly)
+        const articles = Array.isArray(out.articles) ? out.articles.slice(0, 5) : [];
         if (active) {
           setNews(articles);
           setCached(CACHE_KEYS.news, articles);
         }
-      } catch {
+      } catch (err) {
+        // If our proxy failed, just empty out the news (do NOT expose backend errors)
         if (active) setNews([]);
       }
     }
+
     fetchNews();
 
-    // Real-time/periodic update every 2 minutes
+    // Periodically refresh every 2 minutes for live news experience
     refreshInterval = setInterval(() => fetchNews(true), 2 * 60 * 1000);
 
     return () => {
