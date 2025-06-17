@@ -370,7 +370,9 @@ function WeatherPanel({ weather, loading, previewOnly }) {
       <div style={{ color: "#aaa", fontSize: 14 }}>
         Winds: {weather.windspeed ?? "N/A"} km/h
       </div>
-      <div style={{ color: "#aaa", fontSize: 14 }}>At: New York, NY (demo)</div>
+      <div style={{ color: "#aaa", fontSize: 14 }}>
+        At: Chennai, India
+      </div>
       {previewOnly && <Link to="/weather" className="btn btn-accent" style={{marginTop:14, display:'inline-block'}} onPointerDown={handleRipple}>Details</Link>}
     </div>
   );
@@ -587,6 +589,7 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    // Chennai coordinates: lat=13.0827, lon=80.2707
     async function fetchWeather() {
       const cached = getCached(CACHE_KEYS.weather);
       if (cached) {
@@ -594,13 +597,15 @@ function App() {
         return;
       }
       try {
-        let API_URL = WEATHER_API;
+        const chennaiLat = "13.0827";
+        const chennaiLon = "80.2707";
+        let API_URL = `${WEATHER_API}?lat=${chennaiLat}&lon=${chennaiLon}`;
         if (
           typeof window !== "undefined" &&
           window.location.hostname === "localhost"
         ) {
           // Explicitly set full URL for local development (mirror news logic)
-          API_URL = "http://localhost:3300/api/weather";
+          API_URL = `http://localhost:3300/api/weather?lat=${chennaiLat}&lon=${chennaiLon}`;
         }
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch weather from proxy");
