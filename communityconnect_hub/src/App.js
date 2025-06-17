@@ -527,8 +527,8 @@ function App() {
   }
 
   // --- API URLs ---
-  const NEWS_API_KEY = "737e634c6ef84eb4a280c96c4ec7815f";
-  const NEWS_API = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`;
+  // Use backend proxy for News API to keep API key secure
+  const NEWS_API = "/api/news";
   const WEATHER_API =
     "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
   const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
@@ -547,8 +547,15 @@ function App() {
         }
       }
       try {
-        // Use a proxy if needed for CORS or API key security in production.
-        const API_URL = NEWS_API;
+        // If on localhost dev, ensure full url to backend server
+        let API_URL = NEWS_API;
+        if (
+          typeof window !== "undefined" &&
+          window.location.hostname === "localhost"
+        ) {
+          // The backend runs on port 3300 in local dev
+          API_URL = "http://localhost:3300/api/news";
+        }
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch news");
         const out = await res.json();
