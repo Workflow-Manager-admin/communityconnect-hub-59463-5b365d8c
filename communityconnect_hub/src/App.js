@@ -530,8 +530,9 @@ function App() {
   // All news data must now be fetched only via the secure backend proxy endpoint.
   // External News API must never be called from the client.
   const NEWS_API = "/api/news";
-  const WEATHER_API =
-    "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
+  // Weather data must be fetched only via the secure backend proxy endpoint.
+  // External weather API must never be called from the client.
+  const WEATHER_API = "/api/weather";
   const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
 
   // --- Effects: Fetch News, Weather, Events ---
@@ -593,11 +594,20 @@ function App() {
         return;
       }
       try {
-        const res = await fetch(WEATHER_API);
+        let API_URL = WEATHER_API;
+        if (
+          typeof window !== "undefined" &&
+          window.location.hostname === "localhost"
+        ) {
+          // Explicitly set full URL for local development (mirror news logic)
+          API_URL = "http://localhost:3300/api/weather";
+        }
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Failed to fetch weather from proxy");
         const out = await res.json();
-        const data = out.current_weather || null;
-        setWeather(data);
-        setCached(CACHE_KEYS.weather, data);
+        // Backend returns normalized weather data directly
+        setWeather(out);
+        setCached(CACHE_KEYS.weather, out);
       } catch {
         setWeather(null);
       }
