@@ -24,11 +24,11 @@
   align-items: center;
   justify-content: center;
   transform-style: preserve-3d;
-  /* Ultra-smooth, natural 3D effect with continuous easing and snap */
+  /* Ultra-smooth, but now with rapid snap and extra crispness */
   transition:
-    filter 0.21s cubic-bezier(.6,.05,.4,1.01),
-    transform 0.60s cubic-bezier(.84,.11,.17,.99),
-    box-shadow 0.16s;
+    filter 0.13s cubic-bezier(.7,.07,.3,1.01),
+    transform 0.21s cubic-bezier(.84,.21,.17,1),
+    box-shadow 0.10s;
   will-change: transform, filter;
 }
 .carousel-3d-stage.animating {
@@ -49,11 +49,11 @@
   border-radius: 32px;
   box-shadow: 0 21px 83px 0 #0013, 0 14px 32px 16px #1a1a44c0;
   padding: 36px 32px 26px 32px;
-  /* Use more coordinated animation for both transform and opacity/blur */
+  /* Animation durations much shorter for rapid transitions */
   transition:
-    opacity 0.62s cubic-bezier(.7,0,.2,1),
-    transform 0.58s cubic-bezier(.84,.11,.17,.99),
-    filter 0.44s cubic-bezier(.69,.05,.3,1.03),
+    opacity 0.17s cubic-bezier(.8,0,.1,1),
+    transform 0.19s cubic-bezier(.85,.07,.18,.99),
+    filter 0.14s cubic-bezier(.62,.11,.37,1.03),
     z-index 0.01s;
   opacity: 0.08;
   filter: blur(14px) grayscale(0.93) brightness(0.75);

@@ -17,7 +17,8 @@ function ThreeDCarousel({
   slides,
   // Fine-tuned animation and perspective defaults for optimal effect
   autoRotate = true,
-  rotateInterval = 1350,          // Much faster auto-rotation (was 2600), feels lively but not overwhelming
+  // --- SPEED TUNING v3: Even faster/cleaner ---
+  rotateInterval = 790,           // INCREASED: rapid auto-rotation (was 1350); snappy yet viewable, but brisk
   visibleSlideCount = 7,          // Plenty of peripheral slides for realism (adjusted below for small screens)
   perspective = 3200,             // Deep 3D (unchanged)
   carouselData = null
@@ -62,7 +63,8 @@ function ThreeDCarousel({
   const intervalRef = useRef();
   const stageRef = useRef();
   const lastInteractionRef = useRef(Date.now());
-  const transitionDuration = 380; // ms, matches to about 0.38s for punchier, faster slide snap
+  // --- SPEED TUNING v3: SNAPPY/CLEAN --- //
+  const transitionDuration = 190; // ms, much shorter for ultra-snappy, but fast enough to avoid overlap/stutter
 
   // Calculate rotation step and cylinder radius for true 3D perspective
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
@@ -111,8 +113,8 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (isAnimating) {
-      // TransitionDuration is now shorter. The -20 gives a crisp unpause between fast rotations.
-      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 20);
+      // TransitionDuration is now much shorter; a small negative offset to ensure no overlap at high speeds.
+      const t = setTimeout(() => setIsAnimating(false), transitionDuration - 8);
       return () => clearTimeout(t);
     }
   }, [isAnimating]);
