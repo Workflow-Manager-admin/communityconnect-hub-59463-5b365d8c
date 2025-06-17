@@ -526,31 +526,50 @@ function App() {
     );
   }
 
-  // --- DUMMY API URLs (Replace with real keys) ---
-  const NEWS_API = "https://newsapi.org/v2/top-headlines?country=us&apiKey=demo";
+  // --- API URLs ---
+  const NEWS_API_KEY = "737e634c6ef84eb4a280c96c4ec7815f";
+  const NEWS_API = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`;
   const WEATHER_API =
     "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
   const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
 
   // --- Effects: Fetch News, Weather, Events ---
   React.useEffect(() => {
-    async function fetchNews() {
-      const cached = getCached(CACHE_KEYS.news);
-      if (cached) {
-        setNews(cached);
-        return;
+    let active = true;
+    let refreshInterval = null;
+    // PUBLIC_INTERFACE
+    async function fetchNews(force = false) {
+      if (!force) {
+        const cached = getCached(CACHE_KEYS.news);
+        if (cached) {
+          setNews(cached);
+          return;
+        }
       }
       try {
-        const res = await fetch(NEWS_API);
+        // Use a proxy if needed for CORS or API key security in production.
+        const API_URL = NEWS_API;
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("Failed to fetch news");
         const out = await res.json();
         const articles = (out.articles || []).slice(0, 5);
-        setNews(articles);
-        setCached(CACHE_KEYS.news, articles);
+        if (active) {
+          setNews(articles);
+          setCached(CACHE_KEYS.news, articles);
+        }
       } catch {
-        setNews([]);
+        if (active) setNews([]);
       }
     }
     fetchNews();
+
+    // Real-time/periodic update every 2 minutes
+    refreshInterval = setInterval(() => fetchNews(true), 2 * 60 * 1000);
+
+    return () => {
+      active = false;
+      if (refreshInterval) clearInterval(refreshInterval);
+    };
     // eslint-disable-next-line
   }, []);
 
