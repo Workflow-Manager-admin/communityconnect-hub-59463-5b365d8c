@@ -339,7 +339,12 @@ function EventsPanel({ events, loading, previewCount }) {
 
 import { LoginForm, RegisterForm } from "./AuthForms";
 
+// ---
+// The above import is correct; remove duplicate definitions below and ensure only the AuthForms.js versions are used
 
+// -- APP STATE & LOGIC (kept outside of App to prevent duplication/redeclaration errors) --
+
+function App() {
   // Caching keys for localStorage
   const CACHE_KEYS = {
     news: "cc_news",
