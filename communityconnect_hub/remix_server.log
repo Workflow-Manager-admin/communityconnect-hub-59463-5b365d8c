@@ -7,194 +7,69 @@
 <i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
 <i> [webpack-dev-server] Content not from webpack is served from './public' directory
 Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
-asset bundle.js 1.41 MiB [emitted] (name: main)
+asset bundle.js 1.76 MiB [emitted] (name: main)
 asset index.html 1.98 KiB [emitted]
-runtime modules 27.5 KiB 14 modules
-modules by path ./node_modules/ 1.24 MiB 31 modules
-modules by path ./src/ 28 KiB
+runtime modules 28.7 KiB 15 modules
+modules by path ./node_modules/ 1.54 MiB 34 modules
+modules by path ./src/ 33.4 KiB
   modules by path ./src/*.css 10.6 KiB 4 modules
-  modules by path ./src/*.js 17.3 KiB
-    ./src/index.js 530 bytes [built] [code generated]
-    ./src/App.js 16.8 KiB [built] [code generated]
+  modules by path ./src/*.js 22.7 KiB
+    ./src/index.js 615 bytes [built] [code generated]
+    ./src/App.js 22.1 KiB [built] [code generated]
 modules by path ./.ve/ 15.1 KiB
   modules by path ./.ve/*.js 10.6 KiB 2 modules
   modules by path ./.ve/*.css 2.93 KiB
     ./.ve/EditorOverlay.css 2.25 KiB [built] [code generated]
     ./node_modules/css-loader/dist/cjs.js!./.ve/EditorOverlay.css 697 bytes [built] [code generated]
   ./.ve/EditorOverlay.jsx 1.58 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 1354 ms
+webpack 5.99.9 compiled successfully in 1634 ms
 assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.45 MiB
-  asset bundle.js 1.42 MiB [emitted] (name: main)
-  asset main.685738817ac51ab76eed.hot-update.js 33 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.685738817ac51ab76eed.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.45 MiB = bundle.js 1.42 MiB main.685738817ac51ab76eed.hot-update.js 33 KiB
-cached modules 1.27 MiB [cached] 41 modules
-runtime modules 27.5 KiB 14 modules
-./src/App.js 22 KiB [built] [code generated]
-
-ERROR in ./src/App.js 2:0-80
-Module not found: Error: Can't resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-  Parsed request is a module
-  using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./src)
-    Field 'browser' doesn't contain a valid alias configuration
-    resolve as module
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/node_modules doesn't exist or is not a directory
-      looking for modules in /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules
-        single file module
-          using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-            no extension
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom doesn't exist
-            .js
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.js doesn't exist
-            .jsx
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.jsx doesn't exist
-        /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom doesn't exist
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/code-generation/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/node_modules doesn't exist or is not a directory
-      /home/kavia/node_modules doesn't exist or is not a directory
-      /home/node_modules doesn't exist or is not a directory
-      /node_modules doesn't exist or is not a directory
- @ ./src/index.js 5:0-24 11:32-35
-
-webpack 5.99.9 compiled with 1 error in 246 ms
-Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.43 MiB
-  asset bundle.js 1.42 MiB [emitted] (name: main)
-  asset main.e65edf7bfac6c0d49f55.hot-update.js 2.84 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.e65edf7bfac6c0d49f55.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.43 MiB = bundle.js 1.42 MiB main.e65edf7bfac6c0d49f55.hot-update.js 2.84 KiB
-cached modules 1.29 MiB [cached] 41 modules
-runtime modules 27.5 KiB 14 modules
-./src/index.js 615 bytes [built] [code generated]
-
-ERROR in ./src/App.js 2:0-80
-Module not found: Error: Can't resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-  Parsed request is a module
-  using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./src)
-    Field 'browser' doesn't contain a valid alias configuration
-    resolve as module
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/node_modules doesn't exist or is not a directory
-      looking for modules in /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules
-        single file module
-          using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-            no extension
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom doesn't exist
-            .js
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.js doesn't exist
-            .jsx
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.jsx doesn't exist
-        /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom doesn't exist
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/code-generation/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/node_modules doesn't exist or is not a directory
-      /home/kavia/node_modules doesn't exist or is not a directory
-      /home/node_modules doesn't exist or is not a directory
-      /node_modules doesn't exist or is not a directory
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 40 ms
-assets by status 1.42 MiB [cached] 2 assets
-cached modules 1.29 MiB (javascript) 27.5 KiB (runtime) [cached] 56 modules
-
-LOG from webpack.FileSystemInfo
-<w> Managed item /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-+ 13 hidden lines
-
-ERROR in ./src/App.js 2:0-80
-Module not found: Error: Can't resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-resolve 'react-router-dom' in '/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src'
-  Parsed request is a module
-  using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./src)
-    Field 'browser' doesn't contain a valid alias configuration
-    resolve as module
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/node_modules doesn't exist or is not a directory
-      looking for modules in /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules
-        single file module
-          using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-            no extension
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom is not a file
-            .js
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.js doesn't exist
-            .jsx
-              Field 'browser' doesn't contain a valid alias configuration
-              /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.jsx doesn't exist
-        existing directory /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom
-          using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-            using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-              no extension
-                Field 'browser' doesn't contain a valid alias configuration
-                /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom is not a file
-              .js
-                Field 'browser' doesn't contain a valid alias configuration
-                /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.js doesn't exist
-              .jsx
-                Field 'browser' doesn't contain a valid alias configuration
-                /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom.jsx doesn't exist
-              as directory
-                existing directory /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom
-                  using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom)
-                    using path: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom/index
-                      using description file: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/package.json (relative path: ./node_modules/react-router-dom/index)
-                        no extension
-                          Field 'browser' doesn't contain a valid alias configuration
-                          /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom/index doesn't exist
-                        .js
-                          Field 'browser' doesn't contain a valid alias configuration
-                          /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom/index.js doesn't exist
-                        .jsx
-                          Field 'browser' doesn't contain a valid alias configuration
-                          /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/react-router-dom/index.jsx doesn't exist
-      /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/code-generation/node_modules doesn't exist or is not a directory
-      /home/kavia/workspace/node_modules doesn't exist or is not a directory
-      /home/kavia/node_modules doesn't exist or is not a directory
-      /home/node_modules doesn't exist or is not a directory
-      /node_modules doesn't exist or is not a directory
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 28 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 2.12 MiB
+assets by path *.js 1.79 MiB
   asset bundle.js 1.76 MiB [emitted] (name: main)
-  asset main.aa4bd4852d01286e62a3.hot-update.js 374 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.aa4bd4852d01286e62a3.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 2.12 MiB = bundle.js 1.76 MiB main.aa4bd4852d01286e62a3.hot-update.js 374 KiB
-cached modules 1.27 MiB [cached] 41 modules
+  asset main.1404889a50e9f103e5c1.hot-update.js 32.4 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.1404889a50e9f103e5c1.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.79 MiB = bundle.js 1.76 MiB main.1404889a50e9f103e5c1.hot-update.js 32.4 KiB
+cached modules 1.57 MiB [cached] 44 modules
 runtime modules 28.7 KiB 15 modules
-javascript modules 329 KiB
-  ./src/App.js 22 KiB [code generated]
-  ./node_modules/react-router-dom/dist/index.js 55.4 KiB [built] [code generated]
-  ./node_modules/react-router/dist/index.js 59.3 KiB [built] [code generated]
-  ./node_modules/@remix-run/router/dist/router.js 193 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 312 ms
-Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
+./src/App.js 22.9 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 217 ms
+assets by status 1.98 KiB [cached] 1 asset
 assets by path *.js 1.76 MiB
   asset bundle.js 1.76 MiB [emitted] (name: main)
-  asset main.c62fa1616aca5994b44f.hot-update.js 854 bytes [emitted] [immutable] [hmr] (name: main)
-asset index.html 1.98 KiB [emitted]
-asset main.c62fa1616aca5994b44f.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.76 MiB = bundle.js 1.76 MiB main.c62fa1616aca5994b44f.hot-update.js 854 bytes
-cached modules 1.55 MiB [cached] 40 modules
+  asset main.b725ec794cccba4bdf1b.hot-update.js 8.15 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.b725ec794cccba4bdf1b.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.76 MiB = bundle.js 1.76 MiB main.b725ec794cccba4bdf1b.hot-update.js 8.15 KiB
+cached modules 1.58 MiB [cached] 44 modules
 runtime modules 28.7 KiB 15 modules
-javascript modules 34.8 KiB
-  modules by path ./.ve/ 12.2 KiB
-    ./.ve/EditorRootWrapper.js 2.68 KiB [built]
-    ./.ve/EditorOverlay.jsx 1.58 KiB [built]
-    ./.ve/SidePanel.js 7.93 KiB [built]
-  modules by path ./src/*.js 22.6 KiB
-    ./src/index.js 615 bytes [built]
-    ./src/App.js 22 KiB [built]
-webpack 5.99.9 compiled successfully in 299 ms
+./node_modules/css-loader/dist/cjs.js!./src/App.css 5.52 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 52 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.82 MiB
+  asset bundle.js 1.78 MiB [emitted] (name: main)
+  asset main.21db3f765aa557ced1a9.hot-update.js 36.1 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.21db3f765aa557ced1a9.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.21db3f765aa557ced1a9.hot-update.js 36.1 KiB
+cached modules 1.58 MiB [cached] 44 modules
+runtime modules 28.7 KiB 15 modules
+./node_modules/css-loader/dist/cjs.js!./src/App.css 32 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 69 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.82 MiB
+  asset bundle.js 1.78 MiB [emitted] (name: main)
+  asset main.5e230086de761971d52a.hot-update.js 36.2 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.5e230086de761971d52a.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.5e230086de761971d52a.hot-update.js 36.2 KiB
+cached modules 1.58 MiB [cached] 44 modules
+runtime modules 28.7 KiB 15 modules
+./node_modules/css-loader/dist/cjs.js!./src/App.css 32.1 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 47 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.77 MiB
+  asset bundle.js 1.76 MiB [emitted] (name: main)
+  asset main.dcf35c415267745a8252.hot-update.js 12.5 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.dcf35c415267745a8252.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.77 MiB = bundle.js 1.76 MiB main.dcf35c415267745a8252.hot-update.js 12.5 KiB
+cached modules 1.58 MiB [cached] 44 modules
+runtime modules 28.7 KiB 15 modules
+./node_modules/css-loader/dist/cjs.js!./src/App.css 9.69 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 51 ms

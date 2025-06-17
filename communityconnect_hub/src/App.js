@@ -1,69 +1,95 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 
 // --- SHARED COMPONENTS ---
+
 // PUBLIC_INTERFACE
-function ColorDot({ color }) {
-  return (
-    <span
-      style={{
-        display: "inline-block",
-        width: "10px",
-        height: "10px",
-        borderRadius: "50%",
-        background: color,
-        marginRight: 8
-      }}
-    />
-  );
+function ColorDot({ color, animated = false }) {
+  // Animated glow for higher interactivity
+  const style = {
+    display: "inline-block",
+    width: "12px",
+    height: "12px",
+    borderRadius: "50%",
+    background: color,
+    marginRight: 8,
+    boxShadow: animated
+      ? `0 0 0 2px ${color}55, 0 0 8px 2px ${color}bb`
+      : undefined,
+    transition: "box-shadow 0.4s"
+  };
+  return <span aria-hidden="true" style={style} />;
 }
 
 // PUBLIC_INTERFACE
 function Navbar({ user, onLogout }) {
+  // Show active tab highlight, keyboard nav & focus, skip to content link for accessibility
+  const location = useLocation();
   return (
-    <nav className="navbar hub-navbar">
-      <div className="container">
-        <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
-          <div className="logo hub-logo">
-            <ColorDot color="#c80000" /> CommunityConnect Hub
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <NavLinks />
-            {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{ color: "#fff" }}>Hi, {user.username}</span>
-                <button className="btn btn-accent" onClick={onLogout}>Logout</button>
-              </div>
-            ) : (
-              <></>
-            )}
+    <>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+      <nav className="navbar hub-navbar" aria-label="Main navigation">
+        <div className="container">
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+            alignItems: "center"
+          }}>
+            <div className="logo hub-logo" tabIndex={0} aria-label="CommunityConnect Hub Home" style={{outline: "none"}}>
+              <ColorDot color="#c80000" animated /> CommunityConnect Hub
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <NavLinks active={location.pathname} />
+              {user ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ color: "#fff" }}>Hi, {user.username}</span>
+                  <button
+                    className="btn btn-accent"
+                    onClick={onLogout}
+                    aria-label="Log out"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }
 
 // PUBLIC_INTERFACE
-function NavLinks() {
-  // style object for links
-  const linkStyle = {
-    color: "var(--text-color)",
-    textDecoration: "none",
-    margin: "0 12px",
-    padding: "6px 0",
-    position: "relative",
-    fontWeight: "500",
-    letterSpacing: "0.1px"
-  };
+function NavLinks({ active }) {
+  // Enhanced accessibility & navigation highlight
+  const sections = [
+    { to: "/", label: "Home" },
+    { to: "/news", label: "News" },
+    { to: "/weather", label: "Weather" },
+    { to: "/events", label: "Events" },
+    { to: "/emergency-contacts", label: "Emergency Contacts" },
+  ];
   return (
     <div style={{ display: "flex", gap: 6 }}>
-      <Link to="/" style={linkStyle}>Home</Link>
-      <Link to="/news" style={linkStyle}>News</Link>
-      <Link to="/weather" style={linkStyle}>Weather</Link>
-      <Link to="/events" style={linkStyle}>Events</Link>
-      <Link to="/emergency-contacts" style={linkStyle}>Emergency Contacts</Link>
+      {sections.map((section) => (
+        <Link
+          key={section.to}
+          to={section.to}
+          className={`hub-nav-link${active === section.to ? " active" : ""}`}
+          tabIndex={0}
+          aria-current={active === section.to ? "page" : undefined}
+        >
+          {section.label}
+          {active === section.to && (
+            <span className="hub-nav-underline" />
+          )}
+        </Link>
+      ))}
     </div>
   );
 }
@@ -169,7 +195,14 @@ function EmergencyContactsPage({ contacts }) {
 function NewsPanel({ news, loading, previewCount }) {
   let items = news;
   if (previewCount) items = news.slice(0, previewCount);
-  if (loading) return <div className="hub-card">Loading news...</div>;
+  if (loading) return (
+    <div
+      className="hub-card"
+      style={{
+        color: '#ffffff',
+        backgroundColor: '#1a1a1a'
+      }}>Loading news...</div>
+  );
   if (!items.length) return <div className="hub-card">No news available.</div>;
   return (
     <div>
