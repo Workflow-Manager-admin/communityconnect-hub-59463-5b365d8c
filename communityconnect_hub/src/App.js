@@ -186,8 +186,12 @@ function NavLinks({ active }) {
 
 // --------------- PAGE/ROUTE COMPONENTS ---------------
 
+/**
+ * Modified HomePage/NewsPage to accept and display newsError.
+ * NewsPanel takes 'error' prop, passed down from main error state.
+ */
 // PUBLIC_INTERFACE
-function HomePage({ news, weather, events, contacts }) {
+function HomePage({ news, weather, events, contacts, newsError }) {
   React.useEffect(() => {}, []);
   return (
     <main className="hub-main">
@@ -197,7 +201,7 @@ function HomePage({ news, weather, events, contacts }) {
           <h2 className="hub-section-title">
             <ColorDot color="#c80000" /> Latest News
           </h2>
-          <NewsPanel news={news} loading={!news.length} previewCount={2} />
+          <NewsPanel news={news} loading={!news.length && !newsError} previewCount={2} error={newsError} />
 
           <h2 className="hub-section-title" style={{ marginTop: 40 }}>
             <ColorDot color="#009600" /> Weather
@@ -226,14 +230,14 @@ function HomePage({ news, weather, events, contacts }) {
 }
 
 // PUBLIC_INTERFACE
-function NewsPage({ news }) {
+function NewsPage({ news, newsError }) {
   return (
     <main className="hub-main">
       <div className="container">
         <h1 className="hub-section-title">
           <ColorDot color="#c80000" /> News
         </h1>
-        <NewsPanel news={news} loading={!news.length} />
+        <NewsPanel news={news} loading={!news.length && !newsError} error={newsError} />
       </div>
     </main>
   );
@@ -283,28 +287,43 @@ function EmergencyContactsPage({ contacts }) {
 
 // --------------- PANEL COMPONENTS ---------------
 
-function NewsPanel({ news, loading, previewCount }) {
+function NewsPanel({ news, loading, previewCount, error }) {
   let items = news;
   if (previewCount) items = news.slice(0, previewCount);
+
   if (loading)
     return (
-      <div className="hub-card hub-section-entrance" style={{ color: '#ffffff', backgroundColor: '#1a1a1a', fontWeight: '500' }}>
+      <div className="hub-card hub-section-entrance" style={{ color: "#ffffff", backgroundColor: "#1a1a1a", fontWeight: "500" }}>
         <span className="hub-loading-anim" /> Loading news...
       </div>
     );
+
+  if (error)
+    return (
+      <div className="hub-card hub-section-entrance" style={{ color: "#FF706B", backgroundColor: "#262626", fontWeight: "500" }}>
+        <span style={{ marginRight: 8, fontWeight: 600 }}>⚠️ News Feed Unavailable</span>
+        <br />
+        <span style={{ fontSize: "1em", color: "#fff" }}>{error}</span>
+      </div>
+    );
+
   if (!items.length)
-    return <div className="hub-card hub-section-entrance">No news available.</div>;
+    return (
+      <div className="hub-card hub-section-entrance">
+        No news available.
+      </div>
+    );
 
   function handleRipple(ev) {
     const btn = ev.currentTarget;
     const rect = btn.getBoundingClientRect();
     const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
-    const ripple = document.createElement('span');
-    ripple.className = 'btn-ripple';
+    const ripple = document.createElement("span");
+    ripple.className = "btn-ripple";
     ripple.style.left = x + "px";
     ripple.style.top = y + "px";
     btn.appendChild(ripple);
-    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+    ripple.addEventListener("animationend", () => ripple.remove(), { once: true });
   }
 
   return (
@@ -333,7 +352,7 @@ function NewsPanel({ news, loading, previewCount }) {
         </a>
       ))}
       {previewCount && news.length > previewCount && (
-        <Link to="/news" className="btn btn-accent" onPointerDown={handleRipple} style={{marginTop: 16, display:'inline-block'}}>See all News</Link>
+        <Link to="/news" className="btn btn-accent" onPointerDown={handleRipple} style={{marginTop: 16, display:"inline-block"}}>See all News</Link>
       )}
     </div>
   );
@@ -490,6 +509,7 @@ function App() {
   // States
   const [user, setUser] = React.useState(null);
   const [news, setNews] = React.useState([]);
+  const [newsError, setNewsError] = React.useState(null); // <-- Added error state for news
   const [weather, setWeather] = React.useState(null);
   const [events, setEvents] = React.useState([]);
   const [contacts] = React.useState([
@@ -551,16 +571,21 @@ function App() {
     let active = true;
     let refreshInterval = null;
 
+    // Note: newsError and setNewsError are now defined at the top of App(), not here
+
     // PUBLIC_INTERFACE
     async function fetchNews(force = false) {
       if (!force) {
         const cached = getCached(CACHE_KEYS.news);
-        if (cached) {
+        // Only return cached if no previous error or cache is not empty array
+        if (cached && cached.length > 0) {
           setNews(cached);
+          setNewsError(null);
           return;
         }
       }
       try {
+        setNewsError(null); // clear error before fetch
         // Always use the secure backend endpoint for fetching news
         let API_URL = NEWS_API;
         // Optional: override using env for deployments/proxies
@@ -570,17 +595,48 @@ function App() {
         const res = await fetch(API_URL, {
           credentials: "include" // Not required now, for future-proof
         });
-        if (!res.ok) {
-          const msg = `Failed to fetch news from proxy (status ${res.status})`;
-          // Try to get error reason if backend provided
-          try {
-            const errorJson = await res.json();
-            // eslint-disable-next-line
-            //console.error("API error:", errorJson);
-          } catch {}
-          throw new Error(msg);
+        let out;
+        try {
+          out = await res.json();
+        } catch (e) {
+          out = null;
         }
-        const out = await res.json();
+
+        // If backend returned an explicit error object, handle & log
+        if (out && (out.error || out.status >= 400)) {
+          // Log the original error in detail for devs
+          // eslint-disable-next-line
+          console.error("NewsAPI backend error:", out);
+          // Show user-friendly message
+          if (active) {
+            setNews([]);
+            setNewsError(
+              out.details
+                ? `${out.error || "Failed to fetch news."} (${out.details})`
+                : out.error || "Failed to fetch news."
+            );
+          }
+          return;
+        }
+
+        // If HTTP not ok
+        if (!res.ok) {
+          // Log unexpected HTTP problem (may duplicate backend error above, but belt & suspenders)
+          // eslint-disable-next-line
+          console.error(
+            "Failed HTTP for news fetch. Status:",
+            res.status,
+            out || ""
+          );
+          if (active) {
+            setNews([]);
+            setNewsError(
+              (out && (out.error || out.details)) ||
+                `Failed to fetch news (HTTP ${res.status}).`
+            );
+          }
+          return;
+        }
 
         // Defensive: backend should always send {articles: [...]}
         let articles = [];
@@ -588,22 +644,48 @@ function App() {
           articles = out.articles.slice(0, 5); // Show top 5
         } else {
           // Try legacy fallback
-          if (Array.isArray(out.data?.articles)) {
+          if (Array.isArray(out?.data?.articles)) {
             articles = out.data.articles.slice(0, 5);
-          } else if (Array.isArray(out.data)) {
+          } else if (Array.isArray(out?.data)) {
             // In case API returns array at root
             articles = out.data.slice(0, 5);
           }
         }
+
+        // If we get an empty array, treat as "unavailable" (backend returns error, but extra defensive just in case)
+        if (!articles.length) {
+          // eslint-disable-next-line
+          console.warn(
+            "NewsAPI proxy returned 0 news articles to UI. User will see a notice."
+          );
+          if (active) {
+            setNews([]);
+            setNewsError("No news available from provider at this time.");
+          }
+          return;
+        }
+
+        // Success: clear error and show articles
         if (active) {
           setNews(articles);
+          setNewsError(null);
           setCached(CACHE_KEYS.news, articles);
         }
       } catch (err) {
-        // Show helpful log message if something fails
+        // Always show a visible notice, and log error for devs
         // eslint-disable-next-line
-        //console.error("Error fetching news:", err && err.message ? err.message : err);
-        if (active) setNews([]);
+        console.error(
+          "Error fetching news (frontend):",
+          err && err.message ? err.message : err
+        );
+        if (active) {
+          setNews([]);
+          setNewsError(
+            err && err.message
+              ? `Unable to reach news service: ${err.message}`
+              : "News feed is unavailable due to an error."
+          );
+        }
       }
     }
 
@@ -612,6 +694,7 @@ function App() {
     // Periodically refresh every 2 minutes for live news experience
     refreshInterval = setInterval(() => fetchNews(true), 2 * 60 * 1000);
 
+    // Clean up interval & effect state
     return () => {
       active = false;
       if (refreshInterval) clearInterval(refreshInterval);
@@ -814,12 +897,13 @@ function App() {
                 weather={weather}
                 events={events}
                 contacts={contacts}
+                newsError={newsError}
               />
             }
           />
           <Route
             path="/news"
-            element={<NewsPage news={news} />}
+            element={<NewsPage news={news} newsError={newsError} />}
           />
           <Route
             path="/weather"
