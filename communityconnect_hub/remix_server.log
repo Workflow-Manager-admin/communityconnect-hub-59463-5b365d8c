@@ -7,217 +7,119 @@
 <i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
 <i> [webpack-dev-server] Content not from webpack is served from './public' directory
 Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
-asset bundle.js 1.38 MiB [emitted] (name: main)
+asset bundle.js 1.78 MiB [emitted] (name: main)
 asset index.html 1.98 KiB [emitted]
-runtime modules 27.5 KiB 14 modules
-modules by path ./node_modules/ 1.24 MiB 31 modules
+runtime modules 28.7 KiB 15 modules
+modules by path ./node_modules/ 1.54 MiB 34 modules
+modules by path ./src/ 51.3 KiB
+  modules by path ./src/*.css 15.5 KiB 4 modules
+  modules by path ./src/*.js 35.7 KiB
+    ./src/index.js 615 bytes [built] [code generated]
+    + 2 modules
 modules by path ./.ve/ 15.1 KiB
   modules by path ./.ve/*.js 10.6 KiB 2 modules
-  modules by path ./.ve/*.css 2.93 KiB 2 modules
+  modules by path ./.ve/*.css 2.93 KiB
+    ./.ve/EditorOverlay.css 2.25 KiB [built] [code generated]
+    ./node_modules/css-loader/dist/cjs.js!./.ve/EditorOverlay.css 697 bytes [built] [code generated]
   ./.ve/EditorOverlay.jsx 1.58 KiB [built] [code generated]
-modules by path ./src/ 3.72 KiB
-  modules by path ./src/*.js 654 bytes
-    ./src/index.js 615 bytes [built] [code generated]
-    ./src/App.js 39 bytes [built] [code generated] [1 error]
-  modules by path ./src/*.css 3.08 KiB
-    ./src/index.css 2.23 KiB [built] [code generated]
-    ./node_modules/css-loader/dist/cjs.js!./src/index.css 875 bytes [built] [code generated]
-
-ERROR in ./src/App.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/App.js: Identifier 'LoginForm' has already been declared. (340:9)
-
-  338 | }
-  339 |
-> 340 | import { LoginForm, RegisterForm } from "./AuthForms";
-      |          ^
-  341 |
-  342 |
-  343 |   // Caching keys for localStorage
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.declareNameFromIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7538:16)
-    at JSXParserMixin.checkIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7534:12)
-    at JSXParserMixin.checkLVal (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7475:12)
-    at JSXParserMixin.finishImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14184:10)
-    at JSXParserMixin.parseImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14341:17)
-    at JSXParserMixin.parseNamedImportSpecifiers (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14320:36)
-    at JSXParserMixin.parseImportSpecifiersAndAfter (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14160:37)
-    at JSXParserMixin.parseImport (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14153:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12795:27)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 1253 ms
+webpack 5.99.9 compiled successfully in 1550 ms
 assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.38 MiB
-  asset bundle.js 1.38 MiB [emitted] (name: main)
-  asset main.e6833625efeea35ce1b1.hot-update.js 854 bytes [emitted] [immutable] [hmr] (name: main)
-asset main.e6833625efeea35ce1b1.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.38 MiB = bundle.js 1.38 MiB main.e6833625efeea35ce1b1.hot-update.js 854 bytes
-cached modules 1.26 MiB [cached] 39 modules
-runtime modules 27.5 KiB 14 modules
-./src/App.js 39 bytes [built] [1 error]
-
-ERROR in ./src/App.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/App.js: Identifier 'LoginForm' has already been declared. (340:9)
-
-  338 | }
-  339 |
-> 340 | import { LoginForm, RegisterForm } from "./AuthForms";
-      |          ^
-  341 |
-  342 | // ---
-  343 | // The above import is correct; remove duplicate definitions below and ensure only the AuthForms.js versions are used
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.declareNameFromIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7538:16)
-    at JSXParserMixin.checkIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7534:12)
-    at JSXParserMixin.checkLVal (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7475:12)
-    at JSXParserMixin.finishImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14184:10)
-    at JSXParserMixin.parseImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14341:17)
-    at JSXParserMixin.parseNamedImportSpecifiers (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14320:36)
-    at JSXParserMixin.parseImportSpecifiersAndAfter (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14160:37)
-    at JSXParserMixin.parseImport (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14153:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12795:27)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 99 ms
-assets by status 1.38 MiB [cached] 2 assets
-cached modules 1.26 MiB (javascript) 27.5 KiB (runtime) [cached] 53 modules
-./src/App.js 39 bytes [built] [1 error]
-
-ERROR in ./src/App.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/App.js: Identifier 'LoginForm' has already been declared. (340:9)
-
-  338 | }
-  339 |
-> 340 | import { LoginForm, RegisterForm } from "./AuthForms";
-      |          ^
-  341 |
-  342 | // ---
-  343 | // The above import is correct; remove duplicate definitions below and ensure only the AuthForms.js versions are used
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.declareNameFromIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7538:16)
-    at JSXParserMixin.checkIdentifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7534:12)
-    at JSXParserMixin.checkLVal (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:7475:12)
-    at JSXParserMixin.finishImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14184:10)
-    at JSXParserMixin.parseImportSpecifier (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14341:17)
-    at JSXParserMixin.parseNamedImportSpecifiers (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14320:36)
-    at JSXParserMixin.parseImportSpecifiersAndAfter (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14160:37)
-    at JSXParserMixin.parseImport (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14153:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12795:27)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 45 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 2.18 MiB
+assets by path *.js 1.8 MiB
   asset bundle.js 1.78 MiB [emitted] (name: main)
-  asset main.9e7830984fdfae3b468a.hot-update.js 411 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.9e7830984fdfae3b468a.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 2.18 MiB = bundle.js 1.78 MiB main.9e7830984fdfae3b468a.hot-update.js 411 KiB
-cached modules 1.26 MiB [cached] 38 modules
+  asset main.2c904fc696c372504ced.hot-update.js 18.9 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.2c904fc696c372504ced.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.8 MiB = bundle.js 1.78 MiB main.2c904fc696c372504ced.hot-update.js 18.9 KiB
+cached modules 1.59 MiB [cached] 45 modules
 runtime modules 28.7 KiB 15 modules
-javascript modules 354 KiB
-  modules by path ./src/ 46.7 KiB
-    modules by path ./src/*.js 34.8 KiB
-      ./src/index.js 615 bytes [code generated]
-      ./src/App.js 26.9 KiB [built] [code generated]
-      ./src/AuthForms.js 7.3 KiB [built] [code generated]
-    modules by path ./src/*.css 11.9 KiB
-      ./src/App.css 2.22 KiB [built] [code generated]
-      ./node_modules/css-loader/dist/cjs.js!./src/App.css 9.69 KiB [built] [code generated]
-  modules by path ./node_modules/ 307 KiB
-    ./node_modules/react-router-dom/dist/index.js 55.4 KiB [built] [code generated]
-    ./node_modules/react-router/dist/index.js 59.3 KiB [built] [code generated]
-    ./node_modules/@remix-run/router/dist/router.js 193 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 393 ms
-assets by status 1.78 MiB [cached] 2 assets
-cached modules 1.58 MiB (javascript) 28.7 KiB (runtime) [cached] 60 modules
-./src/App.js 26.9 KiB [built]
+./node_modules/css-loader/dist/cjs.js!./src/App.css 15.9 KiB [built] [code generated]
 webpack 5.99.9 compiled successfully in 113 ms
 assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.81 MiB
+assets by path *.js 1.82 MiB
   asset bundle.js 1.78 MiB [emitted] (name: main)
-  asset main.9c6b048a1008c57f9b16.hot-update.js 38.2 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.9c6b048a1008c57f9b16.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.81 MiB = bundle.js 1.78 MiB main.9c6b048a1008c57f9b16.hot-update.js 38.2 KiB
+  asset main.b3a22896cea072c5b0a8.hot-update.js 38.2 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.b3a22896cea072c5b0a8.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.b3a22896cea072c5b0a8.hot-update.js 38.2 KiB
 cached modules 1.58 MiB [cached] 45 modules
 runtime modules 28.7 KiB 15 modules
 ./src/App.js 27.8 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 247 ms
+webpack 5.99.9 compiled successfully in 195 ms
 assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.79 MiB
+assets by path *.js 1.82 MiB
   asset bundle.js 1.78 MiB [emitted] (name: main)
-  asset main.81a2ae6e17f491939d9a.hot-update.js 13 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.81a2ae6e17f491939d9a.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.79 MiB = bundle.js 1.78 MiB main.81a2ae6e17f491939d9a.hot-update.js 13 KiB
-cached modules 1.59 MiB [cached] 45 modules
+  asset main.d257bca5badf43c0ca06.hot-update.js 38.4 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.d257bca5badf43c0ca06.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.d257bca5badf43c0ca06.hot-update.js 38.4 KiB
+cached modules 1.58 MiB [cached] 45 modules
 runtime modules 28.7 KiB 15 modules
-./node_modules/css-loader/dist/cjs.js!./src/App.css 10.2 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 53 ms
+./src/App.js 28 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 123 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.82 MiB
+  asset bundle.js 1.78 MiB [emitted] (name: main)
+  asset main.e2022d160d968a94b10f.hot-update.js 38.9 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.e2022d160d968a94b10f.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.e2022d160d968a94b10f.hot-update.js 38.9 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 28.5 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 122 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.82 MiB
+  asset bundle.js 1.78 MiB [emitted] (name: main)
+  asset main.15e4bb329c58f1accb26.hot-update.js 39.3 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.15e4bb329c58f1accb26.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.15e4bb329c58f1accb26.hot-update.js 39.3 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 28.9 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 118 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.82 MiB
+  asset bundle.js 1.78 MiB [emitted] (name: main)
+  asset main.452ca77165a753fa1b76.hot-update.js 40.1 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.452ca77165a753fa1b76.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.82 MiB = bundle.js 1.78 MiB main.452ca77165a753fa1b76.hot-update.js 40.1 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 29.5 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 108 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.83 MiB
+  asset bundle.js 1.79 MiB [emitted] (name: main)
+  asset main.97daceabf9201e1f7c45.hot-update.js 40.6 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.97daceabf9201e1f7c45.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.83 MiB = bundle.js 1.79 MiB main.97daceabf9201e1f7c45.hot-update.js 40.6 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 30.1 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 138 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.83 MiB
+  asset bundle.js 1.79 MiB [emitted] (name: main)
+  asset main.11f3d26f51add085a028.hot-update.js 41.5 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.11f3d26f51add085a028.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.83 MiB = bundle.js 1.79 MiB main.11f3d26f51add085a028.hot-update.js 41.5 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 30.8 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 141 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.8 MiB
+  asset bundle.js 1.79 MiB [emitted] (name: main)
+  asset main.c047d415499e71970aef.hot-update.js 11.6 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.c047d415499e71970aef.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.8 MiB = bundle.js 1.79 MiB main.c047d415499e71970aef.hot-update.js 11.6 KiB
+cached modules 1.61 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/AuthForms.js 7.95 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 90 ms
+assets by status 1.98 KiB [cached] 1 asset
+assets by path *.js 1.83 MiB
+  asset bundle.js 1.79 MiB [emitted] (name: main)
+  asset main.46c683a46d90054b5586.hot-update.js 43.1 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.46c683a46d90054b5586.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.83 MiB = bundle.js 1.79 MiB main.46c683a46d90054b5586.hot-update.js 43.1 KiB
+cached modules 1.58 MiB [cached] 45 modules
+runtime modules 28.7 KiB 15 modules
+./src/App.js 32.3 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 190 ms

@@ -343,30 +343,56 @@ body {
 }
 
 /* Button Styles */
+/* --- BUTTONS --- */
 .btn {
   background: var(--secondary);
   color: #fff;
   border: none;
   border-radius: 5px;
+  position: relative;
+  overflow: hidden;
   padding: 10px 16px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
+  outline: none;
   box-shadow: 0 1.5px 7px 0 #0002;
   transition:
     background 0.15s, color 0.15s,
-    box-shadow 0.14s, transform 0.09s;
+    box-shadow 0.14s, transform 0.09s, filter 0.17s;
+  will-change: box-shadow, background, filter, transform;
 }
+
 .btn:focus-visible {
   outline: var(--focus-outline);
 }
+
 .btn:hover,
 .btn:focus-visible {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 2.5px 15px 0 #000a;
-  transform: translateY(-1px) scale(1.011);
+  box-shadow: 0 2.5px 15px 0 #000a, 0 1px 6px 0 #e87a412d inset;
+  transform: translateY(-1px) scale(1.016);
+  filter: brightness(1.07);
 }
+
+/* Ripple effect for all .btn interactive clicks */
+.btn .btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.16);
+  animation: ripple 0.5s linear;
+  pointer-events: none;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+}
+@keyframes ripple {
+  to {
+    opacity: 0;
+    transform: scale(3) translate(-50%, -50%);
+  }
+}
+
 .btn-accent {
   background: var(--accent);
 }
@@ -378,6 +404,198 @@ body {
   padding: 12px 28px;
   letter-spacing: 0.02em;
   font-weight: 600;
+}
+
+/* Button micro-interaction: subtle press */
+.btn:active {
+  box-shadow: 0 0.5px 3px #0005;
+  background: var(--primary);
+  transform: scale(0.98);
+  filter: brightness(0.93);
+}
+
+/* Animated nav underline: trailing flow on hover/move */
+.hub-nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  margin: 0 9px;
+  padding: 7px 0;
+  position: relative;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  border-radius: 6px;
+  transition: background var(--transition-default), color var(--transition-default), filter 0.12s;
+  outline: none;
+  opacity: 0.93;
+  will-change: background, color, filter;
+}
+.hub-nav-link::after {
+  content: '';
+  display: block;
+  height: 3px;
+  width: 0;
+  background: var(--accent);
+  border-radius: 8px 8px 0 0;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transition: width 0.19s cubic-bezier(.5,.09,.2,1), left 0.19s cubic-bezier(.5,.09,.2,1);
+  opacity: 0.89;
+  z-index: 1;
+}
+.hub-nav-link.active .hub-nav-underline,
+.hub-nav-link.active::after,
+.hub-nav-link:focus-visible::after,
+.hub-nav-link:hover::after {
+  width: 84%;
+  left: 8%;
+  background: linear-gradient(90deg, var(--accent) 50%, var(--primary) 100%);
+}
+.hub-nav-link.active::after,
+.hub-nav-link:focus-visible::after {
+  background: linear-gradient(90deg, var(--accent), var(--primary) 83%);
+}
+.hub-nav-link.active { font-weight: 600; }
+.hub-nav-link:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.hub-nav-link:hover, .hub-nav-link:focus-visible, .hub-nav-link.active {
+  color: var(--accent);
+  background: #31315790;
+  opacity: 1;
+  filter: brightness(1.20);
+}
+
+/* Section fade-in entrance animation (on appearance, via motion classes) */
+.hub-section-entrance {
+  animation: entranceFadeInUp 0.7s cubic-bezier(.6,.05,.4,1.01) both;
+}
+@keyframes entranceFadeInUp {
+  0% {
+    opacity: 0; transform: translateY(48px) scale(.97);
+    filter: blur(2.5px);
+  }
+  85% { filter: blur(0.8px);}
+  100% {
+    opacity: 1; transform: none; filter: none;
+  }
+}
+
+/* Card motion and elevation */
+.hub-card {
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 14px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+  padding: 18px 18px 14px 18px;
+  margin-bottom: 20px;
+  border: 1.3px solid var(--border-color);
+  position: relative;
+  transition:
+    box-shadow var(--transition-default),
+    transform 0.17s cubic-bezier(.57,0,.43,1),
+    filter 0.16s cubic-bezier(.57,0,.43,1);
+  will-change: box-shadow, transform, filter;
+}
+.hub-card:hover, .hub-card:focus-within {
+  box-shadow: 0 6px 32px 0 rgba(0,0,10,0.24), 0 0px 0px 2px #c800003f;
+  transform: translateY(-6px) scale(1.025) rotateZ(-0.1deg) skewY(-0.12deg);
+  z-index: 3;
+  border-color: var(--primary);
+  filter: brightness(1.08) saturate(1.06);
+}
+
+/* Card micro-effect pop on click */
+.hub-card:active {
+  transform: scale(0.985) rotateZ(0.05deg);
+  filter: brightness(0.97);
+  box-shadow: 0 3px 8px 0 #000b;
+}
+
+/* News cards: add glow and pulse highlight on interaction */
+.hub-news-card {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background 0.13s,
+    border 0.13s,
+    transform 0.15s cubic-bezier(.5,.1,.5,1),
+    box-shadow 0.18s;
+}
+.hub-news-card:hover,
+.hub-news-card:focus-visible {
+  background: #232338f3;
+  transform: translateY(-3px) scale(1.025);
+  border-color: var(--accent);
+  outline: var(--focus-outline);
+  box-shadow: 0 7px 32px 4px #0007, 0 0 12px 0 var(--accent);
+  filter: drop-shadow(0 0 4px var(--accent)) brightness(1.08);
+  animation: newsGlow .45s;
+}
+@keyframes newsGlow {
+  0% { box-shadow: 0 2px 12px #0003; }
+  60% { box-shadow: 0 10px 25px #0009, 0 0 20px 5px var(--accent);}
+  100% { }
+}
+
+/* Page fade transition - for smooth page load */
+.hub-main {
+  animation: pageIn 0.65s cubic-bezier(.53,.02,.35,1) both;
+}
+@keyframes pageIn {
+  0% { opacity: 0; transform: translateY(32px);}
+  100% {opacity: 1; transform: none;}
+}
+
+/* Auth modal micro-interaction (login/register) feedback */
+.hub-modal-bg[aria-busy="true"] {
+  cursor: progress;
+  animation: modalBgPulse 0.7s infinite alternate;
+}
+@keyframes modalBgPulse {
+  0% {background: rgba(26,26,40, 0.91);}
+  100% {background: rgba(26,26,40, .99);}
+}
+.hub-modal {
+  position: relative;
+  animation: modalPopIn 0.5s cubic-bezier(.5,1,.45,1.07) both;
+}
+@keyframes modalPopIn {
+  0% {opacity: 0; transform: scale(0.93) translateY(30px);}
+  80% {transform: scale(1.03);}
+  100% {opacity: 1;}
+}
+
+/* Form input micro-interaction: input highlight/shake error */
+.hub-input.error {
+  animation: shakeField .3s;
+  border-color: #e87a41 !important;
+}
+@keyframes shakeField {
+  0% { transform: translateX(0);}
+  35% {transform: translateX(-4px);}
+  65% {transform: translateX(6px);}
+  100% {transform: none;}
+}
+
+/* Loader animation (for e.g. "Loading" actions) */
+.hub-loading-anim {
+  display: inline-block;
+  width: 1.17em;
+  height: 1.17em;
+  border: 3px solid var(--primary);
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  margin: 0 8px -2px 0;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% {transform: rotate(0);}
+  100% {transform: rotate(360deg);}
 }
 
 /* Modal */

@@ -1,5 +1,12 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
 import "./App.css";
 import { LoginForm, RegisterForm } from "./AuthForms";
 
@@ -100,31 +107,27 @@ function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
               {user ? (
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ color: "#fff" }}>Hi, {user.username}</span>
-                  <button
+                  <RippleButton
                     className="btn btn-accent"
+                    ariaLabel="Log out"
                     onClick={onLogout}
-                    aria-label="Log out"
                   >
                     Logout
-                  </button>
+                  </RippleButton>
                 </div>
               ) : (
                 // Login/Register Button Group
                 <div style={{ display: "flex", gap: 7 }}>
-                  <button
+                  <RippleButton
                     className="btn btn-accent"
-                    onClick={onShowLogin}
                     style={{ fontSize: "1rem" }}
-                  >
-                    Login
-                  </button>
-                  <button
+                    onClick={onShowLogin}
+                  >Login</RippleButton>
+                  <RippleButton
                     className="btn"
                     style={{ fontSize: "1rem" }}
                     onClick={onShowRegister}
-                  >
-                    Register
-                  </button>
+                  >Register</RippleButton>
                 </div>
               )}
             </div>
@@ -132,6 +135,33 @@ function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
         </div>
       </nav>
     </>
+  );
+}
+
+// Button wrapper to add ripple for any element
+function RippleButton({ className, style, children, onClick, ariaLabel, ...props }) {
+  function handlePointerDown(ev) {
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+  }
+  return (
+    <button
+      className={className}
+      style={style}
+      aria-label={ariaLabel}
+      onClick={onClick}
+      onPointerDown={handlePointerDown}
+      {...props}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -145,6 +175,18 @@ function NavLinks({ active }) {
     { to: "/events", label: "Events" },
     { to: "/emergency-contacts", label: "Emergency Contacts" },
   ];
+  function handleNavRipple(ev) {
+    const link = ev.currentTarget;
+    const rect = link.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    link.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once:true});
+  }
+
   return (
     <div style={{ display: "flex", gap: 6 }}>
       {sections.map((section) => (
@@ -154,6 +196,7 @@ function NavLinks({ active }) {
           className={`hub-nav-link${active === section.to ? " active" : ""}`}
           tabIndex={0}
           aria-current={active === section.to ? "page" : undefined}
+          onPointerDown={handleNavRipple}
         >
           {section.label}
           {active === section.to && (
@@ -169,11 +212,12 @@ function NavLinks({ active }) {
 
 // PUBLIC_INTERFACE
 function HomePage({ news, weather, events, contacts }) {
+  React.useEffect(() => {}, []);
   return (
     <main className="hub-main">
       <div className="container hub-content-layout">
         {/* Left: News & Weather preview */}
-        <section className="hub-main-column">
+        <section className="hub-main-column hub-section-entrance">
           <h2 className="hub-section-title">
             <ColorDot color="#c80000" /> Latest News
           </h2>
@@ -186,7 +230,7 @@ function HomePage({ news, weather, events, contacts }) {
         </section>
 
         {/* Center: Emergency Contacts preview */}
-        <section className="hub-side-column">
+        <section className="hub-side-column hub-section-entrance">
           <h2 className="hub-section-title">
             <ColorDot color="#0000f3" /> Emergency Contacts
           </h2>
@@ -194,7 +238,7 @@ function HomePage({ news, weather, events, contacts }) {
         </section>
 
         {/* Right: Events preview */}
-        <section className="hub-main-column">
+        <section className="hub-main-column hub-section-entrance">
           <h2 className="hub-section-title">
             <ColorDot color="#009600" /> Upcoming Local Events
           </h2>
@@ -266,17 +310,29 @@ function EmergencyContactsPage({ contacts }) {
 function NewsPanel({ news, loading, previewCount }) {
   let items = news;
   if (previewCount) items = news.slice(0, previewCount);
-  if (loading) return (
-    <div
-      className="hub-card"
-      style={{
-        color: '#ffffff',
-        backgroundColor: '#1a1a1a'
-      }}>Loading news...</div>
-  );
-  if (!items.length) return <div className="hub-card">No news available.</div>;
+  if (loading)
+    return (
+      <div className="hub-card hub-section-entrance" style={{ color: '#ffffff', backgroundColor: '#1a1a1a', fontWeight: '500' }}>
+        <span className="hub-loading-anim" /> Loading news...
+      </div>
+    );
+  if (!items.length)
+    return <div className="hub-card hub-section-entrance">No news available.</div>;
+
+  function handleRipple(ev) {
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+  }
+
   return (
-    <div>
+    <div className="hub-section-entrance">
       {items.map((article, idx) => (
         <a
           key={idx}
@@ -284,6 +340,7 @@ function NewsPanel({ news, loading, previewCount }) {
           className="hub-card hub-news-card"
           target="_blank"
           rel="noopener noreferrer"
+          onPointerDown={handleRipple}
         >
           {article.urlToImage && (
             <div className="hub-news-img-wrap">
@@ -293,24 +350,41 @@ function NewsPanel({ news, loading, previewCount }) {
           <div>
             <div className="hub-news-title">{article.title}</div>
             <div className="hub-news-meta">
-              {article.source?.name} &middot; {article.publishedAt?.slice(0, 10)}
+              {article.source?.name} · {article.publishedAt?.slice(0, 10)}
             </div>
             <div className="hub-news-desc">{article.description}</div>
           </div>
         </a>
       ))}
       {previewCount && news.length > previewCount && (
-        <Link to="/news" className="btn btn-accent" style={{marginTop: 16, display:'inline-block'}}>See all News</Link>
+        <Link to="/news" className="btn btn-accent" onPointerDown={handleRipple} style={{marginTop: 16, display:'inline-block'}}>See all News</Link>
       )}
     </div>
   );
 }
 
 function WeatherPanel({ weather, loading, previewOnly }) {
-  if (loading) return <div className="hub-card">Loading weather...</div>;
-  if (!weather) return <div className="hub-card">No weather data.</div>;
+  if (loading)
+    return (
+      <div className="hub-card hub-weather-card hub-section-entrance">
+        <span className="hub-loading-anim" /> Loading weather...
+      </div>
+    );
+  if (!weather)
+    return <div className="hub-card hub-weather-card hub-section-entrance">No weather data.</div>;
+  function handleRipple(ev) {
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+  }
   return (
-    <div className="hub-card hub-weather-card">
+    <div className="hub-card hub-weather-card hub-section-entrance">
       <div style={{ fontSize: 24 }}>
         {weather.temperature != null ? `${weather.temperature}°C` : "N/A"}
         <span style={{ fontSize: 15, marginLeft: 12 }}>
@@ -321,7 +395,7 @@ function WeatherPanel({ weather, loading, previewOnly }) {
         Winds: {weather.windspeed ?? "N/A"} km/h
       </div>
       <div style={{ color: "#aaa", fontSize: 14 }}>At: New York, NY (demo)</div>
-      {previewOnly && <Link to="/weather" className="btn btn-accent" style={{marginTop:14, display:'inline-block'}}>Details</Link>}
+      {previewOnly && <Link to="/weather" className="btn btn-accent" style={{marginTop:14, display:'inline-block'}} onPointerDown={handleRipple}>Details</Link>}
     </div>
   );
 }
@@ -341,13 +415,24 @@ function getWeatherDesc(code) {
 
 function ContactsPanel({ contacts, previewOnly }) {
   const shown = previewOnly ? contacts.slice(0, 3) : contacts;
+  function handleRipple(ev) {
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+  }
   return (
-    <div className="hub-card hub-contacts-card">
+    <div className="hub-card hub-contacts-card hub-section-entrance">
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {shown.map((c) => (
           <li key={c.label} className="hub-contact-item">
             <span className="hub-contact-label">{c.label}</span>
-            <a href={`tel:${c.phone}`} className="hub-contact-tel">
+            <a href={`tel:${c.phone}`} className="hub-contact-tel" onPointerDown={handleRipple}>
               {c.phone}
               <span
                 role="img"
@@ -361,7 +446,7 @@ function ContactsPanel({ contacts, previewOnly }) {
         ))}
       </ul>
       {previewOnly && contacts.length > shown.length && (
-        <Link to="/emergency-contacts" className="btn btn-accent" style={{marginTop: 8, display:'inline-block'}}>See all Contacts</Link>
+        <Link to="/emergency-contacts" className="btn btn-accent" style={{marginTop: 8, display:'inline-block'}} onPointerDown={handleRipple}>See all Contacts</Link>
       )}
     </div>
   );
@@ -370,12 +455,31 @@ function ContactsPanel({ contacts, previewOnly }) {
 function EventsPanel({ events, loading, previewCount }) {
   let items = events;
   if (previewCount) items = events.slice(0, previewCount);
-  if (loading) return <div className="hub-card">Loading events...</div>;
-  if (!items.length) return <div className="hub-card">No events found.</div>;
+  if (loading)
+    return (
+      <div className="hub-card hub-event-card hub-section-entrance">
+        <span className="hub-loading-anim" /> Loading events...
+      </div>
+    );
+  if (!items.length)
+    return <div className="hub-card hub-event-card hub-section-entrance">No events found.</div>;
+
+  function handleRipple(ev) {
+    const btn = ev.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    ripple.style.left = x + "px";
+    ripple.style.top = y + "px";
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+  }
+
   return (
-    <div>
+    <div className="hub-section-entrance">
       {items.map((ev) => (
-        <div key={ev.id} className="hub-card hub-event-card">
+        <div key={ev.id} className="hub-card hub-event-card" tabIndex={0}>
           <div className="hub-event-title">{ev.name}</div>
           <div className="hub-event-when">
             {ev.date} @ {ev.location}
@@ -383,13 +487,18 @@ function EventsPanel({ events, loading, previewCount }) {
         </div>
       ))}
       {previewCount && events.length > previewCount && (
-        <Link to="/events" className="btn btn-accent" style={{marginTop: 16, display:'inline-block'}}>See all Events</Link>
+        <Link
+          to="/events"
+          className="btn btn-accent"
+          style={{marginTop: 16, display:'inline-block'}}
+          onPointerDown={handleRipple}
+        >
+          See all Events
+        </Link>
       )}
     </div>
   );
 }
-
-
 
 function App() {
   // Caching keys for localStorage
@@ -442,10 +551,10 @@ function App() {
   }
 
   // --- DUMMY API URLs (Replace with real keys) ---
-  const NEWS_API = "https://newsapi.org/v2/top-headlines?country=us&apiKey=demo"; // Replace demo with real key
+  const NEWS_API = "https://newsapi.org/v2/top-headlines?country=us&apiKey=demo";
   const WEATHER_API =
     "https://api.open-meteo.com/v1/forecast?latitude=40.71&longitude=-74.01&current_weather=true";
-  const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample"; // Replace with real endpoint
+  const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
 
   // --- Effects: Fetch News, Weather, Events ---
   React.useEffect(() => {
@@ -608,28 +717,38 @@ function App() {
           onShowRegister={handleShowRegister}
         />
         {authModal && (
-          <div className="hub-modal-bg" onClick={handleModalBgClick} tabIndex={-1} aria-modal="true">
-            {authModal === "login" ? (
-              <LoginForm
-                loading={authLoading}
-                error={authError}
-                onLogin={handleLogin}
-                onSwitchToRegister={() => {
-                  setAuthModal("register");
-                  setAuthError("");
-                }}
-              />
-            ) : (
-              <RegisterForm
-                loading={authLoading}
-                error={authError}
-                onRegister={handleRegister}
-                onSwitchToLogin={() => {
-                  setAuthModal("login");
-                  setAuthError("");
-                }}
-              />
-            )}
+          <div
+            className="hub-modal-bg"
+            onClick={handleModalBgClick}
+            tabIndex={-1}
+            aria-modal="true"
+            aria-busy={authLoading ? "true" : undefined}
+          >
+            <div className="hub-section-entrance">
+              {authModal === "login" ? (
+                <LoginForm
+                  loading={authLoading}
+                  error={authError}
+                  onLogin={handleLogin}
+                  onSwitchToRegister={() => {
+                    setAuthModal("register");
+                    setAuthError("");
+                  }}
+                  addRippleToButtons
+                />
+              ) : (
+                <RegisterForm
+                  loading={authLoading}
+                  error={authError}
+                  onRegister={handleRegister}
+                  onSwitchToLogin={() => {
+                    setAuthModal("login");
+                    setAuthError("");
+                  }}
+                  addRippleToButtons
+                />
+              )}
+            </div>
           </div>
         )}
         <Routes>

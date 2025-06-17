@@ -69,7 +69,19 @@ export function LoginForm({
         type="submit"
         style={{width: "100%", fontWeight: 700}}
         disabled={loading}
+        onPointerDown={ev => {
+          const btn = ev.currentTarget;
+          const rect = btn.getBoundingClientRect();
+          const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+          const ripple = document.createElement('span');
+          ripple.className = 'btn-ripple';
+          ripple.style.left = x + "px";
+          ripple.style.top = y + "px";
+          btn.appendChild(ripple);
+          ripple.addEventListener('animationend', () => ripple.remove(), {once:true});
+        }}
       >
+        {loading ? <span className="hub-loading-anim"/> : null}
         {loading ? "Logging in..." : "Login"}
       </button>
       <div style={{ textAlign: "center", marginTop: 15 }}>
