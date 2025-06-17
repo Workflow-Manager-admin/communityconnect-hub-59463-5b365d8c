@@ -3,52 +3,42 @@ import "./ThreeDCarousel.css";
 
 /**
  * PUBLIC_INTERFACE
- * ThreeDCarousel - Enhanced 3D cylindrical carousel component with dynamic API content support,
- * optimized animation, dark theme, and clear cylinder realism.
- *
- * Features:
- * - 3D cylindrical arrangement of slides, visually immersive cylinder effect
- * - Tuned: visible slide count, animation speed, strong 3D perspective, smooth transitions
- * - Supports dynamic API slides (live news/events), with fallback to standard slides
- * - Maintains dark theme visual consistency
+ * ThreeDCarousel - Enhanced 3D cylindrical carousel component with visually rich, section-themed slides for News, Weather, and Events.
+ * Slides automatically render with section-specific icons, images, backgrounds, and layouts.
  *
  * Props:
- *   - slides: Array of JSX elements (priority if present)
- *   - autoRotate: boolean (default: true)
- *   - rotateInterval: ms (default: 4000, smooth and not too fast/slow)
- *   - visibleSlideCount: int (default: 5, min 4, max 6)
- *   - perspective: px (default: 1650) – controls CSS perspective for cylinder "reach"
- *   - carouselData: array (optional) – dynamic API/news/events to render as slides if slides undefined
+ *   - slides: Array of JSX elements (overrides carouselData, auto-rendered as slides if not present)
+ *   - carouselData: array of slide objects ({type: "news"|"weather"|"event", ...}) for dynamic content
+ *   - autoRotate, rotateInterval, visibleSlideCount, perspective: carousel controls
  */
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  rotateInterval = 4000, // slightly slower, optimal for realism
+  rotateInterval = 4000,
   visibleSlideCount = 5,
-  perspective = 1650, // realistic depth for 3D, still comfortable for most screens
+  perspective = 1650,
   carouselData = null
 }) {
-  // Use slides array or, if undefined, convert carouselData (API output) to slides
+  // Prefer explicit slides, else create slides from carouselData array using custom renderer
   let carouselSlides = Array.isArray(slides)
     ? slides
-    : (Array.isArray(carouselData) ? carouselData.map(renderDataToSlide) : []);
+    : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp slide count to realistic/meaningful window (4-6 for cylinder), don't exceed slide count
+  // Clamp visible slide count for 3D effect accuracy (min 4, max 6, odd preferred)
   visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, Math.min(6, numSlides > 0 ? numSlides : 4)));
-  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--; // always odd for symmetry
+  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--;
 
-  // State and essential refs
+  // Carousel state management
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef();
   const stageRef = useRef();
 
-  // 3D angle per slide and adaptive radius for proper spread at all device widths
+  // Calculate rotation step and radius (responsive to device width)
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
 
-  // Responsive radius for realistic cylinder shape
   function useResponsiveRadius(count, visCount) {
     const [r, setR] = useState(calcRadius(window.innerWidth));
     useEffect(() => {
@@ -57,7 +47,6 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, visCount]);
     function calcRadius(width) {
-      // Desktop: wide spread, small screens: compact
       if (width < 520) return 110 + (visCount - 1) * 35 + (count - 4) * 5;
       if (width < 950) return 190 + (visCount - 1) * 54 + (count - 4) * 14;
       return 390 + (visCount - 1) * 77 + (count - 4) * 20;
@@ -66,7 +55,7 @@ function ThreeDCarousel({
   }
   const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Animation speed tuning and smoothness
+  // Auto-rotation logic
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
@@ -75,12 +64,11 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (!isAnimating) return;
-    // Match CSS anim time (was .66s), slight buffer for smoothness
     const t = setTimeout(() => setIsAnimating(false), 700);
     return () => clearTimeout(t);
   }, [isAnimating]);
 
-  // Accessibility/keyboard navigation
+  // Accessibility: Keyboard navigation
   function handleKeyDown(e) {
     if (isAnimating) return;
     if (e.key === "ArrowRight" || e.key === "PageDown") nextSlideSmooth();
@@ -95,6 +83,7 @@ function ThreeDCarousel({
     setActive(a => (a + 1) % numSlides);
     setIsAnimating(true);
   }, [isAnimating, numSlides]);
+
   // PUBLIC_INTERFACE
   const prevSlideSmooth = useCallback(() => {
     if (isAnimating) return;
@@ -102,17 +91,16 @@ function ThreeDCarousel({
     setIsAnimating(true);
   }, [isAnimating, numSlides]);
 
-  // Pause on hover/focus for deliberate navigation
+  // Pause carousel on hover/focus, resume on leave/blur
   const pause = () => setPaused(true);
   const resume = () => setPaused(false);
 
-  // Enable swipe gesture support (stub for now)
+  // Swipe support stub (mobile)
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
 
-  // Show N visible slides: center and adjacent according to count
+  // Show the visible window of slides for 3D effect
   function getVisible(relPos) {
     if (numSlides <= visibleSlideCount) return true;
-    // Wraps for cylinder illusion
     let half = Math.floor(visibleSlideCount / 2);
     return (
       relPos === 0 ||
@@ -121,21 +109,17 @@ function ThreeDCarousel({
     );
   }
 
-  // Custom style: tune opacity/blur for center, side, far slides
   function getStyle(relPos) {
-    // Center active slide
     if (relPos === 0)
       return { opacity: 1, zIndex: 10, filter: "none", pointerEvents: "auto" };
     const half = Math.floor(visibleSlideCount / 2);
     if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
-      // Sides
       return { opacity: 0.54, filter: "blur(5px) grayscale(0.55)", zIndex: 3, pointerEvents: "none" };
     }
-    // Farther sides (phantom)
     return { opacity: 0.18, filter: "blur(11px) grayscale(0.85) brightness(0.85)", zIndex: 1, pointerEvents: "none" };
   }
 
-  // aria-live preview for accessibility
+  // Accessible slide description
   const liveMsg =
     numSlides > 0
       ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
@@ -249,10 +233,11 @@ function ThreeDCarousel({
 }
 
 /**
- * Enhanced slide renderer for News, Weather, Events, Announcements, and Banners with section icons and color/style distinction.
+ * Render three visually rich slide types for the carousel: News, Weather, and Events.
+ * Each uses themed background color, summary/details, icons, and images.
  */
-function renderDataToSlide(item, idx) {
-  // News card slide
+function renderRichSlide(item, idx) {
+  // News slide: Article image, news icon, summary, colored background
   if (item.type === "news" || (item.title && item.url && !item.name)) {
     return (
       <div
@@ -262,27 +247,35 @@ function renderDataToSlide(item, idx) {
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          background:
-            "linear-gradient(98deg, #261800 62%, #1c1313 110%)",
-          boxShadow: "0 7px 28px #c8000012",
-          borderRadius: 19,
+          background: "linear-gradient(95deg, #2f1308 63%, #531c00 110%)",
+          boxShadow: "0 9px 34px #c800001c",
+          borderRadius: 20,
           border: "2.5px solid #E87A41",
+          minHeight: 240,
+          padding: 22,
           position: "relative",
-          minHeight: 238,
-          padding: 18,
         }}
       >
-        <span aria-label="news" style={{fontSize: 37, marginBottom: 9, color: "#E87A41", position: "absolute", left: 23, top: 10}}>📰</span>
+        <span aria-label="news" style={{
+          fontSize: 37,
+          marginBottom: 12,
+          color: "#E87A41",
+          position: "absolute",
+          left: 20,
+          top: 10,
+          filter: "drop-shadow(0 2px 10px #c8000077)"
+        }}>📰</span>
+
         {item.urlToImage && (
           <img
             src={item.urlToImage}
             alt=""
             style={{
-              width: 80,
-              height: 80,
+              width: 84,
+              height: 84,
               objectFit: "cover",
               borderRadius: 11,
-              margin: "0 auto 9px auto",
+              margin: "0 auto 13px auto",
               boxShadow: "0 7px 24px #0007",
               border: "2.5px solid #E87A41",
               background: "#292921"
@@ -291,11 +284,11 @@ function renderDataToSlide(item, idx) {
             aria-hidden="true"
           />
         )}
-        <div style={{ fontWeight: 820, fontSize: "1.09rem", color: "#E87A41", marginBottom: 2, marginTop: 10 }}>{item.title}</div>
-        <div style={{ fontSize: ".99rem", color: "#ffe5b6", marginBottom: 6, fontWeight: 410 }}>
-          {item.description?.length > 120 ? (item.description.slice(0, 120) + "...") : item.description}
+        <div style={{ fontWeight: 820, fontSize: "1.11rem", color: "#E87A41", marginBottom: 3 }}>{item.title}</div>
+        <div style={{ fontSize: ".98rem", color: "#ffe5b6", marginBottom: 7, fontWeight: 410 }}>
+          {item.description?.length > 130 ? (item.description.slice(0, 128) + "...") : item.description}
         </div>
-        <div style={{ color: "#f5ddd4", fontSize: ".91em", marginBottom: 4 }}>
+        <div style={{ color: "#f5ddd4", fontSize: ".91em", marginBottom: 3 }}>
           {(item.source?.name ? item.source.name : "")}
           {item.publishedAt?.slice?.(0,10) ? <>&nbsp;<span style={{ color: "#ffd7b4" }}>•</span> {item.publishedAt.slice(0,10)}</> : null}
         </div>
@@ -311,9 +304,9 @@ function renderDataToSlide(item, idx) {
             fontSize: "1em",
             background: "linear-gradient(90deg, #e87a41 70%, #c80000 110%)",
             boxShadow: "0 0 13px #c8000040",
-            padding: "6px 22px",
+            padding: "8px 22px",
             borderRadius: "11px",
-            marginTop: 7,
+            marginTop: 8,
             border: "none"
           }}
         >
@@ -322,29 +315,9 @@ function renderDataToSlide(item, idx) {
       </div>
     );
   }
-  // Weather card slide
+  // Weather slide: Emoji icon, description, metrics, styled background
   if (item.type === "weather" || item.weathercode !== undefined || item.icon || (item.temperature !== undefined && item.city)) {
-    // Use emoji/icon map for main weather code or id
-    let icon = "🌦️";
-    if (item.icon) {
-      // OpenWeather format ("01d", etc.)
-      if (/01d/.test(item.icon)) icon = "☀️";
-      else if (/01n/.test(item.icon)) icon = "🌙";
-      else if (/02|03|04/.test(item.icon)) icon = "⛅";
-      else if (/09|10/.test(item.icon)) icon = "🌧️";
-      else if (/11/.test(item.icon)) icon = "⛈️";
-      else if (/13/.test(item.icon)) icon = "❄️";
-      else if (/50/.test(item.icon)) icon = "🌫️";
-    } else if (item.weathercode !== undefined) {
-      const code = item.weathercode;
-      if ([0].includes(code)) icon = "☀️";
-      else if ([1, 2, 3].includes(code)) icon = "⛅";
-      else if ([45, 48].includes(code)) icon = "🌫️";
-      else if ([61, 63, 65, 66, 67].includes(code)) icon = "🌧️";
-      else if ([95, 96, 99].includes(code)) icon = "⛈️";
-      else if ([80, 81, 82].includes(code)) icon = "🌦️";
-      else if ([71, 73, 75, 77, 85, 86].includes(code)) icon = "❄️";
-    }
+    const icon = getWeatherIcon(item);
     return (
       <div
         key={item.city || idx}
@@ -353,25 +326,35 @@ function renderDataToSlide(item, idx) {
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          background: "linear-gradient(100deg, #143f2a 74%, #192d18 110%)",
-          boxShadow: "0 7px 32px #00d1161a",
-          borderRadius: 19,
+          background: "linear-gradient(100deg, #1d4b2c 74%, #164b24 110%)",
+          boxShadow: "0 7px 32px #00960029",
+          borderRadius: 20,
           border: "2.5px solid #009600",
           color: "#fff",
           minHeight: 200,
           position: "relative",
-          padding: 17,
+          padding: 20,
         }}
       >
-        <span aria-label="weather" style={{fontSize: 44, marginBottom: 13, color: "#49e188", position: "absolute", left: 23, top: 10}}>{icon}</span>
-        <div style={{ fontWeight: 810, fontSize: "2.03rem", color: "#fff", marginBottom: 9, marginTop: 14 }}>{item.temperature != null ? `${item.temperature}°C` : "N/A"}</div>
-        <div style={{ fontSize: "1.13em", color: "#bbffca", marginBottom: 6 }}>
+        <span aria-label="weather" style={{
+          fontSize: 48,
+          marginBottom: 16,
+          color: "#56ffa2",
+          position: "absolute",
+          left: 20,
+          top: 10,
+          filter: "drop-shadow(0 2px 13px #00c97c66)"
+        }}>{icon}</span>
+        <div style={{ fontWeight: 820, fontSize: "2.05rem", color: "#fff", marginBottom: 8, marginTop: 20 }}>
+          {item.temperature != null ? `${item.temperature}°C` : "N/A"}
+        </div>
+        <div style={{ fontSize: "1.15em", color: "#bbffca", marginBottom: 7 }}>
           {item.weathercode !== undefined ? getWeatherDescription(item.weathercode) : ""}
         </div>
         <div style={{ color: "#93e39b", fontSize: ".97em", marginBottom: 7 }}>
           {item.city && item.country ? (<>{item.city}, {item.country}</>) : (item.city || "Chennai")}
         </div>
-        <div style={{ color: "#e3ffe9", fontSize: ".96em", marginBottom: 8 }}>
+        <div style={{ color: "#e3ffe9", fontSize: ".96em", marginBottom: 9 }}>
           Winds: {item.windspeed ?? "N/A"} km/h
         </div>
         <a
@@ -380,11 +363,10 @@ function renderDataToSlide(item, idx) {
             color: "#262",
             textDecoration: "none",
             fontWeight: 700,
-            fontSize: ".99em",
-            background: "linear-gradient(90deg, #21e682 70%, #009600 110%)",
-            boxShadow: "0 0 15px #76ffe330",
-            padding: "7px 23px",
-            borderRadius: "11px",
+            fontSize: "1em",
+            background: "linear-gradient(90deg, #21e682 74%, #009600 110%)",
+            padding: "8px 24px",
+            borderRadius: "10px",
             marginTop: 4,
             border: "none"
           }}
@@ -394,7 +376,7 @@ function renderDataToSlide(item, idx) {
       </div>
     );
   }
-  // Event card slide
+  // Event slide: Event title, date/time, summary, icon, colored background
   if (item.type === "event" || (item.name && item.date && item.location)) {
     return (
       <div
@@ -404,27 +386,37 @@ function renderDataToSlide(item, idx) {
           flexDirection: "column",
           alignItems: "center",
           textAlign: "center",
-          background: "linear-gradient(96deg, #1c331a 62%, #212121 110%)",
-          boxShadow: "0 7px 28px #08ed0010",
-          borderRadius: 19,
+          background: "linear-gradient(95deg, #1b3417 62%, #0a221a 110%)",
+          boxShadow: "0 7px 40px #18bd2c23",
+          borderRadius: 20,
           border: "2.5px solid #18bd2c",
-          minHeight: 180,
-          padding: 17,
+          minHeight: 175,
+          padding: 20,
           position: "relative",
         }}
       >
-        <span aria-label="event" style={{fontSize: 39, marginBottom: 9, color: "#18bd2c", position: "absolute", left: 23, top: 8}}>🎉</span>
-        <div style={{ fontWeight: 800, fontSize: "1.18rem", color: "#18bd2c", marginBottom: 6, marginTop: 13 }}>
+        <span aria-label="event" style={{
+          fontSize: 40,
+          marginBottom: 12,
+          color: "#18bd2c",
+          position: "absolute",
+          left: 20,
+          top: 10,
+          filter: "drop-shadow(0 2px 11px #18bd2c99)"
+        }}>🎉</span>
+        <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#18bd2c", marginBottom: 5, marginTop: 20 }}>
           {item.name}
         </div>
-        <div style={{ fontSize: ".99em", color: "#c2ffe0", fontWeight: 500, marginBottom: 7 }}>
+        <div style={{ fontSize: ".99em", color: "#c2ffe0", fontWeight: 500, marginBottom: 6 }}>
           <span role="img" aria-label="calendar">📅</span>&nbsp;{item.date}
         </div>
-        <div style={{ fontSize: ".97em", color: "#fff", marginBottom: 7 }}>
+        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
           <span role="img" aria-label="map">📍</span>&nbsp;{item.location}
         </div>
         {item.description && (
-          <div style={{ color: "#bfffcf", marginBottom: 7, fontSize: ".98em" }}>{item.description.length > 100 ? (item.description.slice(0, 100) + "...") : item.description}</div>
+          <div style={{ color: "#bfffcf", marginBottom: 7, fontSize: ".98em" }}>
+            {item.description.length > 110 ? (item.description.slice(0, 110) + "...") : item.description}
+          </div>
         )}
         <a
           href="/events"
@@ -432,12 +424,11 @@ function renderDataToSlide(item, idx) {
             color: "#14df86",
             textDecoration: "none",
             fontWeight: 700,
-            fontSize: ".97em",
+            fontSize: "1em",
             background: "linear-gradient(90deg, #0eebb8 66%, #18bd2c 100%)",
-            boxShadow: "0 0 13px #00ee90ad",
-            padding: "6px 20px",
+            padding: "7px 20px",
             borderRadius: "10px",
-            marginTop: 7,
+            marginTop: 8,
             border: "none"
           }}
         >
@@ -446,98 +437,43 @@ function renderDataToSlide(item, idx) {
       </div>
     );
   }
-  // Community Announcement: Special slide card (example data: { type:"announcement", message:string, icon, color, link? })
-  if (item.type === "announcement") {
-    return (
-      <div
-        key={idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: item.color || "linear-gradient(85deg, #0d160d 0%, #203839 110%)",
-          boxShadow: "0 7px 20px #00e0ca1c",
-          borderRadius: 19,
-          border: "2.5px solid #14cbd1",
-          padding: 19,
-          minHeight: 120,
-          color: "#deffee",
-          position: "relative",
-        }}
-      >
-        <span aria-label="announcement" style={{fontSize: 37, marginBottom: 11, color: "#14cbd1"}}>{item.icon || "📢"}</span>
-        <div style={{ fontWeight: 800, fontSize: "1.12rem", color: item.color || "#14cbd1", marginBottom: 6 }}>
-          Community Announcement
-        </div>
-        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
-          {item.message}
-        </div>
-        {item.link &&
-          <a
-            href={item.link}
-            style={{
-              color: "#15d7e8",
-              textDecoration: "underline",
-              fontWeight: 600,
-              fontSize: ".98em",
-              marginTop: 6,
-              borderRadius: "10px",
-              background: "rgba(20,203,209,0.1)",
-              padding: "4px 15px"
-            }}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Learn more
-          </a>
-        }
-      </div>
-    );
-  }
-  // Custom Banner: Simple visual banner (type:"banner", title, subtitle, icon)
-  if (item.type === "banner") {
-    return (
-      <div
-        key={idx}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          textAlign: "center",
-          background: item.color || "linear-gradient(77deg, #1a175a 0%, #3d087c 98%)",
-          border: `2.5px solid ${item.color || "#5b2ae6"}`,
-          borderRadius: 19,
-          padding: 19,
-          minHeight: 104,
-          color: "#e5e7ff",
-          position: "relative",
-        }}
-      >
-        {item.icon && (
-          <span aria-label="banner" style={{fontSize: 42, marginBottom: 8, color: item.iconColor||"#e5e7ff"}}>{item.icon}</span>
-        )}
-        <div style={{ fontWeight: 830, fontSize: "1.22rem", color: item.titleColor || "#bdadff", marginBottom: 3 }}>
-          {item.title}
-        </div>
-        {item.subtitle && (
-          <div style={{ fontSize: ".97em", color: item.subtitleColor || "#dadbff", marginBottom: 6 }}>
-            {item.subtitle}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Fallback to plain
+  // Fallback basic slide
   return (
-    <div style={{ color: "#fff", textAlign: "center" }} key={idx}>
+    <div style={{ color: "#fff", textAlign: "center", padding: 30 }} key={idx}>
       {item.title || item.name || item.message || "Untitled"}
     </div>
   );
 }
 
-// Weather code -> description mapping (used for custom weather slide render)
+/**
+ * Select emoji/icon for weather slide by icon code or weather code.
+ */
+function getWeatherIcon(item) {
+  // OpenWeatherMap icon codes
+  if (item.icon) {
+    if (/01d/.test(item.icon)) return "☀️";
+    if (/01n/.test(item.icon)) return "🌙";
+    if (/02|03|04/.test(item.icon)) return "⛅";
+    if (/09|10/.test(item.icon)) return "🌧️";
+    if (/11/.test(item.icon)) return "⛈️";
+    if (/13/.test(item.icon)) return "❄️";
+    if (/50/.test(item.icon)) return "🌫️";
+  }
+  // Weather code fallback
+  const code = item.weathercode;
+  if (code !== undefined) {
+    if ([0].includes(code)) return "☀️";
+    if ([1, 2, 3].includes(code)) return "⛅";
+    if ([45, 48].includes(code)) return "🌫️";
+    if ([61, 63, 65, 66, 67].includes(code)) return "🌧️";
+    if ([95, 96, 99].includes(code)) return "⛈️";
+    if ([80, 81, 82].includes(code)) return "🌦️";
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return "❄️";
+  }
+  return "🌦️";
+}
+
+// Weather code -> description mapping
 function getWeatherDescription(code) {
   if ([0].includes(code)) return "Clear Sky";
   if ([1, 2, 3].includes(code)) return "Partly Cloudy";
@@ -550,25 +486,20 @@ function getWeatherDescription(code) {
   return "";
 }
 
-// Helper: For accessibility – returns short label for slide
+// Try to extract human-friendly label for a slide (for aria-live)
 function getSlideLabel(slide) {
-  if (!slide || typeof slide === "string") return slide;
-  // Try to extract the slide "label" (title prop or direct innerText of JSX)
+  if (!slide || typeof slide === "string") return slide || "";
   if (slide.props && slide.props.title)
     return slide.props.title;
+  // Try to access string child in rich JSX
   if (slide.props && typeof slide.props.children === "string")
     return slide.props.children;
-  // Otherwise fallback to empty
   return "";
 }
 
-/**
- * Dummy touch/swipe hook for linter compatibility.
- * To enable mobile swipe: implement a basic left/right swipe detector.
- */
-function useCarouselSwipe(ref, next, prev) {
-  // No-op for now; linter fix
-}
+// Dummy/stub touch-swipe hook for compatibility (can be expanded for real mobile swipe in future)
+function useCarouselSwipe(ref, next, prev) { }
 
+// PUBLIC_INTERFACE
 export default ThreeDCarousel;
 
