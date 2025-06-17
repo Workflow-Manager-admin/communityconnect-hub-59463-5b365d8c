@@ -220,9 +220,9 @@ function HomePage({ news, weather, events, contacts, newsError }) {
         {/* Right: Events preview */}
         <section className="hub-main-column hub-section-entrance">
           <h2 className="hub-section-title">
-            <ColorDot color="#009600" /> Upcoming Local Events
+            <ColorDot color="#009600" /> Upcoming Events in Chennai
           </h2>
-          <EventsPanel events={events} loading={!events.length} previewCount={2} />
+          <EventsPanel events={events} loading={!events.length} previewCount={2} showChennaiNotice />
         </section>
       </div>
     </main>
@@ -263,9 +263,9 @@ function EventsPage({ events }) {
     <main className="hub-main">
       <div className="container">
         <h1 className="hub-section-title">
-          <ColorDot color="#009600" /> Events
+          <ColorDot color="#009600" /> Events in Chennai
         </h1>
-        <EventsPanel events={events} loading={!events.length} />
+        <EventsPanel events={events} loading={!events.length} showChennaiNotice />
       </div>
     </main>
   );
@@ -449,7 +449,7 @@ function ContactsPanel({ contacts, previewOnly }) {
   );
 }
 
-function EventsPanel({ events, loading, previewCount }) {
+function EventsPanel({ events, loading, previewCount, showChennaiNotice }) {
   let items = events;
   if (previewCount) items = events.slice(0, previewCount);
   if (loading)
@@ -475,6 +475,17 @@ function EventsPanel({ events, loading, previewCount }) {
 
   return (
     <div className="hub-section-entrance">
+      {showChennaiNotice && (
+        <div style={{
+          color: "#56e095",
+          fontWeight: 600,
+          fontSize: "1.01rem",
+          marginBottom: 8,
+          letterSpacing: 0.02
+        }}>
+          Only showing local events in <span style={{color: "#00e2ca"}}>Chennai</span>.
+        </div>
+      )}
       {items.map((ev) => (
         <div key={ev.id} className="hub-card hub-event-card" tabIndex={0}>
           <div className="hub-event-title">{ev.name}</div>
@@ -490,7 +501,7 @@ function EventsPanel({ events, loading, previewCount }) {
           style={{marginTop: 16, display:'inline-block'}}
           onPointerDown={handleRipple}
         >
-          See all Events
+          See all Events in Chennai
         </Link>
       )}
     </div>
@@ -743,24 +754,37 @@ function App() {
         return;
       }
       try {
-        // As demo API, mock events
+        // Hardcode events only for Chennai. You could in the future replace this fetch with a filtered backend endpoint for /api/events?city=Chennai, but for now we'll only show Chennai events with relevant local names/venues.
         const nowTs = Date.now();
-        const sample = [
+        // Example event names/venues clearly for Chennai
+        const chennaiEvents = [
           {
             id: 1,
-            name: "Farmers Market",
+            name: "Marina Beach Cleanup Drive",
             date: new Date(nowTs + 86400000).toLocaleDateString(),
-            location: "Central Park"
+            location: "Marina Beach, Chennai"
           },
           {
             id: 2,
-            name: "Outdoor Movie Night",
+            name: "Thiruvanmiyur Organic Farmer's Market",
             date: new Date(nowTs + 2 * 86400000).toLocaleDateString(),
-            location: "Riverfront Amphitheater"
+            location: "Thiruvanmiyur, Chennai"
+          },
+          {
+            id: 3,
+            name: "Classical Carnatic Concert",
+            date: new Date(nowTs + 3 * 86400000).toLocaleDateString(),
+            location: "Music Academy, Chennai"
+          },
+          {
+            id: 4,
+            name: "Chennai Book Fair",
+            date: new Date(nowTs + 4 * 86400000).toLocaleDateString(),
+            location: "YMCA Grounds, Chennai"
           }
         ];
-        setEvents(sample);
-        setCached(CACHE_KEYS.events, sample);
+        setEvents(chennaiEvents);
+        setCached(CACHE_KEYS.events, chennaiEvents);
       } catch {
         setEvents([]);
       }
