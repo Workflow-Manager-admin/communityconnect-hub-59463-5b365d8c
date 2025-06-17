@@ -42,7 +42,18 @@ app.get("/api/news", async (req, res) => {
       // Pass along error/status code from upstream if possible
       const errorData = await apiRes.json().catch(() => {});
       const errorMsg = errorData && errorData.message ? errorData.message : "News provider error";
-      return res.status(apiRes.status).json({ error: "Failed to fetch news.", details: errorMsg });
+      console.error("[NewsAPI ERROR]", {
+        status: apiRes.status,
+        url,
+        errorMsg,
+        errorData
+      });
+      return res.status(apiRes.status).json({
+        error: "Failed to fetch news.",
+        details: errorMsg,
+        status: apiRes.status,
+        providerResponse: errorData || undefined
+      });
     }
 
     const data = await apiRes.json();
@@ -50,7 +61,21 @@ app.get("/api/news", async (req, res) => {
     // Defensive: structure expected from NewsAPI is { articles: [] }
     if (!data.articles || !Array.isArray(data.articles)) {
       // If error or API changed format
-      return res.status(502).json({ error: "Failed to fetch news or no articles found." });
+      console.error("[NewsAPI ERROR] Invalid or missing articles array in API response", {
+        url,
+        received: data
+      });
+      return res.status(502).json({
+        error: "Failed to fetch news or no articles found.",
+        details: "API did not return an articles array.",
+        status: 502,
+        providerResponse: data
+      });
+    }
+
+    // Log if we receive empty articles (not a backend error, but helps diagnosis)
+    if (data.articles.length === 0) {
+      console.warn("[NewsAPI WARNING] NewsAPI returned 0 articles for URL:", url);
     }
 
     // Ensure every field exists, avoid undefined for React
@@ -65,7 +90,12 @@ app.get("/api/news", async (req, res) => {
 
     res.json({ articles });
   } catch (err) {
-    res.status(500).json({ error: "Error fetching news.", details: err.message || err });
+    console.error("[NewsAPI EXCEPTION]", err && err.stack ? err.stack : err);
+    res.status(500).json({
+      error: "Error fetching news.",
+      details: err && err.message ? err.message : err,
+      status: 500
+    });
   }
 });
 
