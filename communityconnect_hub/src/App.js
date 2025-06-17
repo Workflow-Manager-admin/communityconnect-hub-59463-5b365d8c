@@ -477,8 +477,7 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
         {/* 3D Carousel: supports new slide types & richer banner styling. Tweak speed, visible count, and perspective for more pop */}
         <ThreeDCarousel
           slides={slides}
-          autoRotate={true}
-          rotateInterval={3800}
+          autoRotate={false}
           visibleSlideCount={5}  // Set to 5 for best 3D pop, adjust as needed
           perspective={1970}    // Deeper 3D illusion
         />

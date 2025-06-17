@@ -58,10 +58,8 @@ function ThreeDCarousel({
 
   // Carousel state management
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [transitioningIndex, setTransitioningIndex] = useState(null); // Track outgoing slide
-  const intervalRef = useRef();
   const stageRef = useRef();
   const lastInteractionRef = useRef(Date.now());
   // --- SPEED TUNING v3: SNAPPY/CLEAN + Enhanced Anim --- //
@@ -72,7 +70,9 @@ function ThreeDCarousel({
 
   function useResponsiveRadius(count, visCount) {
     // Deepen 3D by expanding radius so the spread is more like a large cylinder
-    const [r, setR] = useState(calcRadius(window.innerWidth));
+    const [r, setR] = useState(
+      typeof window !== "undefined" ? calcRadius(window.innerWidth) : 420
+    );
     useEffect(() => {
       function handleResize() { setR(calcRadius(window.innerWidth)); }
       window.addEventListener("resize", handleResize);
@@ -96,22 +96,8 @@ function ThreeDCarousel({
     lastInteractionRef.current = Date.now();
   }
 
-  // Auto-rotation: handles instant catch-up if navigation was quick
-  useEffect(() => {
-    if (!autoRotate || paused || numSlides < 2) return;
-    clearInterval(intervalRef.current);
-    intervalRef.current = setInterval(() => {
-      // Ensure instant snap if last nav was < transitionDuration ago
-      if (Date.now() - lastInteractionRef.current < transitionDuration - 60) {
-        setActive(a => (a + 1) % numSlides);
-        setIsAnimating(true);
-      } else {
-        nextSlideSmooth();
-      }
-    }, rotateInterval);
-    return () => clearInterval(intervalRef.current);
-    // eslint-disable-next-line
-  }, [autoRotate, rotateInterval, numSlides, paused, active, isAnimating]);
+  // Remove auto-rotation logic: slides only advance via arrows, indicators, or swipe
+  // No timer-based advance, everything is now manual navigation only
 
   useEffect(() => {
     if (isAnimating) {
@@ -162,10 +148,6 @@ function ThreeDCarousel({
     });
   }, []);
 
-  // Pause carousel on hover/focus, resume on leave/blur
-  const pause = () => setPaused(true);
-  const resume = () => setPaused(false);
-
   // Touch/Swipe support with chic feedback
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth, setIsAnimating, setActive, numSlides, lastInteractionRef);
 
@@ -214,10 +196,6 @@ function ThreeDCarousel({
         "--carousel-visible-slides": visibleSlideCount
       }}
       onKeyDown={handleKeyDown}
-      onMouseEnter={pause}
-      onMouseLeave={resume}
-      onFocus={pause}
-      onBlur={resume}
       aria-live="polite"
       data-3d-carousel
     >
