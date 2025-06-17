@@ -7,13 +7,13 @@
 <i> [webpack-dev-server] On Your Network (IPv4): http://172.17.0.2:3000/
 <i> [webpack-dev-server] Content not from webpack is served from './public' directory
 Injecting EditorRootWrapper import: ../.ve/EditorRootWrapper
-asset bundle.js 1.86 MiB [emitted] (name: main)
+asset bundle.js 1.87 MiB [emitted] (name: main)
 asset index.html 1.98 KiB [emitted]
 runtime modules 28.7 KiB 15 modules
 modules by path ./node_modules/ 1.54 MiB 34 modules
-modules by path ./src/ 120 KiB
+modules by path ./src/ 129 KiB
   modules by path ./src/*.css 39.2 KiB 6 modules
-  modules by path ./src/*.js 80.7 KiB
+  modules by path ./src/*.js 89.4 KiB
     ./src/index.js 615 bytes [built] [code generated]
     + 3 modules
 modules by path ./.ve/ 15.1 KiB
@@ -22,69 +22,14 @@ modules by path ./.ve/ 15.1 KiB
     ./.ve/EditorOverlay.css 2.25 KiB [built] [code generated]
     ./node_modules/css-loader/dist/cjs.js!./.ve/EditorOverlay.css 697 bytes [built] [code generated]
   ./.ve/EditorOverlay.jsx 1.58 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 1743 ms
+webpack 5.99.9 compiled successfully in 1745 ms
 assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.39 MiB
-  asset bundle.js 1.38 MiB [emitted] (name: main)
-  asset main.e57ef78492a02531c5e4.hot-update.js 5.67 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.e57ef78492a02531c5e4.hot-update.json 378 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.39 MiB = bundle.js 1.38 MiB main.e57ef78492a02531c5e4.hot-update.js 5.67 KiB
-cached modules 1.26 MiB [cached] 38 modules
-runtime modules 27.5 KiB 14 modules
-javascript modules 654 bytes
-  ./src/index.js 615 bytes [code generated]
-  ./src/App.js 39 bytes [built] [code generated] [1 error]
-
-ERROR in ./src/App.js
-Module build failed (from ./node_modules/babel-loader/lib/index.js):
-SyntaxError: /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/src/App.js: Identifier 'getWeatherDesc' has already been declared. (641:9)
-
-  639 | }
-  640 |
-> 641 | function getWeatherDesc(code) {
-      |          ^
-  642 |   // See Open-Meteo weather code; simple
-  643 |   if ([0].includes(code)) return "Clear";
-  644 |   if ([1, 2, 3].includes(code)) return "Partly Cloudy";
-    at constructor (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:363:19)
-    at JSXParserMixin.raise (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:6609:19)
-    at ScopeHandler.checkRedeclarationInScope (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1626:19)
-    at ScopeHandler.declareName (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:1592:12)
-    at JSXParserMixin.registerFunctionStatementId (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13381:16)
-    at JSXParserMixin.parseFunction (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13365:12)
-    at JSXParserMixin.parseFunctionStatement (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13044:17)
-    at JSXParserMixin.parseStatementContent (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12709:21)
-    at JSXParserMixin.parseStatementLike (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12685:17)
-    at JSXParserMixin.parseModuleItem (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12662:17)
-    at JSXParserMixin.parseBlockOrModuleBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13235:36)
-    at JSXParserMixin.parseBlockBody (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:13228:10)
-    at JSXParserMixin.parseProgram (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12541:10)
-    at JSXParserMixin.parseTopLevel (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:12531:25)
-    at JSXParserMixin.parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14410:10)
-    at parse (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/parser/lib/index.js:14444:38)
-    at parser (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/parser/index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
-    at normalizeFile.next (<anonymous>)
-    at run (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transformation/index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/@babel/core/lib/transform.js:22:33)
-    at transform.next (<anonymous>)
-    at step (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:261:32)
-    at /home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:273:13
-    at async.call.result.err.err (/home/kavia/workspace/code-generation/communityconnect-hub-59463-5b365d8c/communityconnect_hub/node_modules/gensync/index.js:223:11)
- @ ./src/index.js 5:0-24 14:32-35
-
-webpack 5.99.9 compiled with 1 error in 125 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 2.37 MiB
-  asset bundle.js 1.87 MiB [emitted] (name: main)
-  asset main.ce9519c17b83b1f56857.hot-update.js 507 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.ce9519c17b83b1f56857.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 2.37 MiB = bundle.js 1.87 MiB main.ce9519c17b83b1f56857.hot-update.js 507 KiB
-cached modules 1.61 MiB [cached] 47 modules
+assets by path *.js 1.91 MiB
+  asset bundle.js 1.88 MiB [emitted] (name: main)
+  asset main.73d6a05bbfd5517de8d2.hot-update.js 31.4 KiB [emitted] [immutable] [hmr] (name: main)
+asset main.73d6a05bbfd5517de8d2.hot-update.json 28 bytes [emitted] [immutable] [hmr]
+Entrypoint main 1.91 MiB = bundle.js 1.88 MiB main.73d6a05bbfd5517de8d2.hot-update.js 31.4 KiB
+cached modules 1.67 MiB [cached] 48 modules
 runtime modules 28.7 KiB 15 modules
-javascript modules 66.9 KiB
-  ./src/index.js 615 bytes [code generated]
-  ./src/App.js 66.3 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 324 ms
+./src/ThreeDCarousel.js 25.1 KiB [built] [code generated]
+webpack 5.99.9 compiled successfully in 288 ms

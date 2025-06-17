@@ -248,31 +248,57 @@ function ThreeDCarousel({
   );
 }
 
-// Helper: If carouselData is given (API news/events) render slide visual
+/**
+ * Enhanced slide renderer for News, Weather, Events, Announcements, and Banners with section icons and color/style distinction.
+ */
 function renderDataToSlide(item, idx) {
-  // Support News API, Event, or basic
-  if (item.title && item.url) {
-    // News
+  // News card slide
+  if (item.type === "news" || (item.title && item.url && !item.name)) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }} key={item.url || idx}>
+      <div
+        key={item.url || idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background:
+            "linear-gradient(98deg, #261800 62%, #1c1313 110%)",
+          boxShadow: "0 7px 28px #c8000012",
+          borderRadius: 19,
+          border: "2.5px solid #E87A41",
+          position: "relative",
+          minHeight: 238,
+          padding: 18,
+        }}
+      >
+        <span aria-label="news" style={{fontSize: 37, marginBottom: 9, color: "#E87A41", position: "absolute", left: 23, top: 10}}>📰</span>
         {item.urlToImage && (
           <img
             src={item.urlToImage}
             alt=""
             style={{
-              width: 90,
-              height: 90,
+              width: 80,
+              height: 80,
               objectFit: "cover",
-              borderRadius: 13,
-              marginBottom: 13,
-              boxShadow: "0 7px 28px #0008"
+              borderRadius: 11,
+              margin: "0 auto 9px auto",
+              boxShadow: "0 7px 24px #0007",
+              border: "2.5px solid #E87A41",
+              background: "#292921"
             }}
             loading="lazy"
             aria-hidden="true"
           />
         )}
-        <div style={{ fontWeight: 770, fontSize: "1.17rem", color: "#E87A41", marginBottom: 3 }}>{item.title}</div>
-        <div style={{ fontSize: ".99rem", color: "#b4ccd8", marginBottom: 7 }}>{item.description || ""}</div>
+        <div style={{ fontWeight: 820, fontSize: "1.09rem", color: "#E87A41", marginBottom: 2, marginTop: 10 }}>{item.title}</div>
+        <div style={{ fontSize: ".99rem", color: "#ffe5b6", marginBottom: 6, fontWeight: 410 }}>
+          {item.description?.length > 120 ? (item.description.slice(0, 120) + "...") : item.description}
+        </div>
+        <div style={{ color: "#f5ddd4", fontSize: ".91em", marginBottom: 4 }}>
+          {(item.source?.name ? item.source.name : "")}
+          {item.publishedAt?.slice?.(0,10) ? <>&nbsp;<span style={{ color: "#ffd7b4" }}>•</span> {item.publishedAt.slice(0,10)}</> : null}
+        </div>
         <a
           href={item.url}
           target="_blank"
@@ -281,45 +307,247 @@ function renderDataToSlide(item, idx) {
           style={{
             color: "#fff",
             textDecoration: "underline",
-            fontWeight: 600,
-            fontSize: ".99em",
-            background: "rgba(0,0,0,0.18)",
-            padding: "4px 16px",
-            borderRadius: "9px"
+            fontWeight: 700,
+            fontSize: "1em",
+            background: "linear-gradient(90deg, #e87a41 70%, #c80000 110%)",
+            boxShadow: "0 0 13px #c8000040",
+            padding: "6px 22px",
+            borderRadius: "11px",
+            marginTop: 7,
+            border: "none"
           }}
         >
-          More details
+          Read More
         </a>
       </div>
     );
-  } else if (item.name && item.date && item.location) {
-    // Event
+  }
+  // Weather card slide
+  if (item.type === "weather" || item.weathercode !== undefined || item.icon || (item.temperature !== undefined && item.city)) {
+    // Use emoji/icon map for main weather code or id
+    let icon = "🌦️";
+    if (item.icon) {
+      // OpenWeather format ("01d", etc.)
+      if (/01d/.test(item.icon)) icon = "☀️";
+      else if (/01n/.test(item.icon)) icon = "🌙";
+      else if (/02|03|04/.test(item.icon)) icon = "⛅";
+      else if (/09|10/.test(item.icon)) icon = "🌧️";
+      else if (/11/.test(item.icon)) icon = "⛈️";
+      else if (/13/.test(item.icon)) icon = "❄️";
+      else if (/50/.test(item.icon)) icon = "🌫️";
+    } else if (item.weathercode !== undefined) {
+      const code = item.weathercode;
+      if ([0].includes(code)) icon = "☀️";
+      else if ([1, 2, 3].includes(code)) icon = "⛅";
+      else if ([45, 48].includes(code)) icon = "🌫️";
+      else if ([61, 63, 65, 66, 67].includes(code)) icon = "🌧️";
+      else if ([95, 96, 99].includes(code)) icon = "⛈️";
+      else if ([80, 81, 82].includes(code)) icon = "🌦️";
+      else if ([71, 73, 75, 77, 85, 86].includes(code)) icon = "❄️";
+    }
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }} key={item.name}>
-        <div style={{
-          fontWeight: 800, fontSize: "1.13rem", color: "#18bd2c",
-          marginBottom: 2
-        }}>
+      <div
+        key={item.city || idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: "linear-gradient(100deg, #143f2a 74%, #192d18 110%)",
+          boxShadow: "0 7px 32px #00d1161a",
+          borderRadius: 19,
+          border: "2.5px solid #009600",
+          color: "#fff",
+          minHeight: 200,
+          position: "relative",
+          padding: 17,
+        }}
+      >
+        <span aria-label="weather" style={{fontSize: 44, marginBottom: 13, color: "#49e188", position: "absolute", left: 23, top: 10}}>{icon}</span>
+        <div style={{ fontWeight: 810, fontSize: "2.03rem", color: "#fff", marginBottom: 9, marginTop: 14 }}>{item.temperature != null ? `${item.temperature}°C` : "N/A"}</div>
+        <div style={{ fontSize: "1.13em", color: "#bbffca", marginBottom: 6 }}>
+          {item.weathercode !== undefined ? getWeatherDescription(item.weathercode) : ""}
+        </div>
+        <div style={{ color: "#93e39b", fontSize: ".97em", marginBottom: 7 }}>
+          {item.city && item.country ? (<>{item.city}, {item.country}</>) : (item.city || "Chennai")}
+        </div>
+        <div style={{ color: "#e3ffe9", fontSize: ".96em", marginBottom: 8 }}>
+          Winds: {item.windspeed ?? "N/A"} km/h
+        </div>
+        <a
+          href="/weather"
+          style={{
+            color: "#262",
+            textDecoration: "none",
+            fontWeight: 700,
+            fontSize: ".99em",
+            background: "linear-gradient(90deg, #21e682 70%, #009600 110%)",
+            boxShadow: "0 0 15px #76ffe330",
+            padding: "7px 23px",
+            borderRadius: "11px",
+            marginTop: 4,
+            border: "none"
+          }}
+        >
+          Full Forecast
+        </a>
+      </div>
+    );
+  }
+  // Event card slide
+  if (item.type === "event" || (item.name && item.date && item.location)) {
+    return (
+      <div
+        key={item.name || idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: "linear-gradient(96deg, #1c331a 62%, #212121 110%)",
+          boxShadow: "0 7px 28px #08ed0010",
+          borderRadius: 19,
+          border: "2.5px solid #18bd2c",
+          minHeight: 180,
+          padding: 17,
+          position: "relative",
+        }}
+      >
+        <span aria-label="event" style={{fontSize: 39, marginBottom: 9, color: "#18bd2c", position: "absolute", left: 23, top: 8}}>🎉</span>
+        <div style={{ fontWeight: 800, fontSize: "1.18rem", color: "#18bd2c", marginBottom: 6, marginTop: 13 }}>
           {item.name}
         </div>
-        <div style={{ fontSize: "1.01em", color: "#d5f2ff", fontWeight: 500, marginBottom: 6 }}>
+        <div style={{ fontSize: ".99em", color: "#c2ffe0", fontWeight: 500, marginBottom: 7 }}>
           <span role="img" aria-label="calendar">📅</span>&nbsp;{item.date}
         </div>
-        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
+        <div style={{ fontSize: ".97em", color: "#fff", marginBottom: 7 }}>
           <span role="img" aria-label="map">📍</span>&nbsp;{item.location}
         </div>
         {item.description && (
-          <div style={{ color: "#bfffcf", marginBottom: 2, fontSize: ".99em" }}>{item.description}</div>
+          <div style={{ color: "#bfffcf", marginBottom: 7, fontSize: ".98em" }}>{item.description.length > 100 ? (item.description.slice(0, 100) + "...") : item.description}</div>
+        )}
+        <a
+          href="/events"
+          style={{
+            color: "#14df86",
+            textDecoration: "none",
+            fontWeight: 700,
+            fontSize: ".97em",
+            background: "linear-gradient(90deg, #0eebb8 66%, #18bd2c 100%)",
+            boxShadow: "0 0 13px #00ee90ad",
+            padding: "6px 20px",
+            borderRadius: "10px",
+            marginTop: 7,
+            border: "none"
+          }}
+        >
+          More Events
+        </a>
+      </div>
+    );
+  }
+  // Community Announcement: Special slide card (example data: { type:"announcement", message:string, icon, color, link? })
+  if (item.type === "announcement") {
+    return (
+      <div
+        key={idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: item.color || "linear-gradient(85deg, #0d160d 0%, #203839 110%)",
+          boxShadow: "0 7px 20px #00e0ca1c",
+          borderRadius: 19,
+          border: "2.5px solid #14cbd1",
+          padding: 19,
+          minHeight: 120,
+          color: "#deffee",
+          position: "relative",
+        }}
+      >
+        <span aria-label="announcement" style={{fontSize: 37, marginBottom: 11, color: "#14cbd1"}}>{item.icon || "📢"}</span>
+        <div style={{ fontWeight: 800, fontSize: "1.12rem", color: item.color || "#14cbd1", marginBottom: 6 }}>
+          Community Announcement
+        </div>
+        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
+          {item.message}
+        </div>
+        {item.link &&
+          <a
+            href={item.link}
+            style={{
+              color: "#15d7e8",
+              textDecoration: "underline",
+              fontWeight: 600,
+              fontSize: ".98em",
+              marginTop: 6,
+              borderRadius: "10px",
+              background: "rgba(20,203,209,0.1)",
+              padding: "4px 15px"
+            }}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Learn more
+          </a>
+        }
+      </div>
+    );
+  }
+  // Custom Banner: Simple visual banner (type:"banner", title, subtitle, icon)
+  if (item.type === "banner") {
+    return (
+      <div
+        key={idx}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          background: item.color || "linear-gradient(77deg, #1a175a 0%, #3d087c 98%)",
+          border: `2.5px solid ${item.color || "#5b2ae6"}`,
+          borderRadius: 19,
+          padding: 19,
+          minHeight: 104,
+          color: "#e5e7ff",
+          position: "relative",
+        }}
+      >
+        {item.icon && (
+          <span aria-label="banner" style={{fontSize: 42, marginBottom: 8, color: item.iconColor||"#e5e7ff"}}>{item.icon}</span>
+        )}
+        <div style={{ fontWeight: 830, fontSize: "1.22rem", color: item.titleColor || "#bdadff", marginBottom: 3 }}>
+          {item.title}
+        </div>
+        {item.subtitle && (
+          <div style={{ fontSize: ".97em", color: item.subtitleColor || "#dadbff", marginBottom: 6 }}>
+            {item.subtitle}
+          </div>
         )}
       </div>
     );
   }
-  // Fallback-render
+
+  // Fallback to plain
   return (
     <div style={{ color: "#fff", textAlign: "center" }} key={idx}>
-      {item.title || item.name || "Untitled"}
+      {item.title || item.name || item.message || "Untitled"}
     </div>
   );
+}
+
+// Weather code -> description mapping (used for custom weather slide render)
+function getWeatherDescription(code) {
+  if ([0].includes(code)) return "Clear Sky";
+  if ([1, 2, 3].includes(code)) return "Partly Cloudy";
+  if ([45, 48].includes(code)) return "Fog/Mist";
+  if ([51, 53, 55, 56, 57].includes(code)) return "Drizzle";
+  if ([61, 63, 65, 66, 67].includes(code)) return "Rain";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Snow";
+  if ([80, 81, 82].includes(code)) return "Showers";
+  if ([95, 96, 99].includes(code)) return "Thunderstorm";
+  return "";
 }
 
 // Helper: For accessibility – returns short label for slide
