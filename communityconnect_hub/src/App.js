@@ -257,15 +257,24 @@ function WeatherPage({ weather }) {
   );
 }
 
-// PUBLIC_INTERFACE
-function EventsPage({ events }) {
+/**
+ * PUBLIC_INTERFACE
+ * EventsPage: Displays events and, for authenticated users, shows an event addition form.
+ */
+function EventsPage({ events, user, onAddEvent }) {
   return (
     <main className="hub-main">
       <div className="container">
         <h1 className="hub-section-title">
           <ColorDot color="#009600" /> Events in Chennai
         </h1>
-        <EventsPanel events={events} loading={!events.length} showChennaiNotice />
+        <EventsPanel
+          events={events}
+          loading={!events.length}
+          showChennaiNotice
+          user={user}
+          onAddEvent={onAddEvent}
+        />
       </div>
     </main>
   );
@@ -449,7 +458,12 @@ function ContactsPanel({ contacts, previewOnly }) {
   );
 }
 
-function EventsPanel({ events, loading, previewCount, showChennaiNotice }) {
+// Updated EventsPanel to support event adding and display as described
+function EventsPanel({ events, loading, previewCount, showChennaiNotice, user, onAddEvent }) {
+  // Internal state for the event form (only for logged-in users, reflects at the EventsPage only)
+  const [form, setForm] = React.useState({ name: "", date: "", location: "" });
+  const [addErr, setAddErr] = React.useState("");
+  const [addMsg, setAddMsg] = React.useState("");
   let items = events;
   if (previewCount) items = events.slice(0, previewCount);
   if (loading)
@@ -473,6 +487,38 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice }) {
     ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
   }
 
+  function handleEventFormChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setAddErr("");
+    setAddMsg("");
+  }
+
+  function handleAddEvent(e) {
+    e.preventDefault();
+    setAddErr("");
+    setAddMsg("");
+    if (!form.name.trim() || !form.date.trim() || !form.location.trim()) {
+      setAddErr("All fields are required.");
+      return;
+    }
+    // Limit: Only Chennai-based events
+    if (!/chennai/i.test(form.location)) {
+      setAddErr("Location must be within Chennai.");
+      return;
+    }
+    // Add the event via callback provided by App (updates parent state)
+    if (onAddEvent) {
+      onAddEvent({
+        id: Date.now(),
+        name: form.name.trim(),
+        date: form.date.trim(),
+        location: form.location.trim()
+      });
+      setAddMsg("Event added!");
+      setForm({ name: "", date: "", location: "" });
+    }
+  }
+
   return (
     <div className="hub-section-entrance">
       {showChennaiNotice && (
@@ -485,6 +531,47 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice }) {
         }}>
           Only showing local events in <span style={{color: "#00e2ca"}}>Chennai</span>.
         </div>
+      )}
+      {user && onAddEvent && (
+        <form onSubmit={handleAddEvent} className="hub-card hub-event-card" style={{marginBottom: 19, background: "#232338ed"}}>
+          <div className="hub-event-title" style={{marginBottom: 7}}>
+            Add a Chennai Event
+          </div>
+          <input
+            className="hub-input"
+            type="text"
+            name="name"
+            placeholder="Event Name"
+            value={form.name}
+            onChange={handleEventFormChange}
+            required
+            style={{marginBottom: 7}}
+          />
+          <input
+            className="hub-input"
+            type="date"
+            name="date"
+            value={form.date}
+            onChange={handleEventFormChange}
+            required
+            style={{marginBottom: 7}}
+          />
+          <input
+            className="hub-input"
+            type="text"
+            name="location"
+            placeholder="Location (must include Chennai)"
+            value={form.location}
+            onChange={handleEventFormChange}
+            required
+            style={{marginBottom: 7}}
+          />
+          {addErr && <div style={{color: "#e87a41", fontSize: 14, marginBottom: 6}}>{addErr}</div>}
+          {addMsg && <div style={{color: "#4ee144", fontSize: 14, marginBottom: 6}}>{addMsg}</div>}
+          <button className="btn btn-accent btn-large" type="submit" style={{width: "100%"}} onPointerDown={handleRipple}>
+            Add Event
+          </button>
+        </form>
       )}
       {items.map((ev) => (
         <div key={ev.id} className="hub-card hub-event-card" tabIndex={0}>
@@ -507,6 +594,10 @@ function EventsPanel({ events, loading, previewCount, showChennaiNotice }) {
     </div>
   );
 }
+
+// ----------------------------
+// MAIN APP COMPONENT
+// ----------------------------
 
 function App() {
   // Caching keys for localStorage
@@ -560,14 +651,10 @@ function App() {
   }
 
   // --- API URLs ---
-  // All news data must now be fetched only via the secure backend proxy endpoint.
-  // External News API must never be called from the client.
-  // For local dev: must call backend at http://localhost:3300/api/news if served on another port
   let NEWS_API = "/api/news";
   let WEATHER_API = "/api/weather";
   const EVENTS_API = "https://open-api.mycommunityconnect.com/events/sample";
 
-  // Ensure correct backend base when on localhost/dev (fix issues with CORS/network failures)
   if (
     typeof window !== "undefined" &&
     window.location.hostname === "localhost" &&
@@ -582,13 +669,10 @@ function App() {
     let active = true;
     let refreshInterval = null;
 
-    // Note: newsError and setNewsError are now defined at the top of App(), not here
-
     // PUBLIC_INTERFACE
     async function fetchNews(force = false) {
       if (!force) {
         const cached = getCached(CACHE_KEYS.news);
-        // Only return cached if no previous error or cache is not empty array
         if (cached && cached.length > 0) {
           setNews(cached);
           setNewsError(null);
@@ -596,15 +680,13 @@ function App() {
         }
       }
       try {
-        setNewsError(null); // clear error before fetch
-        // Always use the secure backend endpoint for fetching news
+        setNewsError(null);
         let API_URL = NEWS_API;
-        // Optional: override using env for deployments/proxies
         if (process.env.REACT_APP_API_BASE) {
           API_URL = `${process.env.REACT_APP_API_BASE}/api/news`;
         }
         const res = await fetch(API_URL, {
-          credentials: "include" // Not required now, for future-proof
+          credentials: "include"
         });
         let out;
         try {
@@ -613,12 +695,9 @@ function App() {
           out = null;
         }
 
-        // If backend returned an explicit error object, handle & log
         if (out && (out.error || out.status >= 400)) {
-          // Log the original error in detail for devs
           // eslint-disable-next-line
           console.error("NewsAPI backend error:", out);
-          // Show user-friendly message
           if (active) {
             setNews([]);
             setNewsError(
@@ -630,9 +709,7 @@ function App() {
           return;
         }
 
-        // If HTTP not ok
         if (!res.ok) {
-          // Log unexpected HTTP problem (may duplicate backend error above, but belt & suspenders)
           // eslint-disable-next-line
           console.error(
             "Failed HTTP for news fetch. Status:",
@@ -649,21 +726,17 @@ function App() {
           return;
         }
 
-        // Defensive: backend should always send {articles: [...]}
         let articles = [];
         if (out && Array.isArray(out.articles)) {
           articles = out.articles.slice(0, 5); // Show top 5
         } else {
-          // Try legacy fallback
           if (Array.isArray(out?.data?.articles)) {
             articles = out.data.articles.slice(0, 5);
           } else if (Array.isArray(out?.data)) {
-            // In case API returns array at root
             articles = out.data.slice(0, 5);
           }
         }
 
-        // If we get an empty array, treat as "unavailable" (backend returns error, but extra defensive just in case)
         if (!articles.length) {
           // eslint-disable-next-line
           console.warn(
@@ -676,14 +749,12 @@ function App() {
           return;
         }
 
-        // Success: clear error and show articles
         if (active) {
           setNews(articles);
           setNewsError(null);
           setCached(CACHE_KEYS.news, articles);
         }
       } catch (err) {
-        // Always show a visible notice, and log error for devs
         // eslint-disable-next-line
         console.error(
           "Error fetching news (frontend):",
@@ -702,15 +773,12 @@ function App() {
 
     fetchNews();
 
-    // Periodically refresh every 2 minutes for live news experience
     refreshInterval = setInterval(() => fetchNews(true), 2 * 60 * 1000);
 
-    // Clean up interval & effect state
     return () => {
       active = false;
       if (refreshInterval) clearInterval(refreshInterval);
     };
-    // eslint-disable-next-line
   }, []);
 
   React.useEffect(() => {
@@ -729,13 +797,11 @@ function App() {
           typeof window !== "undefined" &&
           window.location.hostname === "localhost"
         ) {
-          // Explicitly set full URL for local development (mirror news logic)
           API_URL = `http://localhost:3300/api/weather?lat=${chennaiLat}&lon=${chennaiLon}`;
         }
         const res = await fetch(API_URL);
         if (!res.ok) throw new Error("Failed to fetch weather from proxy");
         const out = await res.json();
-        // Backend returns normalized weather data directly
         setWeather(out);
         setCached(CACHE_KEYS.weather, out);
       } catch {
@@ -743,7 +809,6 @@ function App() {
       }
     }
     fetchWeather();
-    // eslint-disable-next-line
   }, []);
 
   React.useEffect(() => {
@@ -754,9 +819,7 @@ function App() {
         return;
       }
       try {
-        // Hardcode events only for Chennai. You could in the future replace this fetch with a filtered backend endpoint for /api/events?city=Chennai, but for now we'll only show Chennai events with relevant local names/venues.
         const nowTs = Date.now();
-        // Example event names/venues clearly for Chennai
         const chennaiEvents = [
           {
             id: 1,
@@ -790,7 +853,6 @@ function App() {
       }
     }
     fetchEvents();
-    // eslint-disable-next-line
   }, []);
 
   // --- User Management: local (demo) authentication logic ---
@@ -822,7 +884,6 @@ function App() {
   function handleLogin({ email, password }) {
     setAuthLoading(true);
     setAuthError("");
-    // Simulate local storage "users" as { email: string, password: string }
     setTimeout(() => {
       setAuthLoading(false);
       const users = JSON.parse(localStorage.getItem("cc_users") || "[]");
@@ -865,6 +926,16 @@ function App() {
     if (e.target.classList.contains("hub-modal-bg")) {
       setAuthModal(null);
     }
+  }
+
+  // Handler for adding new event - moved here so it's always in scope when passed as a prop
+  function handleAddEvent(event) {
+    if (!user) return;
+    setEvents((prev) => {
+      const newEvents = [event, ...prev];
+      setCached(CACHE_KEYS.events, newEvents);
+      return newEvents;
+    });
   }
 
   return (
@@ -935,7 +1006,7 @@ function App() {
           />
           <Route
             path="/events"
-            element={<EventsPage events={events} />}
+            element={<EventsPage events={events} user={user} onAddEvent={handleAddEvent} />}
           />
           <Route
             path="/emergency-contacts"
