@@ -39,8 +39,13 @@ function logPerformance(endpoint) {
   };
 }
 // --- END: Performance analysis utilities --- //
-// Setup - ensure you replace below with your actual NewsAPI key!
-const NEWS_API_KEY = "737e634c6ef84eb4a280c96c4ec7815f";
+/**
+ * Setup - News API integration:
+ * Use the latest NewsAPI key provided: pub_582702dcf21842fd879529f7f9f64846
+ * This key is used to authenticate all proxy requests for /api/news.
+ * DO NOT expose this key to frontend or via any client-side code.
+ */
+const NEWS_API_KEY = "pub_582702dcf21842fd879529f7f9f64846";
 // Weather API Key (do NOT expose this to frontend!)
 const WEATHER_API_KEY = "e91a8166503a4e9e967174436251706";
 
