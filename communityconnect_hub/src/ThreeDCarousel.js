@@ -3,12 +3,13 @@ import "./ThreeDCarousel.css";
 
 /**
  * PUBLIC_INTERFACE
- * ThreeDCarousel - Enhanced 3D cylindrical carousel component with visually rich, section-themed slides for News, Weather, and Events.
+ * ThreeDCarousel - Enhanced 3D cylindrical carousel component with visually rich, section-themed slides for News, Weather, Announcements, Banner, and Events.
+ * Supports both JSX/react children slides OR slide object array with "type" (news, weather, announcement, banner, event, community).
  * Slides automatically render with section-specific icons, images, backgrounds, and layouts.
  *
  * Props:
  *   - slides: Array of JSX elements (overrides carouselData, auto-rendered as slides if not present)
- *   - carouselData: array of slide objects ({type: "news"|"weather"|"event"|"community"|"banner", ...}) for dynamic content
+ *   - carouselData: array of slide objects ({type: "news"|"weather"|"event"|"community"|"banner"|"announcement", ...}) for dynamic content
  *   - autoRotate, rotateInterval, visibleSlideCount, perspective: carousel controls
  */
 function ThreeDCarousel({
@@ -16,17 +17,20 @@ function ThreeDCarousel({
   autoRotate = true,
   rotateInterval = 4000,
   visibleSlideCount = 5,
-  perspective = 1650,
+  perspective = 1750,
   carouselData = null
 }) {
-  // Prefer explicit slides, else create slides from carouselData array using custom renderer
+  // Enhanced: Accept either direct JSX slides or slide objects for auto-render
   let carouselSlides = Array.isArray(slides)
-    ? slides
+    ? slides.map((s, i) => (
+        // Auto-wrap slide objects via renderer if not React element
+        React.isValidElement(s) ? s : renderRichSlide(s, i)
+      ))
     : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp visible slide count for 3D effect accuracy (min 4, max 6, odd preferred)
-  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, Math.min(6, numSlides > 0 ? numSlides : 4)));
+  // Clamp visible slide count for 3D effect accuracy (min 4, max 7, odd preferred)
+  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, Math.min(7, numSlides > 0 ? numSlides : 4)));
   if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--;
 
   // Carousel state management
@@ -36,7 +40,7 @@ function ThreeDCarousel({
   const intervalRef = useRef();
   const stageRef = useRef();
 
-  // Calculate rotation step and radius (responsive to device width)
+  // Calculate rotation step and cylinder radius for true 3D perspective
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
 
   function useResponsiveRadius(count, visCount) {
@@ -47,15 +51,16 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, visCount]);
     function calcRadius(width) {
-      if (width < 520) return 110 + (visCount - 1) * 35 + (count - 4) * 5;
-      if (width < 950) return 190 + (visCount - 1) * 54 + (count - 4) * 14;
-      return 390 + (visCount - 1) * 77 + (count - 4) * 20;
+      // Slightly boost radius for more pop, especially if slide count exceeds 5
+      if (width < 520) return 115 + (visCount - 1) * 39 + (count - 4) * 7;
+      if (width < 950) return 210 + (visCount - 1) * 62 + (count - 4) * 17;
+      return 408 + (visCount - 1) * 86 + (count - 4) * 23;
     }
     return r;
   }
   const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Auto-rotation logic
+  // Auto-rotation logic (improved timing/UX for more 3D realism)
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
@@ -64,7 +69,7 @@ function ThreeDCarousel({
 
   useEffect(() => {
     if (!isAnimating) return;
-    const t = setTimeout(() => setIsAnimating(false), 700);
+    const t = setTimeout(() => setIsAnimating(false), 540); // Faster settling for snap
     return () => clearTimeout(t);
   }, [isAnimating]);
 
@@ -95,31 +100,31 @@ function ThreeDCarousel({
   const pause = () => setPaused(true);
   const resume = () => setPaused(false);
 
-  // Swipe support stub (mobile)
+  // Touch/Swipe support stub (mobile)
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
 
   // Show the visible window of slides for 3D effect
   function getVisible(relPos) {
     if (numSlides <= visibleSlideCount) return true;
     let half = Math.floor(visibleSlideCount / 2);
-    return (
-      relPos === 0 ||
-      relPos <= half ||
-      relPos >= numSlides - half
-    );
+    if (visibleSlideCount === numSlides) return true;
+    // Always center active, spread half/half on sides
+    return (relPos === 0 || relPos <= half || relPos >= numSlides - half);
   }
 
   function getStyle(relPos) {
     if (relPos === 0)
-      return { opacity: 1, zIndex: 10, filter: "none", pointerEvents: "auto" };
+      return { opacity: 1, zIndex: 12, filter: "none", pointerEvents: "auto" };
     const half = Math.floor(visibleSlideCount / 2);
+    // Adjacent slides left/right
     if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
-      return { opacity: 0.54, filter: "blur(5px) grayscale(0.55)", zIndex: 3, pointerEvents: "none" };
+      return { opacity: 0.58, filter: "blur(3.7px) grayscale(0.45) brightness(0.97)", zIndex: 3, pointerEvents: "none" };
     }
-    return { opacity: 0.18, filter: "blur(11px) grayscale(0.85) brightness(0.85)", zIndex: 1, pointerEvents: "none" };
+    // Further out (phantom)
+    return { opacity: 0.18, filter: "blur(12.5px) grayscale(0.9) brightness(0.85)", zIndex: 1, pointerEvents: "none" };
   }
 
-  // Accessible slide description
+  // Accessible slide description (for screenreaders)
   const liveMsg =
     numSlides > 0
       ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
@@ -135,7 +140,8 @@ function ThreeDCarousel({
         outline: "none",
         perspective: `${perspective}px`,
         background: "linear-gradient(99deg, #181825 68%, #141426 100%)",
-        filter: "drop-shadow(0 24px 99px #000e) brightness(1.03)"
+        filter: "drop-shadow(0 24px 99px #000e) brightness(1.03)",
+        userSelect: "none"
       }}
       onKeyDown={handleKeyDown}
       onMouseEnter={pause}

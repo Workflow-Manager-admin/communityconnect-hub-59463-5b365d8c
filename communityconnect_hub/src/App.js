@@ -412,16 +412,16 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
     );
   }
 
-  // Compose dynamic slides
+  // Compose dynamic slides, using new objects for announcements/banners which are auto-rendered with icon/banner styles by the enhanced ThreeDCarousel
   const slides = [
-    // --- Static or dynamic announcement slide (inserted at FRONT for visibility, adjust as desired) ---
+    // Demo/dynamic Announcement (always first)
     {
       type: "announcement",
       title: "Community Clean-up: April 28th, Join Us!",
       message: "Let’s keep our parks clean. Volunteers needed for this Sunday’s morning drive. All ages welcome!",
       link: "/events"
     },
-    // --- Static promotional/banner slide (may remove or replace as needed) ---
+    // Static promotional banner slide
     {
       type: "banner",
       title: "Welcome to the New CommunityConnect Hub!",
@@ -430,19 +430,38 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
       cta: "About Us",
       link: "/about"
     },
-    // Existing dynamic slides
-    <NewsSlide key="slide-news" />,
-    <WeatherSlide key="slide-weather" />,
-    <ContactsSlide key="slide-contacts" />,
-    <EventSlide key="slide-event" />,
-    // --- Example: additional dynamic community announcement (simulate from API in future) ---
+    // Dynamic News slide: flatten props for 3D carousel
+    news && news.length > 0 && {
+      type: "news",
+      ...news[0]
+    },
+    // Dynamic Weather slide
+    weather && {
+      type: "weather",
+      ...weather
+    },
+    // Dynamic Contacts (preview style for 3D)
+    contacts && {
+      type: "announcement",
+      title: "Emergency Contacts Quick Preview",
+      message: (Array.isArray(contacts) && contacts.length)
+        ? contacts.slice(0,3).map(c=>`${c.label}: ${c.phone}`).join("  |  ")
+        : "Swipe to see all important contacts.",
+      link: "/emergency-contacts"
+    },
+    // Next event (dynamic)
+    events && events.length > 0 && {
+      type: "event",
+      ...events[0]
+    },
+    // Additional community "alert" as demo
     {
       type: "community",
       title: "Water Outage Notice",
       message: "Planned water supply interruption on May 3 (Thurs) from 8am-2pm for pipe repair in Adyar zone. Please store water.",
       link: "/news"
     }
-  ];
+  ].filter(Boolean);
 
   return (
     <main className="hub-main hub-homepage-main">
@@ -455,13 +474,13 @@ function HomePage({ news = [], weather = null, events = [], contacts = [], newsE
             <ellipse cx="410" cy="220" rx="360" ry="70" fill="#1a1a1a" fillOpacity={0.10} />
           </svg>
         </div>
-        {/* 3D Carousel with dynamic content, including static/dynamic extra slides */}
+        {/* 3D Carousel: supports new slide types & richer banner styling. Tweak speed, visible count, and perspective for more pop */}
         <ThreeDCarousel
           slides={slides}
           autoRotate={true}
-          rotateInterval={4100}
-          visibleSlideCount={5}
-          perspective={1800}
+          rotateInterval={3800}
+          visibleSlideCount={5}  // Set to 5 for best 3D pop, adjust as needed
+          perspective={1970}    // Deeper 3D illusion
         />
         {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>
