@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
+import { LoginForm, RegisterForm } from "./AuthForms";
 
 // --- SHARED COMPONENTS ---
 
@@ -23,7 +24,7 @@ function ColorDot({ color, animated = false }) {
 }
 
 // PUBLIC_INTERFACE
-function Navbar({ user, onLogout }) {
+function Navbar({ user, onLogout, onShowLogin, onShowRegister }) {
   // Show active tab highlight, keyboard nav & focus, skip to content link for accessibility
   const location = useLocation();
   return (
@@ -55,7 +56,25 @@ function Navbar({ user, onLogout }) {
                     Logout
                   </button>
                 </div>
-              ) : null}
+              ) : (
+                // Login/Register Button Group
+                <div style={{ display: "flex", gap: 7 }}>
+                  <button
+                    className="btn btn-accent"
+                    onClick={onShowLogin}
+                    style={{ fontSize: "1rem" }}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className="btn"
+                    style={{ fontSize: "1rem" }}
+                    onClick={onShowRegister}
+                  >
+                    Register
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -318,8 +337,9 @@ function EventsPanel({ events, loading, previewCount }) {
   );
 }
 
-// PUBLIC_INTERFACE
-function App() {
+import { LoginForm, RegisterForm } from "./AuthForms";
+
+
   // Caching keys for localStorage
   const CACHE_KEYS = {
     news: "cc_news",
@@ -340,6 +360,11 @@ function App() {
     { label: "Poison Control", phone: "1-800-222-1222" },
     { label: "Local Emergency", phone: "311" }
   ]);
+
+  // --- User authentication modal state ---
+  const [authModal, setAuthModal] = React.useState(null); // 'login', 'register', or null
+  const [authLoading, setAuthLoading] = React.useState(false);
+  const [authError, setAuthError] = React.useState("");
 
   // --- DATA FETCH & CACHE HELPERS ---
   function getCached(key) {
@@ -447,7 +472,8 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
-  // --- User Management: basic/local demo ---
+  // --- User Management: local (demo) authentication logic ---
+
   // PUBLIC_INTERFACE
   function handleLogout() {
     setUser(null);
@@ -460,10 +486,100 @@ function App() {
     if (userJson) setUser(JSON.parse(userJson));
   }, []);
 
+  // PUBLIC_INTERFACE
+  function handleShowLogin() {
+    setAuthModal("login");
+    setAuthError("");
+  }
+  // PUBLIC_INTERFACE
+  function handleShowRegister() {
+    setAuthModal("register");
+    setAuthError("");
+  }
+
+  // PUBLIC_INTERFACE
+  function handleLogin({ email, password }) {
+    setAuthLoading(true);
+    setAuthError("");
+    // Simulate local storage "users" as { email: string, password: string }
+    setTimeout(() => {
+      setAuthLoading(false);
+      const users = JSON.parse(localStorage.getItem("cc_users") || "[]");
+      const user = users.find(u => u.email === email && u.password === password);
+      if (user) {
+        const u = { username: user.email.split("@")[0], email: user.email };
+        setUser(u);
+        localStorage.setItem("cc_user", JSON.stringify(u));
+        setAuthModal(null);
+      } else {
+        setAuthError("Invalid email or password.");
+      }
+    }, 600);
+  }
+
+  // PUBLIC_INTERFACE
+  function handleRegister({ email, password }) {
+    setAuthLoading(true);
+    setAuthError("");
+    setTimeout(() => {
+      let users = JSON.parse(localStorage.getItem("cc_users") || "[]");
+      if (users.some(u => u.email === email)) {
+        setAuthError("A user with this email already exists.");
+        setAuthLoading(false);
+        return;
+      }
+      const newUser = { email, password };
+      users.push(newUser);
+      localStorage.setItem("cc_users", JSON.stringify(users));
+      // Auto-login after registration
+      const u = { username: email.split("@")[0], email };
+      setUser(u);
+      localStorage.setItem("cc_user", JSON.stringify(u));
+      setAuthModal(null);
+      setAuthLoading(false);
+    }, 700);
+  }
+
+  function handleModalBgClick(e) {
+    if (e.target.classList.contains("hub-modal-bg")) {
+      setAuthModal(null);
+    }
+  }
+
   return (
     <Router>
       <div className="app hub-app">
-        <Navbar user={user} onLogout={handleLogout} />
+        <Navbar
+          user={user}
+          onLogout={handleLogout}
+          onShowLogin={handleShowLogin}
+          onShowRegister={handleShowRegister}
+        />
+        {authModal && (
+          <div className="hub-modal-bg" onClick={handleModalBgClick} tabIndex={-1} aria-modal="true">
+            {authModal === "login" ? (
+              <LoginForm
+                loading={authLoading}
+                error={authError}
+                onLogin={handleLogin}
+                onSwitchToRegister={() => {
+                  setAuthModal("register");
+                  setAuthError("");
+                }}
+              />
+            ) : (
+              <RegisterForm
+                loading={authLoading}
+                error={authError}
+                onRegister={handleRegister}
+                onSwitchToLogin={() => {
+                  setAuthModal("login");
+                  setAuthError("");
+                }}
+              />
+            )}
+          </div>
+        )}
         <Routes>
           <Route
             path="/"
