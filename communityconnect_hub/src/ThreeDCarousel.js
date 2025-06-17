@@ -6,19 +6,20 @@ import "./ThreeDCarousel.css";
  * ThreeDCarousel - Enhanced 3D cylindrical carousel component with visually rich, section-themed slides for News, Weather, Announcements, Banner, and Events.
  * Supports both JSX/react children slides OR slide object array with "type" (news, weather, announcement, banner, event, community).
  * Slides automatically render with section-specific icons, images, backgrounds, and layouts.
- *
- * Props:
- *   - slides: Array of JSX elements or objects (slide objects auto-rendered)
- *   - carouselData: array of slide objects ({type: "news"|"weather"|"event"|"community"|"banner"|"announcement", ...}) for dynamic content
- *   - autoRotate, rotateInterval, visibleSlideCount, perspective: carousel controls
+ * 
+ * Params (updated):
+ *   - autoRotate: Enable or disable auto-advancing slides
+ *   - rotateInterval: Time (ms) between slide transitions (default: 2600ms for quick, smooth movement)
+ *   - visibleSlideCount: Number of slides visually rendered in 3D (dynamically reduced for mobile, ideally odd number)
+ *   - perspective: CSS perspective value controlling 3D illusion "depth" (default: 3200px, responsive for device)
  */
 function ThreeDCarousel({
   slides,
   // Fine-tuned animation and perspective defaults for optimal effect
   autoRotate = true,
-  rotateInterval = 3300,           // Slightly quicker auto-rotation
-  visibleSlideCount = 7,           // More peripheral slides for richer effect if enough content
-  perspective = 2350,              // Stronger 3D illusion
+  rotateInterval = 2600,           // Faster auto-rotation for livelier effect
+  visibleSlideCount = 7,           // Plenty of peripheral slides for realism (adjusted below for small screens)
+  perspective = 3200,              // Much deeper 3D (larger px) for stronger cylindrical realism
   carouselData = null
 }) {
   // Accept either direct JSX slides or slide objects for auto-render (NEW: also handle announcement/banner/community visually)
@@ -29,12 +30,30 @@ function ThreeDCarousel({
     : (Array.isArray(carouselData) ? carouselData.map((item, idx) => renderRichSlide(item, idx)) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp visible slide count for 3D effect accuracy (min 4, max 9, odd preferred for symmetry)
-  visibleSlideCount = Math.max(5, Math.min(visibleSlideCount, Math.min(9, numSlides > 0 ? numSlides : 5)));
-  // Odd number for symmetry
-  if (visibleSlideCount % 2 === 0) visibleSlideCount--;
-  // If there are less slides, reduce visibleSlideCount to match
-  if (numSlides > 0 && visibleSlideCount > numSlides) visibleSlideCount = numSlides;
+  // Responsive tweaks: Adjust visible count and perspective by screen/device size for optimal readability
+  let vsc = visibleSlideCount;
+  let persp = perspective;
+  if (typeof window !== "undefined") {
+    const width = window.innerWidth;
+    if (width < 520) {
+      vsc = Math.min(3, numSlides);  // Only the center + 1 each side visible on very small screens
+      persp = 1400;
+    } else if (width < 900) {
+      vsc = Math.min(5, numSlides);
+      persp = 2000;
+    } else if (width < 1200) {
+      vsc = Math.min(7, numSlides);
+      persp = 2500;
+    }
+  }
+
+  // Clamp visible slide count for 3D effect accuracy (min 3, max 9, odd preferred for symmetry)
+  vsc = Math.max(3, Math.min(vsc, Math.min(9, numSlides > 0 ? numSlides : 5)));
+  if (vsc % 2 === 0) vsc--; // Odd number for symmetry
+  if (numSlides > 0 && vsc > numSlides) vsc = numSlides; // Don't exceed real slides
+
+  visibleSlideCount = vsc;
+  perspective = persp;
 
   // Carousel state management
   const [active, setActive] = useState(0);
@@ -47,6 +66,7 @@ function ThreeDCarousel({
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
 
   function useResponsiveRadius(count, visCount) {
+    // Deepen 3D by expanding radius so the spread is more like a large cylinder
     const [r, setR] = useState(calcRadius(window.innerWidth));
     useEffect(() => {
       function handleResize() { setR(calcRadius(window.innerWidth)); }
@@ -54,10 +74,10 @@ function ThreeDCarousel({
       return () => window.removeEventListener("resize", handleResize);
     }, [count, visCount]);
     function calcRadius(width) {
-      // Even more pronounced radius to match bigger visibleSlideCount/perspective
-      if (width < 520) return 108 + (visCount - 1) * 44 + (count - 5) * 9;
-      if (width < 950) return 210 + (visCount - 1) * 74 + (count - 5) * 21;
-      return 470 + (visCount - 1) * 112 + (count - 5) * 33;
+      // Visually simulate a *deeper* curve and keep sides readable with larger radius at higher perspectives
+      if (width < 520) return 88 + (visCount - 1) * 61 + (count - 3) * 8;
+      if (width < 900) return 150 + (visCount - 1) * 90 + (count - 5) * 12;
+      return 410 + (visCount - 1) * 160 + (count - 5) * 34; // Big spread on desktop
     }
     return r;
   }
@@ -123,10 +143,10 @@ function ThreeDCarousel({
     const half = Math.floor(visibleSlideCount / 2);
     // Directly adjacent left/right (mild blur/fade)
     if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
-      return { opacity: 0.54, filter: "blur(4.2px) grayscale(0.53) brightness(0.95)", zIndex: 2, pointerEvents: "none" };
+      return { opacity: 0.54, filter: "blur(7.2px) grayscale(0.68) brightness(0.94)", zIndex: 2, pointerEvents: "none" };
     }
     // Outer (ghost)
-    return { opacity: 0.13, filter: "blur(15.8px) grayscale(0.94) brightness(0.80)", zIndex: 1, pointerEvents: "none" };
+    return { opacity: 0.13, filter: "blur(22px) grayscale(0.96) brightness(0.60)", zIndex: 1, pointerEvents: "none" };
   }
 
   // Accessible slide description (for screenreaders)
@@ -146,7 +166,9 @@ function ThreeDCarousel({
         perspective: `${perspective}px`,
         background: "linear-gradient(99deg, #181825 68%, #141426 100%)",
         filter: "drop-shadow(0 24px 99px #000e) brightness(1.03)",
-        userSelect: "none"
+        userSelect: "none",
+        "--carousel-perspective": perspective,
+        "--carousel-visible-slides": visibleSlideCount
       }}
       onKeyDown={handleKeyDown}
       onMouseEnter={pause}
