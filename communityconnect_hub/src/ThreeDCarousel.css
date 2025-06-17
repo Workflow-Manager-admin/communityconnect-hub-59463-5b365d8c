@@ -8,9 +8,9 @@
   padding-bottom: 22px;
   outline: none;
   transition: box-shadow 0.22s, background 0.18s;
-  background: linear-gradient(99deg, #161626 68%, #06060d 100%);
+  background: linear-gradient(99deg, #181825 70%, #12121d 100%);
   /* For dark theme fit and 3D pop */
-  filter: drop-shadow(0 28px 110px #000f) brightness(1.048);
+  filter: drop-shadow(0 24px 99px #000e) brightness(1.035) contrast(1.01);
 }
 .carousel-3d-stage {
   position: relative;

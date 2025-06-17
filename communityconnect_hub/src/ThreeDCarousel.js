@@ -3,149 +3,139 @@ import "./ThreeDCarousel.css";
 
 /**
  * PUBLIC_INTERFACE
- * ThreeDCarousel - Enhanced 3D cylindrical carousel component.
- * 
+ * ThreeDCarousel - Enhanced 3D cylindrical carousel component with dynamic API content support,
+ * optimized animation, dark theme, and clear cylinder realism.
+ *
  * Features:
- * - Slides distributed around a cylinder for immersive 3D.
- * - Customizable: visible slide count, animation speed, 3D perspective, content integration (news, events, etc).
- * - Enhanced accessibility and smooth animations, dark-themed visuals by default.
+ * - 3D cylindrical arrangement of slides, visually immersive cylinder effect
+ * - Tuned: visible slide count, animation speed, strong 3D perspective, smooth transitions
+ * - Supports dynamic API slides (live news/events), with fallback to standard slides
+ * - Maintains dark theme visual consistency
  *
  * Props:
- *   - slides: Array of JSX elements (required)
+ *   - slides: Array of JSX elements (priority if present)
  *   - autoRotate: boolean (default: true)
- *   - rotateInterval: number ms (default: 4800, slower for realism)
- *   - visibleSlideCount: int (default: 5) – how many slides visible at once (center+adjacent pairs/cylinder)
- *   - perspective: number (default: 1700) – CSS 3D perspective px
- *   - carouselData: array (optional) – for API/live content integration, used if slides undefined
+ *   - rotateInterval: ms (default: 4000, smooth and not too fast/slow)
+ *   - visibleSlideCount: int (default: 5, min 4, max 6)
+ *   - perspective: px (default: 1650) – controls CSS perspective for cylinder "reach"
+ *   - carouselData: array (optional) – dynamic API/news/events to render as slides if slides undefined
  */
 function ThreeDCarousel({
   slides,
   autoRotate = true,
-  // More natural, slightly quicker but smooth auto-rotation (was 4100)
-  rotateInterval = 3200,
-  // Set the clear visible slide count to 5 (as requested, best for cyl effect and content visibility)
+  rotateInterval = 4000, // slightly slower, optimal for realism
   visibleSlideCount = 5,
-  // Deepen the perspective for even more pronounced 3D (stronger than before)
-  perspective = 1950,
-  carouselData = null,
+  perspective = 1650, // realistic depth for 3D, still comfortable for most screens
+  carouselData = null
 }) {
-  // Accept slides or fallback to dynamic carouselData
+  // Use slides array or, if undefined, convert carouselData (API output) to slides
   let carouselSlides = Array.isArray(slides)
     ? slides
-    : (Array.isArray(carouselData)
-      ? carouselData.map(renderDataToSlide) : []);
+    : (Array.isArray(carouselData) ? carouselData.map(renderDataToSlide) : []);
   const numSlides = carouselSlides.length;
 
-  // Clamp: ensure 4 <= visibleSlideCount <= 6, but never > slides present
-  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, 6, numSlides > 0 ? numSlides : 4));
+  // Clamp slide count to realistic/meaningful window (4-6 for cylinder), don't exceed slide count
+  visibleSlideCount = Math.max(4, Math.min(visibleSlideCount, Math.min(6, numSlides > 0 ? numSlides : 4)));
+  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--; // always odd for symmetry
 
-  // Ensure always odd for balance (when <numSlides allows)
-  if (numSlides > 4 && visibleSlideCount % 2 === 0) visibleSlideCount--;
-
+  // State and essential refs
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const intervalRef = useRef();
   const stageRef = useRef();
 
-  // Per-slide angle for 3D roundness
+  // 3D angle per slide and adaptive radius for proper spread at all device widths
   const angleStep = numSlides > 0 ? 360 / numSlides : 360;
 
-  // Compute 3D radius responsively, with stronger depth (cylinder feeling!) on desktop
-  function useResponsiveRadius(count, showN) {
-    const [r, setR] = useState(getRadius(window.innerWidth));
+  // Responsive radius for realistic cylinder shape
+  function useResponsiveRadius(count, visCount) {
+    const [r, setR] = useState(calcRadius(window.innerWidth));
     useEffect(() => {
-      function handleResize() { setR(getRadius(window.innerWidth)); }
+      function handleResize() { setR(calcRadius(window.innerWidth)); }
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
-    }, [count, showN]);
-    function getRadius(width) {
-      // Sharper depth: side slides fall away more for 3D illusion
-      if (width < 500) return 120 + (showN - 1) * 34 + (count - 4) * 8;
-      if (width < 900) return 210 + (showN - 1) * 52 + (count - 4) * 15;
-      return 425 + (showN - 1) * 72 + (count - 4) * 21;
+    }, [count, visCount]);
+    function calcRadius(width) {
+      // Desktop: wide spread, small screens: compact
+      if (width < 520) return 110 + (visCount - 1) * 35 + (count - 4) * 5;
+      if (width < 950) return 190 + (visCount - 1) * 54 + (count - 4) * 14;
+      return 390 + (visCount - 1) * 77 + (count - 4) * 20;
     }
     return r;
   }
   const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Smooth auto-rotate logic
+  // Animation speed tuning and smoothness
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
     return () => clearInterval(intervalRef.current);
   }, [autoRotate, rotateInterval, numSlides, paused, active]);
 
-  // Animation state for disabling rapid user nav
   useEffect(() => {
     if (!isAnimating) return;
-    // Slightly slower than CSS (matches .62s in css) for smoothness
-    const t = setTimeout(() => setIsAnimating(false), 630);
+    // Match CSS anim time (was .66s), slight buffer for smoothness
+    const t = setTimeout(() => setIsAnimating(false), 700);
     return () => clearTimeout(t);
   }, [isAnimating]);
 
-  // Keyboard navigation & accessible indicators
+  // Accessibility/keyboard navigation
   function handleKeyDown(e) {
     if (isAnimating) return;
-    if (e.key === "ArrowRight" || e.key === "PageDown") {
-      nextSlideSmooth();
-    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-      prevSlideSmooth();
-    } else if (e.key === "Home") {
-      setActive(0);
-    } else if (e.key === "End") {
-      setActive(numSlides - 1);
-    }
+    if (e.key === "ArrowRight" || e.key === "PageDown") nextSlideSmooth();
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") prevSlideSmooth();
+    else if (e.key === "Home") setActive(0);
+    else if (e.key === "End") setActive(numSlides - 1);
   }
 
-  // Next/Prev navigation functions with guard
+  // PUBLIC_INTERFACE
   const nextSlideSmooth = useCallback(() => {
     if (isAnimating) return;
-    setActive((a) => (a + 1) % numSlides);
+    setActive(a => (a + 1) % numSlides);
     setIsAnimating(true);
   }, [isAnimating, numSlides]);
+  // PUBLIC_INTERFACE
   const prevSlideSmooth = useCallback(() => {
     if (isAnimating) return;
-    setActive((a) => (a - 1 + numSlides) % numSlides);
+    setActive(a => (a - 1 + numSlides) % numSlides);
     setIsAnimating(true);
   }, [isAnimating, numSlides]);
 
-  // Pause on hover/focus for accessibility and control
+  // Pause on hover/focus for deliberate navigation
   const pause = () => setPaused(true);
   const resume = () => setPaused(false);
 
-  // Touch/Swipe navigation for mobile
+  // Enable swipe gesture support (stub for now)
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
 
-  // For a cylinder: only show actual visible slide count
+  // Show N visible slides: center and adjacent according to count
   function getVisible(relPos) {
-    // Sides wrap; use abs for both direction
     if (numSlides <= visibleSlideCount) return true;
-    let halfCount = Math.floor(visibleSlideCount / 2);
-    if (relPos === 0) return true;
-    if (relPos <= halfCount) return true; // after active, up to visible edge
-    if (relPos >= numSlides - halfCount) return true; // before active, wraps around
-    return false;
+    // Wraps for cylinder illusion
+    let half = Math.floor(visibleSlideCount / 2);
+    return (
+      relPos === 0 ||
+      relPos <= half ||
+      relPos >= numSlides - half
+    );
   }
 
-  // For main/side/far slides, provide custom opacity/blur for realism cylinder (side slides fade out)
+  // Custom style: tune opacity/blur for center, side, far slides
   function getStyle(relPos) {
-    if (relPos === 0) {
+    // Center active slide
+    if (relPos === 0)
       return { opacity: 1, zIndex: 10, filter: "none", pointerEvents: "auto" };
-    }
     const half = Math.floor(visibleSlideCount / 2);
-    let sideOrFar = (relPos <= half && relPos !== 0)
-      || (relPos > numSlides - half && relPos < numSlides);
-
-    if (sideOrFar) {
-      // balanced inner side slide
-      return { opacity: 0.54, filter: "blur(4px) grayscale(0.5)", zIndex: 3, pointerEvents: "none" };
+    if ((relPos <= half && relPos !== 0) || (relPos > numSlides - half && relPos < numSlides)) {
+      // Sides
+      return { opacity: 0.54, filter: "blur(5px) grayscale(0.55)", zIndex: 3, pointerEvents: "none" };
     }
-    // farther ones (at outer edge of visible window), fade to background
-    return { opacity: 0.30, filter: "blur(8px) grayscale(0.8) brightness(0.93)", zIndex: 1, pointerEvents: "none" };
+    // Farther sides (phantom)
+    return { opacity: 0.18, filter: "blur(11px) grayscale(0.85) brightness(0.85)", zIndex: 1, pointerEvents: "none" };
   }
 
-  // aria-live: current slide info for accessibility
+  // aria-live preview for accessibility
   const liveMsg =
     numSlides > 0
       ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
@@ -160,8 +150,8 @@ function ThreeDCarousel({
       style={{
         outline: "none",
         perspective: `${perspective}px`,
-        background: "linear-gradient(98deg, #111124 70%, #19192d 100%)",
-        filter: "drop-shadow(0 19px 90px #000a) brightness(1.02)"
+        background: "linear-gradient(99deg, #181825 68%, #141426 100%)",
+        filter: "drop-shadow(0 24px 99px #000e) brightness(1.03)"
       }}
       onKeyDown={handleKeyDown}
       onMouseEnter={pause}
@@ -169,12 +159,13 @@ function ThreeDCarousel({
       onFocus={pause}
       onBlur={resume}
       aria-live="polite"
+      data-3d-carousel
     >
       <div
         className={`carousel-3d-stage${isAnimating ? " animating" : ""}`}
         ref={stageRef}
         style={{
-          transform: `translateZ(-${radius}px) rotateY(${-active * angleStep}deg)`,
+          transform: `translateZ(-${radius}px) rotateY(${-active * angleStep}deg)`
         }}
         aria-live="off"
       >
@@ -189,9 +180,7 @@ function ThreeDCarousel({
         )}
         {carouselSlides.map((slide, i) => {
           const theta = i * angleStep;
-          // circular offset
           const relPos = (i - active + numSlides) % numSlides;
-          // show only right amount of slides for strong cylinder
           if (!getVisible(relPos)) return null;
           return (
             <div
@@ -201,7 +190,7 @@ function ThreeDCarousel({
               tabIndex={relPos === 0 ? 0 : -1}
               style={{
                 transform: `rotateY(${theta}deg) translateZ(${radius}px)`,
-                transitionDelay: isAnimating && relPos === 0 ? "0.05s" : "0s",
+                transitionDelay: isAnimating && relPos === 0 ? "0.04s" : "0s",
                 ...getStyle(relPos)
               }}
             >
