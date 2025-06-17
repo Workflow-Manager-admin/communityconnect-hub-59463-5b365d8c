@@ -299,7 +299,13 @@ function HomePage() {
           </svg>
         </div>
         {/* 3D Carousel itself */}
-        <ThreeDCarousel slides={slides} autoRotate={true} rotateInterval={4800}/>
+        <ThreeDCarousel
+          slides={slides}
+          autoRotate={true}
+          rotateInterval={3400}
+          visibleSlideCount={3}
+          perspective={1400}
+        />
         {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>
           <div/><div/><div/><div/><div/>

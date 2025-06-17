@@ -3,21 +3,38 @@ import "./ThreeDCarousel.css";
 
 /**
  * PUBLIC_INTERFACE
- * ThreeDCarousel - A 3D cylindrical carousel component.
+ * ThreeDCarousel - Enhanced 3D cylindrical carousel component.
  * 
  * Features:
- * - Slides are distributed around the circumference of a virtual cylinder,
- *   smoothly rotating and animating as user interacts.
- * - Responsive and visually appealing for dark themes.
- * - Accessible controls, pause-on-hover/focus and keyboard navigation.
+ * - Slides distributed around a cylinder for immersive 3D.
+ * - Customizable: visible slide count, animation speed, 3D perspective, content integration.
+ * - Enhanced accessibility and smooth animations, dark-themed visuals by default.
  *
  * Props:
  *   - slides: Array of JSX elements (required)
  *   - autoRotate: boolean (default: true)
- *   - rotateInterval: number ms (default: 4000)
+ *   - rotateInterval: number ms (default: 3500)
+ *   - visibleSlideCount: int (default: 3) – how many slides visible at once (center+adjacent pairs/cylinder)
+ *   - perspective: number (default: 1400) – CSS 3D perspective px
+ *   - carouselData: array (optional) – for API/content integration, used if slides undefined
  */
-function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
-  const numSlides = slides.length;
+function ThreeDCarousel({
+  slides,
+  autoRotate = true,
+  rotateInterval = 3500,
+  visibleSlideCount = 3,
+  perspective = 1400,
+  carouselData = null,
+}) {
+  // Prefer slides array, otherwise build slides from carouselData prop (for API/live content)
+  let carouselSlides = Array.isArray(slides)
+    ? slides
+    : (Array.isArray(carouselData)
+      ? carouselData.map(renderDataToSlide) : []);
+  const numSlides = carouselSlides.length;
+  // Clamp visibleSlideCount (at least 1, at most all)
+  visibleSlideCount = Math.max(1, Math.min(visibleSlideCount, numSlides ? numSlides : 1));
+
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -25,29 +42,33 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
   const stageRef = useRef();
 
   // Compute the rotation angle per slide
-  const angleStep = 360 / numSlides;
+  const angleStep = numSlides > 0 ? 360 / numSlides : 360;
   // Cylinder Z-translate distance
-  const radius = useResponsiveRadius(numSlides);
+  const radius = useResponsiveRadius(numSlides, visibleSlideCount);
 
-  // Responsive: adjust the cylinder radius with viewport width & slide count
-  function useResponsiveRadius(count) {
+  // Responsive: adjust the cylinder radius with viewport width, slide, and visibleSlideCount
+  function useResponsiveRadius(count, showN) {
     const [r, setR] = useState(getRadius(window.innerWidth));
     useEffect(() => {
-      function handleResize() {
-        setR(getRadius(window.innerWidth));
-      }
+      function handleResize() { setR(getRadius(window.innerWidth)); }
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
-    }, []);
+      // eslint-disable-next-line
+    }, [count, showN]);
     function getRadius(width) {
-      if (width < 600) return 160 + (count - 4) * 24;
-      if (width < 900) return 240 + (count - 4) * 36;
-      return 340 + (count - 4) * 40; // spread out more on desktop
+      // For smoother 3D roundness, adjust by visible count and screen
+      // Small screens: tighter cylinder
+      if (width < 600)
+        return 120 + (showN-1)*28 + (count-4)*14;
+      if (width < 900)
+        return 210 + (showN-1)*33 + (count-4)*15;
+      // Desktop: More depth
+      return 280 + (showN-1)*45 + (count-4)*20;
     }
     return r;
   }
 
-  // Auto-rotation effect
+  // Auto-rotation effect (shorter animation for smoothness)
   useEffect(() => {
     if (!autoRotate || paused || numSlides < 2) return;
     intervalRef.current = setInterval(() => nextSlideSmooth(), rotateInterval);
@@ -55,24 +76,28 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
     // eslint-disable-next-line
   }, [autoRotate, rotateInterval, numSlides, paused, active]);
 
-  // Animation lock to prevent rapid stacking of transitions
+  // Animation lock for transitions (matching css, slightly reduced for snappier navigation)
   useEffect(() => {
     if (!isAnimating) return;
-    const t = setTimeout(() => setIsAnimating(false), 680);
+    const t = setTimeout(() => setIsAnimating(false), 510);
     return () => clearTimeout(t);
   }, [isAnimating]);
 
-  // Keyboard navigation
+  // Keyboard navigation & accessible indicators
   function handleKeyDown(e) {
     if (isAnimating) return;
-    if (e.key === "ArrowRight") {
+    if (e.key === "ArrowRight" || e.key === "PageDown") {
       nextSlideSmooth();
-    } else if (e.key === "ArrowLeft") {
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
       prevSlideSmooth();
+    } else if (e.key === "Home") {
+      setActive(0);
+    } else if (e.key === "End") {
+      setActive(numSlides - 1);
     }
   }
 
-  // Next/Prev navigation functions with animation guard
+  // Next/Prev navigation functions with guard
   const nextSlideSmooth = useCallback(() => {
     if (isAnimating) return;
     setActive((a) => (a + 1) % numSlides);
@@ -84,12 +109,30 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
     setIsAnimating(true);
   }, [isAnimating, numSlides]);
 
-  // Pause on hover/focus for accessibility
+  // Pause on hover/focus for accessibility and control
   const pause = () => setPaused(true);
   const resume = () => setPaused(false);
 
   // Touch/Swipe navigation for mobile
   useCarouselSwipe(stageRef, nextSlideSmooth, prevSlideSmooth);
+
+  // For a cylinder, center is 0, flanking slides are ±1...N, others are out of view for performance
+  function getVisible(relPos) {
+    // relPos === 0: center, ±1, ±2, ...
+    // For even visibleSlideCount, show more on right
+    const half = Math.floor((visibleSlideCount-1)/2);
+    return (
+      relPos === 0 ||
+      (relPos <= half && relPos > 0) ||
+      (relPos >= numSlides-half && relPos <= numSlides-1)
+    );
+  }
+
+  // aria-live message for accessibility: which slide is active
+  const liveMsg =
+    numSlides > 0
+      ? `Slide ${active + 1} of ${numSlides}: ${getSlideLabel(carouselSlides[active])}`
+      : "No slides";
 
   return (
     <div
@@ -97,12 +140,13 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
       tabIndex={0}
       aria-roledescription="carousel"
       aria-label="Core Features Carousel"
+      style={{ outline: "none", perspective: `${perspective}px`, background: "transparent" }}
       onKeyDown={handleKeyDown}
       onMouseEnter={pause}
       onMouseLeave={resume}
       onFocus={pause}
       onBlur={resume}
-      style={{ outline: "none" }}
+      aria-live="polite"
     >
       <div
         className={`carousel-3d-stage${isAnimating ? " animating" : ""}`}
@@ -110,25 +154,33 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
         style={{
           transform: `translateZ(-${radius}px) rotateY(${-active * angleStep}deg)`,
         }}
-        aria-live="polite"
+        aria-live="off"
       >
-        {slides.map((slide, i) => {
-          // Each slide positioned around the cylinder
+        {carouselSlides.length === 0 && (
+          <div className="carousel-3d-slide active" aria-hidden="false" style={{
+            opacity: 1, zIndex: 2,
+            filter: "none", pointerEvents: "auto"
+          }}>
+            <span style={{ color: "#fff", fontWeight: 600 }}>No slides to display.</span>
+          </div>
+        )}
+        {carouselSlides.map((slide, i) => {
           const theta = i * angleStep;
           const relPos = (i - active + numSlides) % numSlides;
-          // For accessibility and performance: show only nearby slides
-          const visible = relPos === 0 || relPos === 1 || relPos === numSlides - 1 || numSlides < 4;
+          const visible = getVisible(relPos) || numSlides < visibleSlideCount + 1;
 
           return (
             <div
               className={`carousel-3d-slide${relPos === 0 ? " active" : ""}`}
               key={i}
               aria-hidden={relPos !== 0}
+              tabIndex={relPos === 0 ? 0 : -1}
               style={{
                 transform: `rotateY(${theta}deg) translateZ(${radius}px)`,
                 zIndex: relPos === 0 ? 3 : 1,
                 opacity: visible ? (relPos === 0 ? 1 : 0.54) : 0,
-                pointerEvents: relPos === 0 ? "auto" : "none"
+                pointerEvents: relPos === 0 ? "auto" : "none",
+                transitionDelay: isAnimating && relPos === 0 ? "0.08s" : "0s"
               }}
             >
               {slide}
@@ -143,7 +195,7 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
           aria-label="Previous Slide"
           tabIndex={0}
           onClick={prevSlideSmooth}
-          disabled={isAnimating}
+          disabled={isAnimating || numSlides < 2}
         >
           <span aria-hidden>‹</span>
         </button>
@@ -153,13 +205,13 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
           aria-label="Next Slide"
           tabIndex={0}
           onClick={nextSlideSmooth}
-          disabled={isAnimating}
+          disabled={isAnimating || numSlides < 2}
         >
           <span aria-hidden>›</span>
         </button>
       </div>
-      <div className="carousel-3d-indicators">
-        {slides.map((_, i) => (
+      <div className="carousel-3d-indicators" role="tablist" aria-label="Carousel indicators">
+        {carouselSlides.map((_, i) => (
           <button
             key={i}
             className={`carousel-3d-indicator${i === active ? " active" : ""}`}
@@ -168,49 +220,109 @@ function ThreeDCarousel({ slides, autoRotate = true, rotateInterval = 4000 }) {
             tabIndex={0}
             onClick={() => !isAnimating && setActive(i)}
             disabled={isAnimating || i === active}
+            role="tab"
+            aria-selected={i === active}
           />
         ))}
+      </div>
+      <div style={{
+        height: 0,
+        width: 0,
+        overflow: "hidden",
+        position: "absolute"
+      }} aria-live="polite" aria-atomic="true">
+        {liveMsg}
       </div>
     </div>
   );
 }
 
-/**
- * Adds touch-swipe navigation to the given ref element.
- */
-function useCarouselSwipe(ref, onNext, onPrev) {
-  useEffect(() => {
-    if (!ref.current) return;
-    let startX = null;
-    let deltaX = 0;
-
-    const handleTouchStart = (e) => {
-      startX = e.touches[0].clientX;
-      deltaX = 0;
-    };
-    const handleTouchMove = (e) => {
-      if (startX !== null) {
-        deltaX = e.touches[0].clientX - startX;
-      }
-    };
-    const handleTouchEnd = () => {
-      if (startX !== null && Math.abs(deltaX) > 38) {
-        if (deltaX < 0) onNext();
-        else onPrev();
-      }
-      startX = null;
-      deltaX = 0;
-    };
-    const node = ref.current;
-    node.addEventListener("touchstart", handleTouchStart, { passive: true });
-    node.addEventListener("touchmove", handleTouchMove, { passive: true });
-    node.addEventListener("touchend", handleTouchEnd);
-    return () => {
-      node.removeEventListener("touchstart", handleTouchStart);
-      node.removeEventListener("touchmove", handleTouchMove);
-      node.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [ref, onNext, onPrev]);
+// Helper: If carouselData is given (API news/events) render slide visual
+function renderDataToSlide(item, idx) {
+  // Support News API, Event, or basic
+  if (item.title && item.url) {
+    // News
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }} key={item.url || idx}>
+        {item.urlToImage && (
+          <img
+            src={item.urlToImage}
+            alt=""
+            style={{
+              width: 90,
+              height: 90,
+              objectFit: "cover",
+              borderRadius: 13,
+              marginBottom: 13,
+              boxShadow: "0 7px 28px #0008"
+            }}
+            loading="lazy"
+            aria-hidden="true"
+          />
+        )}
+        <div style={{ fontWeight: 770, fontSize: "1.17rem", color: "#E87A41", marginBottom: 3 }}>{item.title}</div>
+        <div style={{ fontSize: ".99rem", color: "#b4ccd8", marginBottom: 7 }}>{item.description || ""}</div>
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={0}
+          style={{
+            color: "#fff",
+            textDecoration: "underline",
+            fontWeight: 600,
+            fontSize: ".99em",
+            background: "rgba(0,0,0,0.18)",
+            padding: "4px 16px",
+            borderRadius: "9px"
+          }}
+        >
+          More details
+        </a>
+      </div>
+    );
+  } else if (item.name && item.date && item.location) {
+    // Event
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }} key={item.name}>
+        <div style={{
+          fontWeight: 800, fontSize: "1.13rem", color: "#18bd2c",
+          marginBottom: 2
+        }}>
+          {item.name}
+        </div>
+        <div style={{ fontSize: "1.01em", color: "#d5f2ff", fontWeight: 500, marginBottom: 6 }}>
+          <span role="img" aria-label="calendar">📅</span>&nbsp;{item.date}
+        </div>
+        <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
+          <span role="img" aria-label="map">📍</span>&nbsp;{item.location}
+        </div>
+        {item.description && (
+          <div style={{ color: "#bfffcf", marginBottom: 2, fontSize: ".99em" }}>{item.description}</div>
+        )}
+      </div>
+    );
+  }
+  // Fallback-render
+  return (
+    <div style={{ color: "#fff", textAlign: "center" }} key={idx}>
+      {item.title || item.name || "Untitled"}
+    </div>
+  );
 }
 
-export default ThreeDCarousel;
+// Helper: For accessibility – returns short label for slide
+function getSlideLabel(slide) {
+  if (!slide || typeof slide === "string") return slide;
+  // Try to extract the slide "label" (title prop or direct innerText of JSX)
+  if (slide.props && slide.props.title)
+    return slide.props.title;
+  if (slide.props && typeof slide.props.children === "string")
+    return slide.props.children;
+  // Otherwise fallback to empty
+  return "";
+}
+
+
+
+
