@@ -13,7 +13,7 @@ runtime modules 28.7 KiB 15 modules
 modules by path ./node_modules/ 1.54 MiB 34 modules
 modules by path ./src/ 119 KiB
   modules by path ./src/*.css 38.9 KiB 6 modules
-  modules by path ./src/*.js 80 KiB
+  modules by path ./src/*.js 80.5 KiB
     ./src/index.js 615 bytes [built] [code generated]
     + 3 modules
 modules by path ./.ve/ 15.1 KiB
@@ -22,24 +22,4 @@ modules by path ./.ve/ 15.1 KiB
     ./.ve/EditorOverlay.css 2.25 KiB [built] [code generated]
     ./node_modules/css-loader/dist/cjs.js!./.ve/EditorOverlay.css 697 bytes [built] [code generated]
   ./.ve/EditorOverlay.jsx 1.58 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 1722 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.88 MiB
-  asset bundle.js 1.86 MiB [emitted] (name: main)
-  asset main.b62761a421909e115a3e.hot-update.js 18.3 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.b62761a421909e115a3e.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.b62761a421909e115a3e.hot-update.js 18.3 KiB
-cached modules 1.66 MiB [cached] 48 modules
-runtime modules 28.7 KiB 15 modules
-./src/ThreeDCarousel.js 14 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 178 ms
-assets by status 1.98 KiB [cached] 1 asset
-assets by path *.js 1.88 MiB
-  asset bundle.js 1.86 MiB [emitted] (name: main)
-  asset main.1235020d7055e5a7f0b4.hot-update.js 18.6 KiB [emitted] [immutable] [hmr] (name: main)
-asset main.1235020d7055e5a7f0b4.hot-update.json 28 bytes [emitted] [immutable] [hmr]
-Entrypoint main 1.88 MiB = bundle.js 1.86 MiB main.1235020d7055e5a7f0b4.hot-update.js 18.6 KiB
-cached modules 1.66 MiB [cached] 48 modules
-runtime modules 28.7 KiB 15 modules
-./src/ThreeDCarousel.js 14.3 KiB [built] [code generated]
-webpack 5.99.9 compiled successfully in 105 ms
+webpack 5.99.9 compiled successfully in 1675 ms
