@@ -197,3 +197,7 @@ javascript modules 354 KiB
     ./node_modules/react-router/dist/index.js 59.3 KiB [built] [code generated]
     ./node_modules/@remix-run/router/dist/router.js 193 KiB [built] [code generated]
 webpack 5.99.9 compiled successfully in 393 ms
+assets by status 1.78 MiB [cached] 2 assets
+cached modules 1.58 MiB (javascript) 28.7 KiB (runtime) [cached] 60 modules
+./src/App.js 26.9 KiB [built]
+webpack 5.99.9 compiled successfully in 113 ms
