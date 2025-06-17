@@ -189,7 +189,7 @@ function NavLinks({ active }) {
  * PUBLIC_INTERFACE
  * Modernized HomePage: Contemporary hero, advanced layout, visual depth with grid overlays, enhanced cards, modern CTAs, and soft gradients.
  */
-function HomePage() {
+function HomePage({ news = [], weather = null, events = [], contacts = [], newsError = null }) {
   const navigate = useNavigate();
   const handleHeroCTAClick = (path) => (e) => {
     e.preventDefault();
@@ -200,57 +200,205 @@ function HomePage() {
     }
   };
 
-  // 3D slider slides: highlight features with CTA
-  const slides = [
-    (
-      <div style={{display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center"}}>
-        <h1 className="hub-hero-main-title" style={{marginBottom: 5}}>
-          <span className="hub-hero-main-brand">CommunityConnect Hub</span>
-          <span className="hub-hero-edition-badge">Chennai Edition</span>
-        </h1>
-        <p className="hub-hero-tagline-modern" style={{marginBottom: 24}}>
-          Your city's trusted platform for <span className="hero-news-highlight">news</span>, <span className="hero-weather-highlight">weather</span>, <span className="hero-events-highlight">events</span>, & <span className="hero-contacts-highlight">emergency contacts</span>.<br/>
-          <span className="hero-stay-connected">Stay informed. Stay safe. Stay connected.</span>
-        </p>
-        <a
-          href="/news"
-          className="btn btn-accent btn-large hero-btn"
-          onClick={handleHeroCTAClick("/news")}
-        >
-          <span role="img" aria-label="news" style={{ marginRight: 10 }}>📰</span>
-          See Chennai News
-        </a>
+  // Dynamically build carousel slides using current API state.
+  // Show: Slide 1: News Highlight | Slide 2: Weather | Slide 3: Featured Event | Slide 4: Emergency Contacts
+  // Fallbacks: display static text if data missing, and error message if applicable.
+
+  function NewsSlide() {
+    if (newsError) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <span style={{ color: "#FF706B", fontWeight: 700, marginBottom: 12 }}>⚠️ News Feed Unavailable</span>
+          <span style={{ color: "#fff", fontSize: 15 }}>{newsError}</span>
+          <a
+            href="/news"
+            className="btn btn-accent btn-large hero-btn"
+            style={{ marginTop: 13 }}
+            onClick={handleHeroCTAClick("/news")}
+          >
+            See More News
+          </a>
+        </div>
+      );
+    }
+    if (news && news.length > 0) {
+      // Pick top news (first article)
+      const top = news[0];
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <h2 className="hub-hero-main-title" style={{ marginBottom: 7, fontSize: "2.1rem", fontWeight: 870 }}>
+            <span className="hub-hero-main-brand">Chennai Highlights</span>
+            <span className="hub-hero-edition-badge" style={{ fontSize: "1.10em"}}>News</span>
+          </h2>
+          {top.urlToImage && (
+            <img
+              src={top.urlToImage}
+              alt=""
+              style={{
+                width: 88, height: 88, objectFit: "cover", borderRadius: 13,
+                marginBottom: 9, boxShadow: "0 7px 28px #0008"
+              }}
+              loading="lazy"
+              aria-hidden="true"
+            />
+          )}
+          <div style={{ fontWeight: 750, fontSize: "1.11rem", color: "#E87A41", marginBottom: 3 }}>{top.title}</div>
+          <div style={{ fontSize: ".99rem", color: "#b4ccd8", marginBottom: 4 }}>{top.description}</div>
+          <div style={{ color: "#999", fontSize: ".91em", marginBottom: 7 }}>
+            {(top.source && top.source.name)
+              ? <>{top.source.name} &bull; {top.publishedAt?.slice?.(0,10)}</>
+              : null}
+          </div>
+          <a
+            href={top.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-accent"
+            style={{ marginBottom: 6 }}
+          >
+            Read More
+          </a>
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <span className="hub-hero-main-title" style={{ fontSize: "1.4rem", marginBottom: 7 }}>
+          <span className="hub-hero-main-brand">Latest News</span>
+        </span>
+        <span style={{ color: "#fff", marginBottom: "13px" }}>Loading top news for Chennai...</span>
+        <div className="hub-loading-anim" />
       </div>
-    ),
-    (
-      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
-        <h2 style={{fontWeight:900, fontSize:"2.18rem", margin:"0 0 7px 0", letterSpacing:".01em", color:"var(--secondary)"}}>
+    );
+  }
+
+  function WeatherSlide() {
+    if (weather) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <h2 style={{
+            fontWeight: 900, fontSize: "2.05rem", margin: "0 0 7px 0", letterSpacing: ".01em",
+            color: "var(--secondary)"
+          }}>
+            <span role="img" aria-label="weather" style={{ marginRight: 9 }}>☀️</span>
+            Chennai Weather
+          </h2>
+          <div style={{ fontSize: "1.4rem", fontWeight: 700, color: "#fff", marginBottom: 3 }}>
+            {weather.temperature != null ? `${weather.temperature}°C` : "N/A"}
+          </div>
+          <div style={{ fontSize: "1.04rem", color: "#bbb", marginBottom: 2 }}>
+            {weather.weathercode == null ? "" : getWeatherDesc(weather.weathercode)}
+          </div>
+          <div style={{ color: "#aaa", fontSize: 15, marginBottom: 4 }}>
+            Winds: {weather.windspeed ?? "N/A"} km/h
+          </div>
+          <div style={{ color: "#6ecb8f", fontSize: ".99em", marginBottom: 7 }}>
+            At: Chennai, India
+          </div>
+          <a
+            href="/weather"
+            className="btn btn-large hero-btn"
+            style={{ background: "var(--secondary)", color: "#fff" }}
+            onClick={handleHeroCTAClick("/weather")}
+          >
+            <span role="img" aria-label="weather" style={{ marginRight: 7 }}>🌦️</span>
+            Full Forecast
+          </a>
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <h2 style={{
+          fontWeight: 900, fontSize: "2.05rem", margin: "0 0 7px 0", letterSpacing: ".01em",
+          color: "var(--secondary)"
+        }}>
           <span role="img" aria-label="weather" style={{ marginRight: 9 }}>☀️</span>
-          Live Weather Updates
+          Chennai Weather
         </h2>
-        <p className="hub-hero-tagline-modern" style={{marginBottom: 19}}>
-          Get instant, hyperlocal <span className="hero-weather-highlight">weather</span> updates for Chennai so you can plan your day with confidence.
-        </p>
-        <a
-          href="/weather"
-          className="btn btn-large hero-btn"
-          style={{ background: "var(--secondary)", color: "#fff" }}
-          onClick={handleHeroCTAClick("/weather")}
-        >
-          <span role="img" aria-label="weather" style={{ marginRight: 7 }}>🌦️</span>
-          Check Weather
-        </a>
+        <span style={{ color: "#fff", marginBottom: "17px" }}>Loading weather...</span>
+        <div className="hub-loading-anim" />
       </div>
-    ),
-    (
-      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
-        <h2 style={{fontWeight:900,fontSize:"2.02rem",margin:"0 0 7px 0", letterSpacing:".01em",color:"var(--accent)"}}>
+    );
+  }
+
+  function EventSlide() {
+    if (events && events.length > 0) {
+      const e = events[0];
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+          <h2 style={{ fontWeight: 900, fontSize: "2.04rem", margin: "0 0 7px 0", letterSpacing: ".02em", color: "var(--primary)" }}>
+            <span role="img" aria-label="events" style={{ marginRight: 7 }}>🎉</span>
+            Upcoming Event
+          </h2>
+          <div style={{ fontWeight: 800, fontSize: "1.15rem", color: "#18bd2c", marginBottom: 4 }}>{e.name}</div>
+          <div style={{ fontSize: ".999em", color: "#d5f2ff", fontWeight: 500, marginBottom: 6 }}>
+            <span role="img" aria-label="calendar">📅</span>&nbsp;{e.date}
+          </div>
+          <div style={{ fontSize: ".98em", color: "#fff", marginBottom: 7 }}>
+            <span role="img" aria-label="map">📍</span>&nbsp;{e.location}
+          </div>
+          {e.description && (
+            <div style={{ color: "#bfffcf", marginBottom: 5, fontSize: ".98em" }}>{e.description}</div>
+          )}
+          <a
+            href="/events"
+            className="btn btn-large hero-btn"
+            style={{
+              background: "linear-gradient(88deg, #c80000 25%, #009600 70%, #0000f3 100%)",
+              color: "#fff"
+            }}
+            onClick={handleHeroCTAClick("/events")}
+          >
+            <span role="img" aria-label="events" style={{ marginRight: 6 }}>📅</span>
+            More Events
+          </a>
+        </div>
+      );
+    }
+    // Fallback for empty/no events
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <h2 style={{ fontWeight: 900, fontSize: "2.04rem", margin: "0 0 7px 0", letterSpacing: ".02em", color: "var(--primary)" }}>
+          <span role="img" aria-label="events" style={{ marginRight: 7 }}>🎉</span>
+          Upcoming Event
+        </h2>
+        <span style={{ color: "#fff", marginBottom: "17px" }}>Loading event details...</span>
+        <div className="hub-loading-anim" />
+      </div>
+    );
+  }
+
+  function ContactsSlide() {
+    // Show 2-3 emergency contacts for preview
+    const preview = Array.isArray(contacts) ? contacts.slice(0,3) : [];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+        <h2 style={{ fontWeight: 900, fontSize: "2.01rem", margin: "0 0 7px 0", letterSpacing: ".01em", color: "var(--accent)" }}>
           <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>🆘</span>
           Emergency Contacts
         </h2>
-        <p className="hub-hero-tagline-modern" style={{marginBottom: 17}}>
-          Quick-dial key <span className="hero-contacts-highlight">emergency numbers</span>&nbsp;for Chennai at your fingertips—police, fire, shelters, and more.
-        </p>
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, marginBottom: "13px" }}>
+          {preview.map((c, i) => (
+            <li key={c.label + c.phone} style={{
+              marginBottom: i < preview.length - 1 ? "8px" : "0",
+              fontSize: "1.025em", color: "#d5e2ff", display: "flex", alignItems: "center", gap: 7
+            }}>
+              <span className="hub-contact-label" style={{ color: "#00aaff", fontWeight: 600 }}>{c.label}:</span>
+              <a href={`tel:${c.phone}`} style={{
+                color: "#4fd674",
+                fontWeight: 700,
+                textDecoration: "underline",
+                letterSpacing: ".01em"
+              }}>
+                {c.phone}
+                <span role="img" aria-label="call" style={{ marginLeft: 6, fontSize: 16 }}>
+                  📞
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
         <a
           href="/emergency-contacts"
           className="btn btn-large hero-btn"
@@ -258,62 +406,49 @@ function HomePage() {
           onClick={handleHeroCTAClick("/emergency-contacts")}
         >
           <span role="img" aria-label="contacts" style={{ marginRight: 8 }}>📱</span>
-          View Contacts
+          All Contacts
         </a>
       </div>
-    ),
-    (
-      <div style={{display:"flex", flexDirection:"column", alignItems:"center", textAlign:"center"}}>
-        <h2 style={{fontWeight:900,fontSize:"2.02rem",margin:"0 0 7px 0",letterSpacing:".02em",color:"var(--primary)"}}>
-          <span role="img" aria-label="events" style={{ marginRight: 7 }}>🎉</span>
-          Upcoming Events
-        </h2>
-        <p className="hub-hero-tagline-modern" style={{marginBottom: 19}}>
-          Discover <span className="hero-events-highlight">local happenings</span>, from cultural festivals to community activities, all in one place.
-        </p>
-        <a
-          href="/events"
-          className="btn btn-large hero-btn"
-          style={{
-            background: "linear-gradient(88deg, #c80000 25%, #009600 70%, #0000f3 100%)",
-            color: "#fff"
-          }}
-          onClick={handleHeroCTAClick("/events")}
-        >
-          <span role="img" aria-label="events" style={{ marginRight: 6 }}>📅</span>
-          Browse Events
-        </a>
-      </div>
-    )
+    );
+  }
+
+  // Compose dynamic slides
+  const slides = [
+    <NewsSlide key="slide-news" />,
+    <WeatherSlide key="slide-weather" />,
+    <ContactsSlide key="slide-contacts" />,
+    <EventSlide key="slide-event" />,
   ];
 
   return (
     <main className="hub-main hub-homepage-main">
-      <section className="hub-hero-section hub-section-entrance enhanced-hero" style={{background:"none",boxShadow:"none",padding:"40px 0 0 0",minHeight:"unset"}}>
+      <section className="hub-hero-section hub-section-entrance enhanced-hero" style={{ background: "none", boxShadow: "none", padding: "40px 0 0 0", minHeight: "unset" }}>
         {/* Animate glass/gradient background on parent */}
         <div className="hero-bg-visuals" aria-hidden>
-          <svg width="100%" height="100%" viewBox="0 0 820 260" style={{position: "absolute", left:0, top:0, width:"100%", height:"100%", zIndex:0, pointerEvents: "none"}}>
+          <svg width="100%" height="100%" viewBox="0 0 820 260" style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}>
             <ellipse cx="630" cy="108" rx="188" ry="80" fill="#0000f319" />
             <ellipse cx="170" cy="177" rx="115" ry="62" fill="#c8000044" />
             <ellipse cx="410" cy="220" rx="360" ry="70" fill="#1a1a1a" fillOpacity={0.10} />
           </svg>
         </div>
-        {/* 3D Carousel itself */}
+        {/* 3D Carousel with dynamic content */}
         <ThreeDCarousel
           slides={slides}
           autoRotate={true}
-          rotateInterval={4800}        // Slower for realism
-          visibleSlideCount={5}        // 4-6 visible: best roundness and depth
-          perspective={1700}           // More impressive 3D
+          rotateInterval={4800}
+          visibleSlideCount={4}
+          perspective={1700}
         />
         {/* Visual glass grid overlay retained for cohesion */}
         <div className="hero-glass-grid" aria-hidden>
-          <div/><div/><div/><div/><div/>
+          <div /><div /><div /><div /><div />
         </div>
       </section>
     </main>
   );
 }
+
+
 
 // PUBLIC_INTERFACE
 function NewsPage({ news, newsError }) {
