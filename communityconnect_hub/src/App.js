@@ -420,7 +420,87 @@ function getWeatherDesc(code) {
 }
 
 function ContactsPanel({ contacts, previewOnly }) {
-  const shown = previewOnly ? contacts.slice(0, 3) : contacts;
+  // Categorize contacts for Chennai: groups for display
+  const GROUPS = [
+    {
+      name: "Emergency Services",
+      test: label =>
+        /police|fire|ambulance|disaster|traffic/i.test(label),
+    },
+    {
+      name: "Homes & Night Shelters",
+      test: label =>
+        /shelter|homeless|night/i.test(label),
+    },
+    {
+      name: "Food & Relief Centers",
+      test: label =>
+        /food|distribution|kitchen/i.test(label),
+    },
+    {
+      name: "Relief Camps & Temporary Housing",
+      test: label =>
+        /camp|relief|housing|cyclone/i.test(label),
+    },
+    {
+      name: "Child & Women Helplines",
+      test: label =>
+        /child|women/i.test(label),
+    }
+  ];
+
+  // Group contacts
+  const groupedContacts = GROUPS.map(group => ({
+    name: group.name,
+    contacts: contacts.filter(c => group.test(c.label))
+  })).filter(group => group.contacts.length > 0);
+
+  // If previewOnly, flatten to show first 3 overall (regardless of category)
+  if (previewOnly) {
+    const shown = contacts.slice(0, 3);
+    return (
+      <div className="hub-card hub-contacts-card hub-section-entrance">
+        <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          {shown.map((c) => (
+            <li key={c.label} className="hub-contact-item">
+              <span className="hub-contact-label">{c.label}</span>
+              <a href={`tel:${c.phone}`} className="hub-contact-tel" onPointerDown={ev => {
+                const btn = ev.currentTarget;
+                const rect = btn.getBoundingClientRect();
+                const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+                const ripple = document.createElement('span');
+                ripple.className = 'btn-ripple';
+                ripple.style.left = x + "px";
+                ripple.style.top = y + "px";
+                btn.appendChild(ripple);
+                ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+              }}>
+                {c.phone}
+                <span role="img" aria-label="call" style={{ marginLeft: 6, fontSize: 16 }}>
+                  📞
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        {contacts.length > shown.length && (
+          <Link to="/emergency-contacts" className="btn btn-accent" style={{marginTop: 8, display:'inline-block'}} onPointerDown={ev => {
+            const btn = ev.currentTarget;
+            const rect = btn.getBoundingClientRect();
+            const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
+            const ripple = document.createElement('span');
+            ripple.className = 'btn-ripple';
+            ripple.style.left = x + "px";
+            ripple.style.top = y + "px";
+            btn.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
+          }}>See all Contacts</Link>
+        )}
+      </div>
+    );
+  }
+
+  // Render full contact list, grouped with clear headers
   function handleRipple(ev) {
     const btn = ev.currentTarget;
     const rect = btn.getBoundingClientRect();
@@ -432,28 +512,33 @@ function ContactsPanel({ contacts, previewOnly }) {
     btn.appendChild(ripple);
     ripple.addEventListener('animationend', () => ripple.remove(), {once: true});
   }
+
   return (
     <div className="hub-card hub-contacts-card hub-section-entrance">
-      <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-        {shown.map((c) => (
-          <li key={c.label} className="hub-contact-item">
-            <span className="hub-contact-label">{c.label}</span>
-            <a href={`tel:${c.phone}`} className="hub-contact-tel" onPointerDown={handleRipple}>
-              {c.phone}
-              <span
-                role="img"
-                aria-label="call"
-                style={{ marginLeft: 6, fontSize: 16 }}
-              >
-                📞
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
-      {previewOnly && contacts.length > shown.length && (
-        <Link to="/emergency-contacts" className="btn btn-accent" style={{marginTop: 8, display:'inline-block'}} onPointerDown={handleRipple}>See all Contacts</Link>
-      )}
+      {groupedContacts.map(group => (
+        <div key={group.name} style={{marginBottom: 12}}>
+          <div style={{
+            color: "#56d0ff",
+            fontWeight: 700,
+            fontSize: "1.08em",
+            marginBottom: 7,
+            letterSpacing: 0.01
+          }}>{group.name}</div>
+          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            {group.contacts.map(c => (
+              <li key={c.label} className="hub-contact-item">
+                <span className="hub-contact-label">{c.label}</span>
+                <a href={`tel:${c.phone}`} className="hub-contact-tel" onPointerDown={handleRipple}>
+                  {c.phone}
+                  <span role="img" aria-label="call" style={{ marginLeft: 6, fontSize: 16 }}>
+                    📞
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
     </div>
   );
 }
@@ -646,12 +731,29 @@ function App() {
   const [newsError, setNewsError] = React.useState(null); // <-- Added error state for news
   const [weather, setWeather] = React.useState(null);
   const [events, setEvents] = React.useState([]);
+  // Chennai-specific emergency contacts, including new categories
   const [contacts] = React.useState([
-    { label: "Police", phone: "911" },
-    { label: "Fire Dept.", phone: "911" },
-    { label: "Ambulance", phone: "911" },
-    { label: "Poison Control", phone: "1-800-222-1222" },
-    { label: "Local Emergency", phone: "311" }
+    // Core Emergencies
+    { label: "Police (Chennai)", phone: "100" },
+    { label: "Fire and Rescue (Chennai)", phone: "101" },
+    { label: "Ambulance (108 Emergency)", phone: "108" },
+    { label: "Disaster Management Chennai Corporation", phone: "1913" },
+    { label: "Chennai Traffic Police", phone: "103" },
+    // Homes & Shelters
+    { label: "Night Shelter (Ripon Building)", phone: "044-2561 0200" },
+    { label: "Homeless Resource Center (Arumbakkam)", phone: "044-2475 1609" },
+    { label: "CMC Night Shelter (Egmore)", phone: "044-2819 0522" },
+    // Food & Relief Shelters
+    { label: "Food Helpline (Greater Chennai)", phone: "044-25384520" },
+    { label: "IRCS Food Distribution Center", phone: "044-2819 2145" },
+    { label: "Akshaya Patra Kitchen (Guindy)", phone: "044-2247 0279" },
+    // Camps & Temporary Housing
+    { label: "Govt. Relief Camp (Saidapet)", phone: "044-2235 2323" },
+    { label: "Flood Relief Camp (Perambur)", phone: "044-2670 1501" },
+    { label: "Cyclone Shelter (Thiruvottiyur)", phone: "044-2591 2233" },
+    // Child & Women Help
+    { label: "Child Helpline", phone: "1098" },
+    { label: "Women Helpline (Tamil Nadu)", phone: "1091" }
   ]);
 
   // --- User authentication modal state ---
